@@ -156,11 +156,11 @@ Checks: >
 
 CheckOptions:
   - key: readability-identifier-naming.AbstractClassCase
-    value: CamelCase
+    value: camelCase
   - key: readability-identifier-naming.AbstractClassPrefix
     value: I
   - key: readability-identifier-naming.ClassCase
-    value: CamelCase
+    value: camelCase
   - key: readability-identifier-naming.ClassMethodCase
     value: CamelCase
   - key: readability-identifier-naming.MemberCase
@@ -176,7 +176,7 @@ CheckOptions:
   - key: readability-identifier-naming.EnumCase
     value: lower_case
   - key: readability-identifier-naming.FunctionCase
-    value: CamelBack
+    value: camelBack
   - key: readability-identifier-naming.ParameterCase
     value: camelCase
   - key: readability-identifier-naming.UnionCase

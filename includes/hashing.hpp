@@ -1,6 +1,6 @@
 //
 // Copyright (c) 2024.
-// Author: Joran.
+// Author: Joran Vandenbroucke.
 //
 
 #pragma once
@@ -45,13 +45,13 @@ namespace FawnAlgebra
         // point rounding error. 4294967808 unfortunately leaves (precisely)
         // one unused ulp between the max number this outputs and 1.0, but
         // that's the best you can do with this construction.
-        return (float) n * ( 1.0f / 4294967808.0f );
+        return static_cast<float>(n) * ( 1.0f / 4294967808.0f );
     }
 
     /* [0, uint_max] -> [0.0, 1.0] */
     constexpr float uintToFloatIncl( uint32_t n ) noexcept
     {
-        return (float) n * ( 1.0f / (float) 0xFFFFFFFFu );
+        return static_cast<float>(n) * ( 1.0f / static_cast<float>(0xFFFFFFFFu) );
     }
 
 #pragma region yorku
@@ -61,7 +61,7 @@ namespace FawnAlgebra
         unsigned long hash = 5381;
         int c;
 
-        while ( ( c = (unsigned char)(*str++) ) )
+        while ( ( c = static_cast<unsigned char>(*str++) ) )
         {
             hash = ( ( hash << 5 ) + hash ) + c; /* hash * 33 + c */
         }
@@ -73,7 +73,7 @@ namespace FawnAlgebra
         unsigned long hash = 0;
         int c;
 
-        while ( ( c =(unsigned char)(*str++) ) )
+        while ( ( c =static_cast<unsigned char>(*str++) ) )
         {
             hash = c + ( hash << 6 ) + ( hash << 16 ) - hash;
         }
@@ -85,7 +85,7 @@ namespace FawnAlgebra
         unsigned int hash = 0;
         int c;
 
-        while ( ( c = (unsigned char)(*str++) ) )
+        while ( ( c = static_cast<unsigned char>(*str++) ) )
         {
             hash += c;
         }
@@ -252,13 +252,13 @@ namespace FawnAlgebra
         uint32_t a, b, c; /* internal state */
 
         /* Set up the internal state */
-        a = b = c = 0xdeadbeef + ( (uint32_t) length ) + initval;
+        a = b = c = 0xdeadbeef + static_cast<uint32_t>(length) + initval;
 
         if constexpr ( std::endian::native == std::endian::little )
         {
             if ( ( ptrAsInt( key ) & 0x3 ) == 0 )
             {
-                const auto* k = (const uint32_t*) key; /* read 32-bit chunks */
+                const auto* k = static_cast<const uint32_t*>(key); /* read 32-bit chunks */
 
                 /*------ all but last block: aligned reads and affect 32 bits of (a,b,c) */
                 while ( length > 12 )
@@ -359,15 +359,15 @@ namespace FawnAlgebra
             }
             else if ( ( ptrAsInt( key ) & 0x1 ) == 0 )
             {
-                const auto* k = (const uint16_t*) key; /* read 16-bit chunks */
+                const auto* k = static_cast<const uint16_t*>(key); /* read 16-bit chunks */
                 const uint8_t* k8;
 
                 /*--------------- all but last block: aligned reads and different mixing */
                 while ( length > 12 )
                 {
-                    a += k[ 0 ] + ( ( (uint32_t) k[ 1 ] ) << 16 );
-                    b += k[ 2 ] + ( ( (uint32_t) k[ 3 ] ) << 16 );
-                    c += k[ 4 ] + ( ( (uint32_t) k[ 5 ] ) << 16 );
+                    a += k[ 0 ] + ( static_cast<uint32_t>(k[ 1 ]) << 16 );
+                    b += k[ 2 ] + ( static_cast<uint32_t>(k[ 3 ]) << 16 );
+                    c += k[ 4 ] + ( static_cast<uint32_t>(k[ 5 ]) << 16 );
                     mix( a, b, c );
                     length -= 12;
                     k      += 6;
@@ -378,29 +378,29 @@ namespace FawnAlgebra
                 switch ( length )
                 {
                     case 12:
-                        c += k[ 4 ] + ( ( (uint32_t) k[ 5 ] ) << 16 );
-                        b += k[ 2 ] + ( ( (uint32_t) k[ 3 ] ) << 16 );
-                        a += k[ 0 ] + ( ( (uint32_t) k[ 1 ] ) << 16 );
+                        c += k[ 4 ] + ( static_cast<uint32_t>(k[ 5 ]) << 16 );
+                        b += k[ 2 ] + ( static_cast<uint32_t>(k[ 3 ]) << 16 );
+                        a += k[ 0 ] + ( static_cast<uint32_t>(k[ 1 ]) << 16 );
                         break;
-                    case 11: c += ( (uint32_t) k8[ 10 ] ) << 16; /* fall through */
+                    case 11: c += static_cast<uint32_t>(k8[ 10 ]) << 16; /* fall through */
                     case 10:
                         c += k[ 4 ];
-                        b += k[ 2 ] + ( ( (uint32_t) k[ 3 ] ) << 16 );
-                        a += k[ 0 ] + ( ( (uint32_t) k[ 1 ] ) << 16 );
+                        b += k[ 2 ] + ( static_cast<uint32_t>(k[ 3 ]) << 16 );
+                        a += k[ 0 ] + ( static_cast<uint32_t>(k[ 1 ]) << 16 );
                         break;
                     case 9: c += k8[ 8 ]; /* fall through */
                     case 8:
-                        b += k[ 2 ] + ( ( (uint32_t) k[ 3 ] ) << 16 );
-                        a += k[ 0 ] + ( ( (uint32_t) k[ 1 ] ) << 16 );
+                        b += k[ 2 ] + ( static_cast<uint32_t>(k[ 3 ]) << 16 );
+                        a += k[ 0 ] + ( static_cast<uint32_t>(k[ 1 ]) << 16 );
                         break;
-                    case 7: b += ( (uint32_t) k8[ 6 ] ) << 16; /* fall through */
+                    case 7: b += static_cast<uint32_t>(k8[ 6 ]) << 16; /* fall through */
                     case 6:
                         b += k[ 2 ];
-                        a += k[ 0 ] + ( ( (uint32_t) k[ 1 ] ) << 16 );
+                        a += k[ 0 ] + ( static_cast<uint32_t>(k[ 1 ]) << 16 );
                         break;
                     case 5: b += k8[ 4 ]; /* fall through */
-                    case 4: a += k[ 0 ] + ( ( (uint32_t) k[ 1 ] ) << 16 ); break;
-                    case 3: a += ( (uint32_t) k8[ 2 ] ) << 16; /* fall through */
+                    case 4: a += k[ 0 ] + ( static_cast<uint32_t>(k[ 1 ]) << 16 ); break;
+                    case 3: a += static_cast<uint32_t>(k8[ 2 ]) << 16; /* fall through */
                     case 2: a += k[ 0 ]; break;
                     case 1: a += k8[ 0 ]; break;
                     case 0: [[fallthrough]];
@@ -410,23 +410,23 @@ namespace FawnAlgebra
         }
         else
         { /* need to read the key one byte at a time */
-            const auto* k = (const uint8_t*) key;
+            const auto* k = static_cast<const uint8_t*>(key);
 
             /*--------------- all but the last block: affect some 32 bits of (a,b,c) */
             while ( length > 12 )
             {
                 a += k[ 0 ];
-                a += ( (uint32_t) k[ 1 ] ) << 8;
-                a += ( (uint32_t) k[ 2 ] ) << 16;
-                a += ( (uint32_t) k[ 3 ] ) << 24;
+                a += static_cast<uint32_t>(k[ 1 ]) << 8;
+                a += static_cast<uint32_t>(k[ 2 ]) << 16;
+                a += static_cast<uint32_t>(k[ 3 ]) << 24;
                 b += k[ 4 ];
-                b += ( (uint32_t) k[ 5 ] ) << 8;
-                b += ( (uint32_t) k[ 6 ] ) << 16;
-                b += ( (uint32_t) k[ 7 ] ) << 24;
+                b += static_cast<uint32_t>(k[ 5 ]) << 8;
+                b += static_cast<uint32_t>(k[ 6 ]) << 16;
+                b += static_cast<uint32_t>(k[ 7 ]) << 24;
                 c += k[ 8 ];
-                c += ( (uint32_t) k[ 9 ] ) << 8;
-                c += ( (uint32_t) k[ 10 ] ) << 16;
-                c += ( (uint32_t) k[ 11 ] ) << 24;
+                c += static_cast<uint32_t>(k[ 9 ]) << 8;
+                c += static_cast<uint32_t>(k[ 10 ]) << 16;
+                c += static_cast<uint32_t>(k[ 11 ]) << 24;
                 mix( a, b, c );
                 length -= 12;
                 k      += 12;
@@ -435,17 +435,17 @@ namespace FawnAlgebra
             /*-------------------------------- last block: affect all 32 bits of (c) */
             switch ( length ) /* all the case statements fall through */
             {
-                case 12: c += ( (uint32_t) k[ 11 ] ) << 24;
-                case 11: c += ( (uint32_t) k[ 10 ] ) << 16;
-                case 10: c += ( (uint32_t) k[ 9 ] ) << 8;
+                case 12: c += static_cast<uint32_t>(k[ 11 ]) << 24;
+                case 11: c += static_cast<uint32_t>(k[ 10 ]) << 16;
+                case 10: c += static_cast<uint32_t>(k[ 9 ]) << 8;
                 case 9: c += k[ 8 ];
-                case 8: b += ( (uint32_t) k[ 7 ] ) << 24;
-                case 7: b += ( (uint32_t) k[ 6 ] ) << 16;
-                case 6: b += ( (uint32_t) k[ 5 ] ) << 8;
+                case 8: b += static_cast<uint32_t>(k[ 7 ]) << 24;
+                case 7: b += static_cast<uint32_t>(k[ 6 ]) << 16;
+                case 6: b += static_cast<uint32_t>(k[ 5 ]) << 8;
                 case 5: b += k[ 4 ];
-                case 4: a += ( (uint32_t) k[ 3 ] ) << 24;
-                case 3: a += ( (uint32_t) k[ 2 ] ) << 16;
-                case 2: a += ( (uint32_t) k[ 1 ] ) << 8;
+                case 4: a += static_cast<uint32_t>(k[ 3 ]) << 24;
+                case 3: a += static_cast<uint32_t>(k[ 2 ]) << 16;
+                case 2: a += static_cast<uint32_t>(k[ 1 ]) << 8;
                 case 1: a += k[ 0 ]; break;
                 case 0: [[fallthrough]];
                 default: return c;
@@ -474,14 +474,14 @@ namespace FawnAlgebra
         uint32_t a, b, c; /* internal state */
 
         /* Set up the internal state */
-        a = b = c  = 0xdeadbeef + ( (uint32_t) length ) + *pc;
+        a = b = c  = 0xdeadbeef + static_cast<uint32_t>(length) + *pc;
         c         += *pb;
 
         if constexpr ( std::endian::native == std::endian::little )
         {
             if ( ( ptrAsInt( key ) & 0x3 ) == 0 )
             {
-                const auto* k = (const uint32_t*) key; /* read 32-bit chunks */
+                const auto* k = static_cast<const uint32_t*>(key); /* read 32-bit chunks */
 
                 /*------ all but last block: aligned reads and affect 32 bits of (a,b,c) */
                 while ( length > 12 )
@@ -588,15 +588,15 @@ namespace FawnAlgebra
             }
             else if ( ( ptrAsInt( key ) & 0x1 ) == 0 )
             {
-                const auto* k = (const uint16_t*) key; /* read 16-bit chunks */
+                const auto* k = static_cast<const uint16_t*>(key); /* read 16-bit chunks */
                 const uint8_t* k8;
 
                 /*--------------- all but last block: aligned reads and different mixing */
                 while ( length > 12 )
                 {
-                    a += k[ 0 ] + ( ( (uint32_t) k[ 1 ] ) << 16 );
-                    b += k[ 2 ] + ( ( (uint32_t) k[ 3 ] ) << 16 );
-                    c += k[ 4 ] + ( ( (uint32_t) k[ 5 ] ) << 16 );
+                    a += k[ 0 ] + ( static_cast<uint32_t>(k[ 1 ]) << 16 );
+                    b += k[ 2 ] + ( static_cast<uint32_t>(k[ 3 ]) << 16 );
+                    c += k[ 4 ] + ( static_cast<uint32_t>(k[ 5 ]) << 16 );
                     mix( a, b, c );
                     length -= 12;
                     k      += 6;
@@ -607,29 +607,29 @@ namespace FawnAlgebra
                 switch ( length )
                 {
                     case 12:
-                        c += k[ 4 ] + ( ( (uint32_t) k[ 5 ] ) << 16 );
-                        b += k[ 2 ] + ( ( (uint32_t) k[ 3 ] ) << 16 );
-                        a += k[ 0 ] + ( ( (uint32_t) k[ 1 ] ) << 16 );
+                        c += k[ 4 ] + ( static_cast<uint32_t>(k[ 5 ]) << 16 );
+                        b += k[ 2 ] + ( static_cast<uint32_t>(k[ 3 ]) << 16 );
+                        a += k[ 0 ] + ( static_cast<uint32_t>(k[ 1 ]) << 16 );
                         break;
-                    case 11: c += ( (uint32_t) k8[ 10 ] ) << 16; /* fall through */
+                    case 11: c += static_cast<uint32_t>(k8[ 10 ]) << 16; /* fall through */
                     case 10:
                         c += k[ 4 ];
-                        b += k[ 2 ] + ( ( (uint32_t) k[ 3 ] ) << 16 );
-                        a += k[ 0 ] + ( ( (uint32_t) k[ 1 ] ) << 16 );
+                        b += k[ 2 ] + ( static_cast<uint32_t>(k[ 3 ]) << 16 );
+                        a += k[ 0 ] + ( static_cast<uint32_t>(k[ 1 ]) << 16 );
                         break;
                     case 9: c += k8[ 8 ]; /* fall through */
                     case 8:
-                        b += k[ 2 ] + ( ( (uint32_t) k[ 3 ] ) << 16 );
-                        a += k[ 0 ] + ( ( (uint32_t) k[ 1 ] ) << 16 );
+                        b += k[ 2 ] + ( static_cast<uint32_t>(k[ 3 ]) << 16 );
+                        a += k[ 0 ] + ( static_cast<uint32_t>(k[ 1 ]) << 16 );
                         break;
-                    case 7: b += ( (uint32_t) k8[ 6 ] ) << 16; /* fall through */
+                    case 7: b += static_cast<uint32_t>(k8[ 6 ]) << 16; /* fall through */
                     case 6:
                         b += k[ 2 ];
-                        a += k[ 0 ] + ( ( (uint32_t) k[ 1 ] ) << 16 );
+                        a += k[ 0 ] + ( static_cast<uint32_t>(k[ 1 ]) << 16 );
                         break;
                     case 5: b += k8[ 4 ]; /* fall through */
-                    case 4: a += k[ 0 ] + ( ( (uint32_t) k[ 1 ] ) << 16 ); break;
-                    case 3: a += ( (uint32_t) k8[ 2 ] ) << 16; /* fall through */
+                    case 4: a += k[ 0 ] + ( static_cast<uint32_t>(k[ 1 ]) << 16 ); break;
+                    case 3: a += static_cast<uint32_t>(k8[ 2 ]) << 16; /* fall through */
                     case 2: a += k[ 0 ]; break;
                     case 1: a += k8[ 0 ]; break;
                     case 0: [[fallthrough]];
@@ -642,23 +642,23 @@ namespace FawnAlgebra
         }
         else
         { /* need to read the key one byte at a time */
-            const auto* k = (const uint8_t*) key;
+            const auto* k = static_cast<const uint8_t*>(key);
 
             /*--------------- all but the last block: affect some 32 bits of (a,b,c) */
             while ( length > 12 )
             {
                 a += k[ 0 ];
-                a += ( (uint32_t) k[ 1 ] ) << 8;
-                a += ( (uint32_t) k[ 2 ] ) << 16;
-                a += ( (uint32_t) k[ 3 ] ) << 24;
+                a += static_cast<uint32_t>(k[ 1 ]) << 8;
+                a += static_cast<uint32_t>(k[ 2 ]) << 16;
+                a += static_cast<uint32_t>(k[ 3 ]) << 24;
                 b += k[ 4 ];
-                b += ( (uint32_t) k[ 5 ] ) << 8;
-                b += ( (uint32_t) k[ 6 ] ) << 16;
-                b += ( (uint32_t) k[ 7 ] ) << 24;
+                b += static_cast<uint32_t>(k[ 5 ]) << 8;
+                b += static_cast<uint32_t>(k[ 6 ]) << 16;
+                b += static_cast<uint32_t>(k[ 7 ]) << 24;
                 c += k[ 8 ];
-                c += ( (uint32_t) k[ 9 ] ) << 8;
-                c += ( (uint32_t) k[ 10 ] ) << 16;
-                c += ( (uint32_t) k[ 11 ] ) << 24;
+                c += static_cast<uint32_t>(k[ 9 ]) << 8;
+                c += static_cast<uint32_t>(k[ 10 ]) << 16;
+                c += static_cast<uint32_t>(k[ 11 ]) << 24;
                 mix( a, b, c );
                 length -= 12;
                 k      += 12;
@@ -667,17 +667,17 @@ namespace FawnAlgebra
             /*-------------------------------- last block: affect all 32 bits of (c) */
             switch ( length ) /* all the case statements fall through */
             {
-                case 12: c += ( (uint32_t) k[ 11 ] ) << 24;
-                case 11: c += ( (uint32_t) k[ 10 ] ) << 16;
-                case 10: c += ( (uint32_t) k[ 9 ] ) << 8;
+                case 12: c += static_cast<uint32_t>(k[ 11 ]) << 24;
+                case 11: c += static_cast<uint32_t>(k[ 10 ]) << 16;
+                case 10: c += static_cast<uint32_t>(k[ 9 ]) << 8;
                 case 9: c += k[ 8 ];
-                case 8: b += ( (uint32_t) k[ 7 ] ) << 24;
-                case 7: b += ( (uint32_t) k[ 6 ] ) << 16;
-                case 6: b += ( (uint32_t) k[ 5 ] ) << 8;
+                case 8: b += static_cast<uint32_t>(k[ 7 ]) << 24;
+                case 7: b += static_cast<uint32_t>(k[ 6 ]) << 16;
+                case 6: b += static_cast<uint32_t>(k[ 5 ]) << 8;
                 case 5: b += k[ 4 ];
-                case 4: a += ( (uint32_t) k[ 3 ] ) << 24;
-                case 3: a += ( (uint32_t) k[ 2 ] ) << 16;
-                case 2: a += ( (uint32_t) k[ 1 ] ) << 8;
+                case 4: a += static_cast<uint32_t>(k[ 3 ]) << 24;
+                case 3: a += static_cast<uint32_t>(k[ 2 ]) << 16;
+                case 2: a += static_cast<uint32_t>(k[ 1 ]) << 8;
                 case 1: a += k[ 0 ]; break;
                 case 0: [[fallthrough]];
                 default:
@@ -703,11 +703,11 @@ namespace FawnAlgebra
         uint32_t a, b, c;
 
         /* Set up the internal state */
-        a = b = c = 0xdeadbeef + ( (uint32_t) length ) + initval;
+        a = b = c = 0xdeadbeef + static_cast<uint32_t>(length) + initval;
 
         if ( std::endian::native == std::endian::little && ( ( ptrAsInt( key ) & 0x3U ) == 0 ) )
         {
-            const auto* k = (const uint32_t*) key; /* read 32-bit chunks */
+            const auto* k = static_cast<const uint32_t*>(key); /* read 32-bit chunks */
 
             /*------ all but last block: aligned reads and affect 32 bits of (a,b,c) */
             while ( length > 12 )
@@ -808,23 +808,23 @@ namespace FawnAlgebra
         }
         else
         { /* need to read the key one byte at a time */
-            const auto* k = (const uint8_t*) key;
+            const auto* k = static_cast<const uint8_t*>(key);
 
             /*--------------- all but the last block: affect some 32 bits of (a,b,c) */
             while ( length > 12 )
             {
-                a += ( (uint32_t) k[ 0 ] ) << 24;
-                a += ( (uint32_t) k[ 1 ] ) << 16;
-                a += ( (uint32_t) k[ 2 ] ) << 8;
-                a += ( (uint32_t) k[ 3 ] );
-                b += ( (uint32_t) k[ 4 ] ) << 24;
-                b += ( (uint32_t) k[ 5 ] ) << 16;
-                b += ( (uint32_t) k[ 6 ] ) << 8;
-                b += ( (uint32_t) k[ 7 ] );
-                c += ( (uint32_t) k[ 8 ] ) << 24;
-                c += ( (uint32_t) k[ 9 ] ) << 16;
-                c += ( (uint32_t) k[ 10 ] ) << 8;
-                c += ( (uint32_t) k[ 11 ] );
+                a += static_cast<uint32_t>(k[ 0 ]) << 24;
+                a += static_cast<uint32_t>(k[ 1 ]) << 16;
+                a += static_cast<uint32_t>(k[ 2 ]) << 8;
+                a += static_cast<uint32_t>(k[ 3 ]);
+                b += static_cast<uint32_t>(k[ 4 ]) << 24;
+                b += static_cast<uint32_t>(k[ 5 ]) << 16;
+                b += static_cast<uint32_t>(k[ 6 ]) << 8;
+                b += static_cast<uint32_t>(k[ 7 ]);
+                c += static_cast<uint32_t>(k[ 8 ]) << 24;
+                c += static_cast<uint32_t>(k[ 9 ]) << 16;
+                c += static_cast<uint32_t>(k[ 10 ]) << 8;
+                c += static_cast<uint32_t>(k[ 11 ]);
                 mix( a, b, c );
                 length -= 12;
                 k      += 12;
@@ -834,17 +834,17 @@ namespace FawnAlgebra
             switch ( length ) /* all the case statements fall through */
             {
                 case 12: c += k[ 11 ];
-                case 11: c += ( (uint32_t) k[ 10 ] ) << 8;
-                case 10: c += ( (uint32_t) k[ 9 ] ) << 16;
-                case 9: c += ( (uint32_t) k[ 8 ] ) << 24;
+                case 11: c += static_cast<uint32_t>(k[ 10 ]) << 8;
+                case 10: c += static_cast<uint32_t>(k[ 9 ]) << 16;
+                case 9: c += static_cast<uint32_t>(k[ 8 ]) << 24;
                 case 8: b += k[ 7 ];
-                case 7: b += ( (uint32_t) k[ 6 ] ) << 8;
-                case 6: b += ( (uint32_t) k[ 5 ] ) << 16;
-                case 5: b += ( (uint32_t) k[ 4 ] ) << 24;
+                case 7: b += static_cast<uint32_t>(k[ 6 ]) << 8;
+                case 6: b += static_cast<uint32_t>(k[ 5 ]) << 16;
+                case 5: b += static_cast<uint32_t>(k[ 4 ]) << 24;
                 case 4: a += k[ 3 ];
-                case 3: a += ( (uint32_t) k[ 2 ] ) << 8;
-                case 2: a += ( (uint32_t) k[ 1 ] ) << 16;
-                case 1: a += ( (uint32_t) k[ 0 ] ) << 24; break;
+                case 3: a += static_cast<uint32_t>(k[ 2 ]) << 8;
+                case 2: a += static_cast<uint32_t>(k[ 1 ]) << 16;
+                case 1: a += static_cast<uint32_t>(k[ 0 ]) << 24; break;
                 case 0: [[fallthrough]];
                 default: return c;
             }

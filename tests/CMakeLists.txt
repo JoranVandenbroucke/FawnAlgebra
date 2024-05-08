@@ -1,8 +1,24 @@
 add_executable(FawnAlgebra_test
-main.cpp
+        interpolation.cpp
+)
+Include(FetchContent)
+
+FetchContent_Declare(
+        Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v3.5.4 # or a later release
 )
 
-target_link_libraries(FawnAlgebra_test PRIVATE FawnAlgebra::FawnAlgebra)
+FetchContent_MakeAvailable(Catch2)
+
+target_include_directories(FawnAlgebra_test PRIVATE
+        ${catch2_SOURCE_DIR}/src
+        ../includes
+)
+target_link_libraries(FawnAlgebra_test PRIVATE
+        Catch2::Catch2WithMain
+        FawnAlgebra::FawnAlgebra
+)
 target_compile_features(FawnAlgebra_test PUBLIC
         c_function_prototypes
         c_restrict
@@ -47,3 +63,7 @@ target_compile_features(FawnAlgebra_test PUBLIC
         cxx_unrestricted_unions
         cxx_user_literals
 )
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+include(CTest)
+include(Catch)
+catch_discover_tests(FawnAlgebra_test)
