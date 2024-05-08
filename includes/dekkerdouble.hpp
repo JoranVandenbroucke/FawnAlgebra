@@ -5,8 +5,8 @@
 
 #pragma once
 
+#include <cmath>
 #include <ostream>
-#include <tuple>
 
 class dekker_double
 {
@@ -85,7 +85,7 @@ public:
     {
         const double R{A + rhs.A};
         double r{rhs.A - R + A + a + rhs.a};
-        if ( abs( A ) < abs( rhs.A ) )
+        if ( std::abs( A ) < std::abs( rhs.A ) )
         {
             r = A - R + rhs.A + rhs.a + a;
         }
@@ -99,7 +99,7 @@ public:
     {
         const double R = A - rhs.A;
         double r{-rhs.A - R + A + a - rhs.a};
-        if ( abs( A ) < abs( rhs.A ) )
+        if ( std::abs( A ) < std::abs( rhs.A ) )
         {
             r = A - R - rhs.A - rhs.a + a;
         }

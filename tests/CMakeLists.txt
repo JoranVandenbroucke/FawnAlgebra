@@ -8,6 +8,11 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
         GIT_TAG v3.5.4 # or a later release
 )
+target_compile_options(FawnAlgebra_test PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+        $<$<CXX_COMPILER_ID:Clang>:-Wmost -Wextra -Werror>
+        $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Werror>
+)
 
 FetchContent_MakeAvailable(Catch2)
 

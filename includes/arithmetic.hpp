@@ -21,22 +21,15 @@ namespace FawnAlgebra
         {
         }
 
-        explicit constexpr int2( const int32_t a )
-            : x{a}
-            , y{a}
+        template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
+        explicit constexpr int2( const T a )
+            : x{static_cast<int>(a)}
+            , y{static_cast<int>(a)}
         {
         }
 
-        union
-        {
-            struct
-            {
-                int32_t x{};
-                int32_t y{};
-            };
-
-            int32_t cell[ 2 ];
-        };
+        int32_t x{};
+        int32_t y{};
 
         friend bool operator==( const int2& lhs, const int2& rhs )
         {
@@ -49,14 +42,24 @@ namespace FawnAlgebra
             return !( lhs == rhs );
         }
 
-        constexpr int32_t& operator[]( const uint i ) noexcept
+        constexpr int32_t& operator[]( const uint i )
         {
-            return cell[ i ];
+            switch ( i )
+            {
+                case 0: return x;
+                case 1: return y;
+                default: throw std::out_of_range{"int2 operator[]; index >= 2"};
+            }
         }
 
-        constexpr const int32_t& operator[]( const uint i ) const noexcept
+        constexpr const int32_t& operator[]( const uint i ) const
         {
-            return cell[ i ];
+            switch ( i )
+            {
+                case 0: return x;
+                case 1: return y;
+                default: throw std::out_of_range{"int2 operator[]; index >= 2"};
+            }
         }
 
         constexpr int2 operator-() const noexcept
@@ -238,31 +241,34 @@ namespace FawnAlgebra
         {
         }
 
-        constexpr explicit uint2( const uint a )
-            : x{a}
-            , y{a}
+        template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
+        constexpr explicit uint2( const T a )
+            : x{static_cast<uint>(a)}
+            , y{static_cast<uint>(a)}
         {
         }
 
-        union
+        uint x{};
+        uint y{};
+
+        constexpr uint& operator[]( const uint i )
         {
-            struct
+            switch ( i )
             {
-                uint x{};
-                uint y{};
-            };
-
-            uint cell[ 2 ];
-        };
-
-        constexpr uint& operator[]( const uint i ) noexcept
-        {
-            return cell[ i ];
+                case 0: return x;
+                case 1: return y;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
-        constexpr const uint& operator[]( const uint i ) const noexcept
+        constexpr const uint& operator[]( const uint i ) const
         {
-            return cell[ i ];
+            switch ( i )
+            {
+                case 0: return x;
+                case 1: return y;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
         friend bool operator==( const uint2& lhs, const uint2& rhs )
@@ -274,11 +280,6 @@ namespace FawnAlgebra
         friend bool operator!=( const uint2& lhs, const uint2& rhs )
         {
             return !( lhs == rhs );
-        }
-
-        constexpr uint2 operator-() const noexcept
-        {
-            return {-x, -y};
         }
 
         constexpr uint2 operator+=( const uint2& a ) noexcept
@@ -455,31 +456,34 @@ namespace FawnAlgebra
         {
         }
 
-        constexpr explicit float2( const float a )
-            : x{a}
-            , y{a}
+        template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
+        constexpr explicit float2( const T a )
+            : x{static_cast<float>(a)}
+            , y{static_cast<float>(a)}
         {
         }
 
-        union
+        float x{};
+        float y{};
+
+        constexpr float& operator[]( const uint i )
         {
-            struct
+            switch ( i )
             {
-                float x{};
-                float y{};
-            };
-
-            float cell[ 2 ];
-        };
-
-        constexpr float& operator[]( const uint i ) noexcept
-        {
-            return cell[ i ];
+                case 0: return x;
+                case 1: return y;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
-        constexpr const float& operator[]( const uint i ) const noexcept
+        constexpr const float& operator[]( const uint i ) const
         {
-            return cell[ i ];
+            switch ( i )
+            {
+                case 0: return x;
+                case 1: return y;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
         friend bool operator==( const float2& lhs, const float2& rhs )
@@ -578,8 +582,8 @@ namespace FawnAlgebra
                 const T s{1.0f / a};
                 return *this * s;
             }
-            x /= a;
-            y /= a;
+            x /= static_cast<float>(a);
+            y /= static_cast<float>(a);
             return *this;
         }
 
@@ -646,69 +650,57 @@ namespace FawnAlgebra
         {
         }
 
-        explicit constexpr int4( const int32_t a )
-            : x{a}
-            , y{a}
-            , z{a}
-            , w{a}
+        template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
+        explicit constexpr int4( const T a )
+            : x{static_cast<int>(a)}
+            , y{static_cast<int>(a)}
+            , z{static_cast<int>(a)}
+            , w{static_cast<int>(a)}
         {
         }
 
         int4( const int3& a, int d );
 
-        union
+        int32_t x{};
+        int32_t y{};
+        int32_t z{};
+        int32_t w{};
+
+        constexpr int32_t& operator[]( const uint i )
         {
-            struct
+            switch ( i )
             {
-                int32_t x{};
-                int32_t y{};
-                int32_t z{};
-                int32_t w{};
-            };
-
-            int32_t cell[ 4 ];
-        };
-
-        constexpr int32_t& operator[]( const uint i ) noexcept
-        {
-            return cell[ i ];
+                case 0: return x;
+                case 1: return y;
+                case 3: return z;
+                case 4: return w;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
-        constexpr const int32_t& operator[]( const uint i ) const noexcept
+        constexpr const int32_t& operator[]( const uint i ) const
         {
-            return cell[ i ];
+            switch ( i )
+            {
+                case 0: return x;
+                case 1: return y;
+                case 3: return z;
+                case 4: return w;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
-        friend bool operator<( const int4& lhs, const int4& rhs )
+        friend bool operator==( const int4& lhs, const int4& rhs )
         {
-            if ( lhs.x < rhs.x )
-                return true;
-            if ( rhs.x < lhs.x )
-                return false;
-            if ( lhs.y < rhs.y )
-                return true;
-            if ( rhs.y < lhs.y )
-                return false;
-            if ( lhs.z < rhs.z )
-                return true;
-            if ( rhs.z < lhs.z )
-                return false;
-            return lhs.w < rhs.w;
+            return lhs.x == rhs.x
+                    && lhs.y == rhs.y
+                    && lhs.z == rhs.z
+                    && lhs.w == rhs.w;
         }
 
-        friend bool operator<=( const int4& lhs, const int4& rhs )
+        friend bool operator!=( const int4& lhs, const int4& rhs )
         {
-            return rhs >= lhs;
-        }
-
-        friend bool operator>( const int4& lhs, const int4& rhs )
-        {
-            return rhs < lhs;
-        }
-
-        friend bool operator>=( const int4& lhs, const int4& rhs )
-        {
-            return !( lhs < rhs );
+            return !( lhs == rhs );
         }
 
         constexpr int4 operator-() const noexcept
@@ -915,10 +907,11 @@ namespace FawnAlgebra
         {
         }
 
+        template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
         explicit constexpr int3( const int32_t a )
-            : x{a}
-            , y{a}
-            , z{a}
+            : x{static_cast<int>(a)}
+            , y{static_cast<int>(a)}
+            , z{static_cast<int>(a)}
         {
         }
 
@@ -929,35 +922,38 @@ namespace FawnAlgebra
         {
         }
 
-        union
+        int32_t x{};
+        int32_t y{};
+        int32_t z{};
+        int32_t dummy{};
+
+        constexpr int32_t& operator[]( const uint i )
         {
-            struct
+            switch ( i )
             {
-                int32_t x{};
-                int32_t y{};
-                int32_t z{};
-                int32_t dummy{};
-            };
-
-            int32_t cell[ 4 ];
-        };
-
-        constexpr int32_t& operator[]( const uint i ) noexcept
-        {
-            return cell[ i ];
+                case 0: return x;
+                case 1: return y;
+                case 3: return z;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
-        constexpr const int32_t& operator[]( const uint i ) const noexcept
+        constexpr const int32_t& operator[]( const uint i ) const
         {
-            return cell[ i ];
+            switch ( i )
+            {
+                case 0: return x;
+                case 1: return y;
+                case 3: return z;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
         friend bool operator==( const int3& lhs, const int3& rhs )
         {
             return lhs.x == rhs.x
                     && lhs.y == rhs.y
-                    && lhs.z == rhs.z
-                    && lhs.dummy == rhs.dummy;
+                    && lhs.z == rhs.z;
         }
 
         friend bool operator!=( const int3& lhs, const int3& rhs )
@@ -1160,37 +1156,44 @@ namespace FawnAlgebra
         {
         }
 
-        explicit constexpr uint4( const uint a )
-            : x{a}
-            , y{a}
-            , z{a}
-            , w{a}
+        template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
+        explicit constexpr uint4( const T a )
+            : x{static_cast<uint>(a)}
+            , y{static_cast<uint>(a)}
+            , z{static_cast<uint>(a)}
+            , w{static_cast<uint>(a)}
         {
         }
 
         explicit uint4( const uint3& a, uint d );
 
-        union
+        uint x{};
+        uint y{};
+        uint z{};
+        uint w{};
+
+        constexpr uint& operator[]( const uint i )
         {
-            struct
+            switch ( i )
             {
-                uint x{};
-                uint y{};
-                uint z{};
-                uint w{};
-            };
-
-            uint cell[ 4 ];
-        };
-
-        constexpr uint& operator[]( const uint i ) noexcept
-        {
-            return cell[ i ];
+                case 0: return x;
+                case 1: return y;
+                case 3: return z;
+                case 4: return w;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
-        constexpr const uint& operator[]( const uint i ) const noexcept
+        constexpr const uint& operator[]( const uint i ) const
         {
-            return cell[ i ];
+            switch ( i )
+            {
+                case 0: return x;
+                case 1: return y;
+                case 3: return z;
+                case 4: return w;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
         friend bool operator==( const uint4& lhs, const uint4& rhs )
@@ -1204,11 +1207,6 @@ namespace FawnAlgebra
         friend bool operator!=( const uint4& lhs, const uint4& rhs )
         {
             return !( lhs == rhs );
-        }
-
-        constexpr uint4 operator-() const noexcept
-        {
-            return {-x, -y, -z, -w};
         }
 
         constexpr uint4 operator+=( const uint4& a ) noexcept
@@ -1410,10 +1408,11 @@ namespace FawnAlgebra
         {
         }
 
-        explicit constexpr uint3( const uint a )
-            : x{a}
-            , y{a}
-            , z{a}
+        template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
+        explicit constexpr uint3( const T a )
+            : x{static_cast<uint>(a)}
+            , y{static_cast<uint>(a)}
+            , z{static_cast<uint>(a)}
         {
         }
 
@@ -1424,45 +1423,43 @@ namespace FawnAlgebra
         {
         }
 
-        union
+        uint x{};
+        uint y{};
+        uint z{};
+        uint dummy{};
+
+        constexpr uint& operator[]( const uint i )
         {
-            struct
+            switch ( i )
             {
-                uint x{};
-                uint y{};
-                uint z{};
-                uint dummy{};
-            };
-
-            uint cell[ 4 ];
-        };
-
-        constexpr uint& operator[]( const uint i ) noexcept
-        {
-            return cell[ i ];
+                case 0: return x;
+                case 1: return y;
+                case 3: return z;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
-        constexpr const uint& operator[]( const uint i ) const noexcept
+        constexpr const uint& operator[]( const uint i ) const
         {
-            return cell[ i ];
+            switch ( i )
+            {
+                case 0: return x;
+                case 1: return y;
+                case 3: return z;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
         friend bool operator==( const uint3& lhs, const uint3& rhs )
         {
             return lhs.x == rhs.x
                     && lhs.y == rhs.y
-                    && lhs.z == rhs.z
-                    && lhs.dummy == rhs.dummy;
+                    && lhs.z == rhs.z;
         }
 
         friend bool operator!=( const uint3& lhs, const uint3& rhs )
         {
             return !( lhs == rhs );
-        }
-
-        constexpr uint3 operator-() const noexcept
-        {
-            return {-x, -y, -z};
         }
 
         constexpr uint3 operator+=( const uint3& a ) noexcept
@@ -1655,38 +1652,46 @@ namespace FawnAlgebra
         {
         }
 
-        constexpr explicit float4( const float a )
-            : x{a}
-            , y{a}
-            , z{a}
-            , w{a}
+        template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
+        constexpr explicit float4( const T a )
+            : x{static_cast<float>(a)}
+            , y{static_cast<float>(a)}
+            , z{static_cast<float>(a)}
+            , w{static_cast<float>(a)}
         {
         }
 
         explicit float4( const float3& a, float d );
+
         explicit float4( const float3& a );
 
-        union
+        float x{};
+        float y{};
+        float z{};
+        float w{};
+
+        constexpr float& operator[]( const uint i )
         {
-            struct
+            switch ( i )
             {
-                float x{};
-                float y{};
-                float z{};
-                float w{};
-            };
-
-            float cell[ 4 ];
-        };
-
-        constexpr float& operator[]( const uint i ) noexcept
-        {
-            return cell[ i ];
+                case 0: return x;
+                case 1: return y;
+                case 3: return z;
+                case 4: return w;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
-        constexpr const float& operator[]( const uint i ) const noexcept
+        constexpr const float& operator[]( const uint i ) const
         {
-            return cell[ i ];
+            switch ( i )
+            {
+                case 0: return x;
+                case 1: return y;
+                case 3: return z;
+                case 4: return w;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
         friend bool operator==( const float4& lhs, const float4& rhs )
@@ -1786,10 +1791,11 @@ namespace FawnAlgebra
         template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
         constexpr float4 operator*=( T a ) noexcept
         {
-            x *= a;
-            y *= a;
-            z *= a;
-            w *= a;
+            const float s{static_cast<float>(a)};
+            x *= s;
+            y *= s;
+            z *= s;
+            w *= s;
             return *this;
         }
 
@@ -1801,10 +1807,11 @@ namespace FawnAlgebra
                 const T s{1.0f / a};
                 return *this * s;
             }
-            x /= a;
-            y /= a;
-            z /= a;
-            w /= a;
+            const float s{static_cast<float>(a)};
+            x /= s;
+            y /= s;
+            z /= s;
+            w /= s;
             return *this;
         }
 
@@ -1863,10 +1870,11 @@ namespace FawnAlgebra
 
         constexpr float3( float a, float b, float c );
 
-        constexpr explicit float3( const float a )
-            : x{a}
-            , y{a}
-            , z{a}
+        template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
+        constexpr explicit float3( const T a )
+            : x{static_cast<float>(a)}
+            , y{static_cast<float>(a)}
+            , z{static_cast<float>(a)}
         {
         }
 
@@ -1884,35 +1892,38 @@ namespace FawnAlgebra
         {
         }
 
-        union
+        float x{};
+        float y{};
+        float z{};
+        float dummy{};
+
+        constexpr float& operator[]( const uint i )
         {
-            struct
+            switch ( i )
             {
-                float x{};
-                float y{};
-                float z{};
-                float dummy{};
-            };
-
-            float cell[ 4 ];
-        };
-
-        constexpr float& operator[]( const uint i ) noexcept
-        {
-            return cell[ i ];
+                case 0: return x;
+                case 1: return y;
+                case 3: return z;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
-        constexpr const float& operator[]( const uint i ) const noexcept
+        constexpr const float& operator[]( const uint i ) const
         {
-            return cell[ i ];
+            switch ( i )
+            {
+                case 0: return x;
+                case 1: return y;
+                case 3: return z;
+                default: throw std::out_of_range{"uint2 operator[]; index >= 2"};
+            }
         }
 
         friend bool operator==( const float3& lhs, const float3& rhs )
         {
             return lhs.x == rhs.x
                     && lhs.y == rhs.y
-                    && lhs.z == rhs.z
-                    && lhs.dummy == rhs.dummy;
+                    && lhs.z == rhs.z;
         }
 
         friend bool operator!=( const float3& lhs, const float3& rhs )
@@ -2012,10 +2023,13 @@ namespace FawnAlgebra
                 const T s{1.0f / a};
                 return *this * s;
             }
-            x /= a;
-            y /= a;
-            z /= a;
-            return *this;
+            else
+            {
+                x /= static_cast<float>(a);
+                y /= static_cast<float>(a);
+                z /= static_cast<float>(a);
+                return *this;
+            }
         }
 
         template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
@@ -2259,34 +2273,34 @@ namespace std
         return {max( a.x, b.x ), max( a.y, b.y ), max( a.z, b.z ), max( a.w, b.w )};
     }
 
-    constexpr FawnAlgebra::float2 floorf( const FawnAlgebra::float2& v )
+    constexpr FawnAlgebra::float2 floor( const FawnAlgebra::float2& v )
     {
-        return {floorf( v.x ), floorf( v.y )};
+        return {std::floor( v.x ), std::floor( v.y )};
     }
 
-    constexpr FawnAlgebra::float3 floorf( const FawnAlgebra::float3& v )
+    constexpr FawnAlgebra::float3 floor( const FawnAlgebra::float3& v )
     {
-        return {floorf( v.x ), floorf( v.y ), floorf( v.z )};
+        return {std::floor( v.x ), std::floor( v.y ), std::floor( v.z )};
     }
 
-    constexpr FawnAlgebra::float4 floorf( const FawnAlgebra::float4& v )
+    constexpr FawnAlgebra::float4 floor( const FawnAlgebra::float4& v )
     {
-        return {floorf( v.x ), floorf( v.y ), floorf( v.z ), floorf( v.w )};
+        return {std::floor( v.x ), std::floor( v.y ), std::floor( v.z ), std::floor( v.w )};
     }
 
-    constexpr FawnAlgebra::float2 fmodf( const FawnAlgebra::float2& a, const FawnAlgebra::float2& b )
+    constexpr FawnAlgebra::float2 fmod( const FawnAlgebra::float2& a, const FawnAlgebra::float2& b )
     {
-        return {fmodf( a.x, b.x ), fmodf( a.y, b.y )};
+        return {std::fmod( a.x, b.x ), std::fmod( a.y, b.y )};
     }
 
-    constexpr FawnAlgebra::float3 fmodf( const FawnAlgebra::float3& a, const FawnAlgebra::float3& b )
+    constexpr FawnAlgebra::float3 fmod( const FawnAlgebra::float3& a, const FawnAlgebra::float3& b )
     {
-        return {fmodf( a.x, b.x ), fmodf( a.y, b.y ), fmodf( a.z, b.z )};
+        return {std::fmod( a.x, b.x ), std::fmod( a.y, b.y ), std::fmod( a.z, b.z )};
     }
 
-    constexpr FawnAlgebra::float4 fmodf( const FawnAlgebra::float4& a, const FawnAlgebra::float4& b )
+    constexpr FawnAlgebra::float4 fmod( const FawnAlgebra::float4& a, const FawnAlgebra::float4& b )
     {
-        return {fmodf( a.x, b.x ), fmodf( a.y, b.y ), fmodf( a.z, b.z ), fmodf( a.w, b.w )};
+        return {std::fmod( a.x, b.x ), std::fmod( a.y, b.y ), std::fmod( a.z, b.z ), std::fmod( a.w, b.w )};
     }
 
     constexpr FawnAlgebra::float2 fabs( const FawnAlgebra::float2& v )

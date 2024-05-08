@@ -33,10 +33,10 @@ namespace FawnAlgebra
     template<typename T>
     constexpr T grad( const uint32_t hash, const T& x, const T& y, const T& z ) noexcept
     {
-        const uint32_t h = hash & 15;// CONVERT LO 4 BITS OF HASH CODE
-        const T& u = h < 8 ? x : y;  // INTO 12 GRADIENT DIRECTIONS.
-        const T& v = h < 4 ? y : h == 12 || h == 14 ? x : z;
-        return ( ( h & 1 ) == 0 ? u : -u ) + ( ( h & 2 ) == 0 ? v : -v );
+        const uint32_t h = hash & 15U;// CONVERT LO 4 BITS OF HASH CODE
+        const T& u = h < 8U ? x : y;  // INTO 12 GRADIENT DIRECTIONS.
+        const T& v = h < 4U ? y : h == 12 || h == 14 ? x : z;
+        return ( ( h & 1U ) == 0U ? u : -u ) + ( ( h & 2U ) == 0U ? v : -v );
     }
 
     template<typename V, typename T>
@@ -94,22 +94,22 @@ namespace FawnAlgebra
     template<typename V, typename T>
     constexpr T lerpAngleEuler( const V& a, const V& b, const T& t ) noexcept
     {
-        if ( abs( 180.0 - abs( b - a ) ) <= 1.0e-6 )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
+        if ( abs( 180 - abs( b - a ) ) <= static_cast<T>(1.0e-6) )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
         {
-            return a + 180.0 * t;
+            return a + 180 * t;
         }
-        const V& shortestAngle = std::fmod( std::fmod( b - a, 360 ) + 540, 360 ) - 180;
+        const V& shortestAngle = static_cast<T>(std::fmod( (T) std::fmod( b - a, 360 ) + 540, 360 )) - 180;
         return a + shortestAngle * t;
     }
 
-    template<typename V, typename T = float>
+    template<typename V, typename T = V>
     constexpr T ilerpAngleEuler( const V& a, const V& b, const V& v ) noexcept
     {
-        if ( abs( 180.0 - abs( b - a ) ) <= 1.0e-6 )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
+        if ( abs( 180 - abs( b - a ) ) <= static_cast<T>(1.0e-6) )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
         {
-            return static_cast<T>(( v - a ) / 180.0);
+            return static_cast<T>(( v - a ) / 180);
         }
-        const V& shortestAngle = std::fmod( std::fmod( a - b, 360 ) + 540, 360 ) - 180;
+        const V& shortestAngle = static_cast<T>(std::fmod( (T) std::fmod( a - b, 360 ) + 540, 360 )) - 180;
         return static_cast<T>(( v - a ) / shortestAngle);
     }
 
@@ -137,7 +137,7 @@ namespace FawnAlgebra
     template<typename V, typename T>
     constexpr T lerpAngleRad( const V& a, const V& b, const T& t ) noexcept
     {
-        if ( abs( pi<T> - abs( b - a ) ) <= 1.0e-6 )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
+        if ( abs( pi<T> - abs( b - a ) ) <= static_cast<T>(1.0e-6) )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
         {
             return a + pi<T> * t;
         }
@@ -148,7 +148,7 @@ namespace FawnAlgebra
     template<typename V, typename T = float>
     constexpr T ilerpAngleRad( const V& a, const V& b, const V& v ) noexcept
     {
-        if ( abs( pi<T> - abs( b - a ) ) <= 1.0e-6 )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
+        if ( abs( pi<T> - abs( b - a ) ) <= static_cast<T>(1.0e-6) )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
         {
             return static_cast<T>(( v - a ) / pi<T>);
         }
@@ -181,19 +181,19 @@ namespace FawnAlgebra
     template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
     constexpr T easeInSine( const T& v, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true ) noexcept
     {
-        return static_cast<T>(1) - FawnAlgebra::cos( v * FawnAlgebra::pi<T> / static_cast<T>(2.0) );
+        return 1 - FawnAlgebra::cos( v * FawnAlgebra::pi<T> / 2 );
     }
 
     template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
     constexpr T easeOutSine( const T& v ) noexcept
     {
-        return FawnAlgebra::sin( v * FawnAlgebra::pi<T> / static_cast<T>(2.0) );
+        return FawnAlgebra::sin( v * FawnAlgebra::pi<T> / 2 );
     }
 
     template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
     constexpr T easeInOutSine( const T& v ) noexcept
     {
-        return -( FawnAlgebra::cos( FawnAlgebra::pi<T> * v ) - 1 ) / static_cast<T>(2.0);
+        return -( FawnAlgebra::cos( FawnAlgebra::pi<T> * v ) - 1 ) / 2;
     }
 
     template<typename T>
@@ -279,19 +279,19 @@ namespace FawnAlgebra
     template<typename T>
     constexpr T easeInExpo( const T& v ) noexcept
     {
-        return v == static_cast<T>(0.0) ? static_cast<T>(0.0) : std::pow( 2, 10 * v - 10 );
+        return v == 0 ? 0 : static_cast<T>(std::pow( 2, 10 * v - 10 ));
     }
 
     template<typename T>
     constexpr T easeOutExpo( const T& v ) noexcept
     {
-        return v == static_cast<T>(1.0) ? static_cast<T>(1.0) : 1 - std::pow( 2, -10 * v );
+        return v == 1 ? 1 : 1 - static_cast<T>(std::pow( 2, -10 * v ));
     }
 
     template<typename T>
     constexpr T easeInOutExpo( const T& v ) noexcept
     {
-        return v == static_cast<T>(0.0) ? static_cast<T>(0.0) : v == static_cast<T>(1.0) ? static_cast<T>(1.0) : v < 0.5 ? std::pow( 2, 20 * v - 10 ) / 2 : ( 2 - std::pow( 2, -20 * v + 10 ) ) / 2;
+        return v == 0 ? 0 : v == 1 ? 1 : v < static_cast<T>(0.5) ? static_cast<T>(std::pow( 2, 20 * v - 10 )) / 2 : ( 2 - static_cast<T>(std::pow( 2, -20 * v + 10 )) ) / 2;
     }
 
     template<typename T>
@@ -309,7 +309,7 @@ namespace FawnAlgebra
     template<typename T>
     constexpr T easeInOutCirc( const T& v ) noexcept
     {
-        return v < 0.5 ? ( 1 - std::sqrt( 1 - std::pow( 2 * v, 2 ) ) ) / 2 : ( std::sqrt( 1 - std::pow( -2 * v + 2, 2 ) ) + 1 ) / 2;
+        return v < static_cast<T>(0.5) ? ( 1 - static_cast<T>(std::sqrt( 1 - (T) std::pow( 2 * v, 2 ) )) ) / 2 : ( static_cast<T>(std::sqrt( 1 - (T) std::pow( -2 * v + 2, 2 ) )) + 1 ) / 2;
     }
 
     template<typename T>
@@ -340,7 +340,7 @@ namespace FawnAlgebra
         constexpr T c1 = static_cast<T>(1.70158);
         constexpr T c2 = c1 + 1;
 
-        return v < 0.5 ? std::pow( 2 * v, 2 ) * ( ( c2 + 1 ) * 2 * v - c2 ) / 2 : ( std::pow( 2 * v - 2, 2 ) * ( ( c2 + 1 ) * ( v * 2 - 2 ) + c2 ) + 2 ) / 2;
+        return v < 0.5 ? static_cast<T>(std::pow( 2 * v, 2 )) * ( ( c2 + 1 ) * 2 * v - c2 ) / 2 : ( static_cast<T>(std::pow( 2 * v - 2, 2 )) * ( ( c2 + 1 ) * ( v * 2 - 2 ) + c2 ) + 2 ) / 2;
     }
 
     template<typename T>
@@ -348,28 +348,28 @@ namespace FawnAlgebra
     {
         constexpr T c1 = 2 * FawnAlgebra::pi<T> / 3;
 
-        return v == 0 ? 0 : v == 1 ? 1 : -std::pow( 2, 10 * v - 10 ) * FawnAlgebra::sin( ( v * 10 - 10.75 ) * c1 );
+        return v == 0 ? 0 : v == 1 ? 1 : static_cast<T>(-std::pow( 2, 10 * v - 10 )) * FawnAlgebra::sin( ( v * 10 - static_cast<T>(10.75) ) * c1 );
     }
 
     template<typename T>
     constexpr T easeOutElastic( const T& v ) noexcept
     {
         constexpr T c1 = 2 * FawnAlgebra::pi<T> / 3;
-        return v == static_cast<T>(0) ? static_cast<T>(0) : v == static_cast<T>(1) ? static_cast<T>(1) : std::pow( 2, -10 * v ) * FawnAlgebra::sin( ( v * 10 - 0.75 ) * c1 ) + 1;
+        return v == 0 ? 0 : v == 1 ? 1 : static_cast<T>(std::pow( 2, -10 * v )) * FawnAlgebra::sin( ( v * 10 - static_cast<T>(0.75) ) * c1 ) + 1;
     }
 
     template<typename T>
     constexpr T easeInOutElastic( const T& v ) noexcept
     {
-        constexpr T c1 = 2 * FawnAlgebra::pi<T> / 4.5;
+        constexpr T c1 = 2 * FawnAlgebra::pi<T> / static_cast<T>(4.5);
 
-        return v == static_cast<T>(0)
-                ? static_cast<T>(0)
-                : v == static_cast<T>(1)
-                ? static_cast<T>(1)
+        return v == 0
+                ? 0
+                : v == 1
+                ? 1
                 : v < 0.5
-                ? -( std::pow( 2, 20 * v - 10 ) * FawnAlgebra::sin( ( 20 * v - 11.125 ) * c1 ) ) / 2
-                : std::pow( 2, -20 * v + 10 ) * FawnAlgebra::sin( ( 20 * v - 11.125 ) * c1 ) / 2 + 1;
+                ? -( static_cast<T>(std::pow( 2, 20 * v - 10 )) * FawnAlgebra::sin( ( 20 * v - static_cast<T>(11.125) ) * c1 ) ) / 2
+                : static_cast<T>(std::pow( 2, -20 * v + 10 )) * FawnAlgebra::sin( ( 20 * v - static_cast<T>(11.125) ) * c1 ) / 2 + 1;
     }
 
     template<typename T>
@@ -420,7 +420,7 @@ namespace FawnAlgebra
 
     constexpr float2 easeInOutSine( const float2& v ) noexcept
     {
-        return -( cos( FawnAlgebra::pi<float2> * v ) - 1 ) / 2.0;
+        return -( cos( FawnAlgebra::pi<float2> * v ) - 1 ) / 2.0f;
     }
 
     constexpr float2 easeInOutQuad( const float2& v ) noexcept
@@ -506,7 +506,7 @@ namespace FawnAlgebra
 
     constexpr float3 easeInOutSine( const float3& v ) noexcept
     {
-        return -( cos( FawnAlgebra::pi<float3> * v ) - 1 ) / 2.0;
+        return -( cos( FawnAlgebra::pi<float3> * v ) - 1 ) / 2.0f;
     }
 
     constexpr float3 easeInOutQuad( const float3& v ) noexcept
@@ -592,7 +592,7 @@ namespace FawnAlgebra
 
     constexpr float4 easeInOutSine( const float4& v ) noexcept
     {
-        return -( cos( FawnAlgebra::pi<float4> * v ) - 1 ) / 2.0;
+        return -( cos( FawnAlgebra::pi<float4> * v ) - 1 ) / 2.0f;
     }
 
     constexpr float4 easeInOutQuad( const float4& v ) noexcept

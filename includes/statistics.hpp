@@ -6,6 +6,7 @@
 #pragma once
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <numeric>
 #include <ranges>
 
@@ -57,7 +58,7 @@ namespace FawnAlgebra
     {
         if constexpr ( N <= 1 )
         {
-            return static_cast<T>(0);
+            return 0;
         }
 
         constexpr T m = mean( a );
@@ -67,7 +68,7 @@ namespace FawnAlgebra
             return accumulator + ( ( val - m ) * ( val - m ) / ( size - 1 ) );
         };
 
-        return std::accumulate( std::begin( a ), std::end( a ), static_cast<T>(0), variance_func );
+        return std::accumulate( std::begin( a ), std::end( a ), 0, variance_func );
     }
 
     template<typename T, size_t N, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
@@ -75,7 +76,7 @@ namespace FawnAlgebra
     {
         if constexpr ( N <= 1 )
         {
-            return static_cast<T>(0);
+            return 0;
         }
 
         constexpr T m = mean( a );
@@ -84,7 +85,7 @@ namespace FawnAlgebra
             return accumulator + ( val - m ) * ( val - m );
         };
 
-        const T sum = std::accumulate( std::begin( a ), std::end( a ), static_cast<T>(0), standard_deviation_function );
+        const T sum = std::accumulate( std::begin( a ), std::end( a ), 0, standard_deviation_function );
 
         return static_cast<T>(std::sqrt( ( sum * sum ) / static_cast<T>(N) ));
     }
@@ -92,11 +93,11 @@ namespace FawnAlgebra
     template<typename T, size_t N, std::enable_if_t<std::is_arithmetic_v<T>, bool>  = true>
     constexpr float correlationCoefficient( T ( &a )[ N ], T ( &b )[ N ] ) noexcept
     {
-        T sumX = static_cast<T>(0);
-        T sumY = static_cast<T>(0);
-        T sumXY = static_cast<T>(0);
-        T squareSumX = static_cast<T>(0);
-        T squareSumY = static_cast<T>(0);
+        T sumX = 0;
+        T sumY = 0;
+        T sumXY = 0;
+        T squareSumX = 0;
+        T squareSumY = 0;
 
         for ( int i = 0; i < N; i++ )
         {
@@ -110,6 +111,6 @@ namespace FawnAlgebra
         }
 
         // use formula for calculating correlation coefficient.
-        return static_cast<float>(N * sumXY - sumX * sumY) / std::sqrtf( ( N * squareSumX - sumX * sumX ) * ( N * squareSumY - sumY * sumY ) );
+        return static_cast<float>(N * sumXY - sumX * sumY) / std::sqrt( ( N * squareSumX - sumX * sumX ) * ( N * squareSumY - sumY * sumY ) );
     }
 }// namespace FawnAlgebra

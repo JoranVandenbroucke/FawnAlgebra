@@ -54,120 +54,120 @@ namespace FawnAlgebra
 
     constexpr float2 sin( const float2& x ) noexcept
     {
-        return {std::sinf( x.x ), std::sinf( x.y )};
+        return {std::sin( x.x ), std::sin( x.y )};
     }
 
     constexpr float2 cos( const float2& x ) noexcept
     {
-        return {std::cosf( x.x ), std::cosf( x.y )};
+        return {std::cos( x.x ), std::cos( x.y )};
     }
 
     constexpr float2 tan( const float2& x ) noexcept
     {
-        return {std::tanf( x.y ), std::tanf( x.y )};
+        return {std::tan( x.y ), std::tan( x.y )};
     }
 
     constexpr float2 asin( const float2& x ) noexcept
     {
-        return {std::asinf( x.x ), std::asinf( x.y )};
+        return {std::asin( x.x ), std::asin( x.y )};
     }
 
     constexpr float2 acos( const float2& x ) noexcept
     {
-        return {std::acosf( x.x ), std::acosf( x.y )};
+        return {std::acos( x.x ), std::acos( x.y )};
     }
 
     constexpr float2 atan( const float2& x ) noexcept
     {
-        return {std::atanf( x.x ), std::atanf( x.y )};
+        return {std::atan( x.x ), std::atan( x.y )};
     }
 
-    constexpr float atan2( const float2& v ) noexcept
+    inline float atan2( const float2& v ) noexcept
     {
         return std::atan2( v.y, v.x );
     }
 
-    constexpr float2 atan2( const float2& y, const float2& x ) noexcept
+    inline float2 atan2( const float2& y, const float2& x ) noexcept
     {
         return {std::atan2( y.x, x.x ), std::atan2( y.y, x.y )};
     }
 
     constexpr float3 sin( const float3& x ) noexcept
     {
-        return {std::sinf( x.x ), std::sinf( x.y ), std::sinf( x.z )};
+        return {std::sin( x.x ), std::sin( x.y ), std::sin( x.z )};
     }
 
     constexpr float3 cos( const float3& x ) noexcept
     {
-        return {std::cosf( x.x ), std::cosf( x.y ), std::cosf( x.z )};
+        return {std::cos( x.x ), std::cos( x.y ), std::cos( x.z )};
     }
 
     constexpr float3 tan( const float3& x ) noexcept
     {
-        return {std::tanf( x.y ), std::tanf( x.y ), std::tanf( x.z )};
+        return {std::tan( x.y ), std::tan( x.y ), std::tan( x.z )};
     }
 
     constexpr float3 asin( const float3& x ) noexcept
     {
-        return {std::asinf( x.x ), std::asinf( x.y ), std::asinf( x.z )};
+        return {std::asin( x.x ), std::asin( x.y ), std::asin( x.z )};
     }
 
     constexpr float3 acos( const float3& x ) noexcept
     {
-        return {std::acosf( x.x ), std::acosf( x.y ), std::acosf( x.z )};
+        return {std::acos( x.x ), std::acos( x.y ), std::acos( x.z )};
     }
 
     constexpr float3 atan( const float3& x ) noexcept
     {
-        return {std::atanf( x.x ), std::atanf( x.y ), std::atanf( x.z )};
+        return {std::atan( x.x ), std::atan( x.y ), std::atan( x.z )};
     }
 
-    constexpr float3 atan2( const float3& v ) noexcept
+    inline float3 atan2( const float3& v ) noexcept
     {
         return {std::atan2( v.x, v.y ), std::atan2( v.y, v.z ), std::atan2( v.z, v.x )};
     }
 
-    constexpr float3 atan2( const float3& y, const float3& x ) noexcept
+    inline float3 atan2( const float3& y, const float3& x ) noexcept
     {
         return {std::atan2( y.x, x.x ), std::atan2( y.y, x.y ), std::atan2( y.z, x.z )};
     }
 
     constexpr float4 sin( const float4& x ) noexcept
     {
-        return {std::sinf( x.x ), std::sinf( x.y ), std::sinf( x.z ), std::sinf( x.w )};
+        return {std::sin( x.x ), std::sin( x.y ), std::sin( x.z ), std::sin( x.w )};
     }
 
     constexpr float4 cos( const float4& x ) noexcept
     {
-        return {std::cosf( x.x ), std::cosf( x.y ), std::cosf( x.z ), std::cosf( x.w )};
+        return {std::cos( x.x ), std::cos( x.y ), std::cos( x.z ), std::cos( x.w )};
     }
 
     constexpr float4 tan( const float4& x ) noexcept
     {
-        return {std::tanf( x.y ), std::tanf( x.y ), std::tanf( x.z ), std::tanf( x.w )};
+        return {std::tan( x.y ), std::tan( x.y ), std::tan( x.z ), std::tan( x.w )};
     }
 
     constexpr float4 asin( const float4& x ) noexcept
     {
-        return {std::asinf( x.x ), std::asinf( x.y ), std::asinf( x.z ), std::asinf( x.w )};
+        return {std::asin( x.x ), std::asin( x.y ), std::asin( x.z ), std::asin( x.w )};
     }
 
     constexpr float4 acos( const float4& x ) noexcept
     {
-        return {std::acosf( x.x ), std::acosf( x.y ), std::acosf( x.z ), std::acosf( x.w )};
+        return {std::acos( x.x ), std::acos( x.y ), std::acos( x.z ), std::acos( x.w )};
     }
 
     constexpr float4 atan( const float4& x ) noexcept
     {
-        return {std::atanf( x.x ), std::atanf( x.y ), std::atanf( x.z ), std::atanf( x.w )};
+        return {std::atan( x.x ), std::atan( x.y ), std::atan( x.z ), std::atan( x.w )};
     }
 
-    constexpr float4 atan2( const float4& v ) noexcept
+    inline float4 atan2( const float4& v ) noexcept
     {
         return {std::atan2( v.x, v.y ), std::atan2( v.y, v.z ), std::atan2( v.z, v.w ), std::atan2( v.w, v.x )};
     }
 
-    constexpr float4 atan2( const float4& y, const float4& x ) noexcept
+    inline float4 atan2( const float4& y, const float4& x ) noexcept
     {
         return {std::atan2( y.x, x.x ), std::atan2( y.y, x.y ), std::atan2( y.z, x.z ), std::atan2( y.w, x.w )};
     }
