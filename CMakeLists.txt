@@ -4,7 +4,6 @@ project(FawnAlgebra VERSION 0.1.0)
 
 add_library(FawnAlgebra INTERFACE
         includes/arithmetic.hpp
-        includes/asi.hpp
         includes/constants.hpp
         includes/dekkerdouble.hpp
         includes/hashing.hpp
