@@ -10,7 +10,6 @@ FetchContent_Declare(
 )
 target_compile_options(FawnAlgebra_test PRIVATE
         $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-        $<$<CXX_COMPILER_ID:Clang>:-Wmost -Wextra -Werror>
         $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Werror>
 )
 
