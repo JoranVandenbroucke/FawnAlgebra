@@ -2305,31 +2305,31 @@ namespace std
 
     constexpr FawnAlgebra::float2 fabs( const FawnAlgebra::float2& v )
     {
-        return {fabs( v.x ), fabs( v.y )};
+        return {std::fabs( v.x ), std::fabs( v.y )};
     }
 
     constexpr FawnAlgebra::float3 fabs( const FawnAlgebra::float3& v )
     {
-        return {fabs( v.x ), fabs( v.y ), fabs( v.z )};
+        return {std::fabs( v.x ), std::fabs( v.y ), std::fabs( v.z )};
     }
 
     constexpr FawnAlgebra::float4 fabs( const FawnAlgebra::float4& v )
     {
-        return {fabs( v.x ), fabs( v.y ), fabs( v.z ), fabs( v.w )};
+        return {std::fabs( v.x ), std::fabs( v.y ), std::fabs( v.z ), std::fabs( v.w )};
     }
 
     constexpr FawnAlgebra::int2 abs( const FawnAlgebra::int2& v )
     {
-        return {abs( v.x ), abs( v.y )};
+        return {std::abs( v.x ), std::abs( v.y )};
     }
 
     constexpr FawnAlgebra::int3 abs( const FawnAlgebra::int3& v )
     {
-        return {abs( v.x ), abs( v.y ), abs( v.z )};
+        return {std::abs( v.x ), std::abs( v.y ), std::abs( v.z )};
     }
 
     constexpr FawnAlgebra::int4 abs( const FawnAlgebra::int4& v )
     {
-        return {abs( v.x ), abs( v.y ), abs( v.z ), abs( v.w )};
+        return {std::abs( v.x ), std::abs( v.y ), std::abs( v.z ), std::abs( v.w )};
     }
 }// namespace std

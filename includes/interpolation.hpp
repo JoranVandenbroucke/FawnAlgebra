@@ -94,22 +94,22 @@ namespace FawnAlgebra
     template<typename V, typename T>
     constexpr T lerpAngleEuler( const V& a, const V& b, const T& t ) noexcept
     {
-        if ( abs( 180 - abs( b - a ) ) <= static_cast<T>(1.0e-6) )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
+        if ( std::abs( 180 - std::abs( b - a ) ) <= static_cast<T>(1.0e-6) )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
         {
             return a + 180 * t;
         }
-        const V& shortestAngle = static_cast<T>(std::fmod( (T) std::fmod( b - a, 360 ) + 540, 360 )) - 180;
+        const V& shortestAngle = static_cast<T>(std::fmod( static_cast<T>(std::fmod( b - a, 360 )) + 540, 360 )) - 180;
         return a + shortestAngle * t;
     }
 
     template<typename V, typename T = V>
     constexpr T ilerpAngleEuler( const V& a, const V& b, const V& v ) noexcept
     {
-        if ( abs( 180 - abs( b - a ) ) <= static_cast<T>(1.0e-6) )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
+        if ( std::abs( 180 - std::abs( b - a ) ) <= static_cast<T>(1.0e-6) )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
         {
             return static_cast<T>(( v - a ) / 180);
         }
-        const V& shortestAngle = static_cast<T>(std::fmod( (T) std::fmod( a - b, 360 ) + 540, 360 )) - 180;
+        const V& shortestAngle = static_cast<T>(std::fmod( static_cast<T>(std::fmod( a - b, 360 )) + 540, 360 )) - 180;
         return static_cast<T>(( v - a ) / shortestAngle);
     }
 
@@ -137,7 +137,7 @@ namespace FawnAlgebra
     template<typename V, typename T>
     constexpr T lerpAngleRad( const V& a, const V& b, const T& t ) noexcept
     {
-        if ( abs( pi<T> - abs( b - a ) ) <= static_cast<T>(1.0e-6) )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
+        if ( std::abs( pi<T> - std::abs( b - a ) ) <= static_cast<T>(1.0e-6) )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
         {
             return a + pi<T> * t;
         }
@@ -148,7 +148,7 @@ namespace FawnAlgebra
     template<typename V, typename T = float>
     constexpr T ilerpAngleRad( const V& a, const V& b, const V& v ) noexcept
     {
-        if ( abs( pi<T> - abs( b - a ) ) <= static_cast<T>(1.0e-6) )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
+        if ( std::abs( pi<T> - std::abs( b - a ) ) <= static_cast<T>(1.0e-6) )// avoid rotating counter-clockwise if a difference angle is 180 degree (180 vs -180, it otherwise has a preference for -180)
         {
             return static_cast<T>(( v - a ) / pi<T>);
         }
@@ -309,7 +309,7 @@ namespace FawnAlgebra
     template<typename T>
     constexpr T easeInOutCirc( const T& v ) noexcept
     {
-        return v < static_cast<T>(0.5) ? ( 1 - static_cast<T>(std::sqrt( 1 - (T) std::pow( 2 * v, 2 ) )) ) / 2 : ( static_cast<T>(std::sqrt( 1 - (T) std::pow( -2 * v + 2, 2 ) )) + 1 ) / 2;
+        return v < static_cast<T>(0.5) ? ( 1 - static_cast<T>(std::sqrt( 1 - static_cast<T>(std::pow( 2 * v, 2 )) )) ) / 2 : ( static_cast<T>(std::sqrt( 1 - static_cast<T>(std::pow( -2 * v + 2, 2 )) )) + 1 ) / 2;
     }
 
     template<typename T>
