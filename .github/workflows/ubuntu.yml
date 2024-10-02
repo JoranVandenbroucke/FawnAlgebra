@@ -17,14 +17,14 @@ jobs:
       matrix:
         build_type: [ Debug, Release ]
         std: [ 23 ]
-        cc: [ clang-18 ]
-        cxx: [ clang++-18 ]
+        cc: [ clang-17 ]
+        cxx: [ clang++-17 ]
     steps:
       - uses: actions/checkout@v4
       - name: Prepare environment
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build clang-18
+          sudo apt-get install -y ninja-build clang-17
 
       - name: Set reusable strings
         id: strings
