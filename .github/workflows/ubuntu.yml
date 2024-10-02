@@ -21,6 +21,10 @@ jobs:
         cxx: [ clang++-18 ]
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build ${{matrix.cxx}}
 
       - name: Set reusable strings
         id: strings
