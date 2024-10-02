@@ -23,8 +23,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Prepare environment
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build
+          sudo wget https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-linux.zip
           sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
 
 
