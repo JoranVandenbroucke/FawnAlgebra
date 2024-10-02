@@ -17,8 +17,8 @@ jobs:
       matrix:
         build_type: [ Debug, Release ]
         std: [ 23 ]
-        cc: [ clang-18 ]
-        cxx: [ clang++-18 ]
+        cc: [ clang ]
+        cxx: [ clang++ ]
     steps:
       - uses: actions/checkout@v4
       - name: Prepare environment
@@ -42,6 +42,8 @@ jobs:
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
           -G Ninja
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_C_COMPILER=${{ matrix.c}}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cxx}}
           -DCMAKE_CXX_STANDARD=${{matrix.std}}
           -S ${{ github.workspace }}
 
