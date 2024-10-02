@@ -6,6 +6,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    find_program(CLANG_SCAN_DEPS_EXECUTABLE NAMES clang-scan-deps PATHS /usr/bin /usr/local/bin)
+    if (NOT CLANG_SCAN_DEPS_EXECUTABLE)
+        message(FATAL_ERROR "clang-scan-deps not found")
+    endif ()
+    set(CMAKE_CXX_COMPILER_CLANG_SCAN_DEPS ${CLANG_SCAN_DEPS_EXECUTABLE})
+    set(CMAKE_CXX_COMPILER_SCAN_DEPS ${CLANG_SCAN_DEPS_EXECUTABLE})
+endif ()
+
 add_library(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
         PRIVATE
