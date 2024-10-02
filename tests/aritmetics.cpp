@@ -3,6 +3,7 @@
 // Author: Joran.
 //
 #include <catch2/catch_all.hpp>
+#include <cstdint>
 import FawnAlgebra;
 
 TEST_CASE( "Vec: Vector arithmetic operations", "[Vector]" )

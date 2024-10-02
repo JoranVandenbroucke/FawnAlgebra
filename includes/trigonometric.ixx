@@ -6,8 +6,6 @@
 module;
 #include <cmath>
 
-#include "config/todo.hpp"
-
 export module FawnAlgebra.Trigonometric;
 
 
