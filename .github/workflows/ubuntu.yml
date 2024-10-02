@@ -17,8 +17,8 @@ jobs:
       matrix:
         build_type: [ Debug, Release ]
         std: [ 23 ]
-        cc: [ clang-17 ]
-        cxx: [ clang++-17 ]
+        cc: [ clang-18 ]
+        cxx: [ clang++-18 ]
     steps:
       - uses: actions/checkout@v4
       - name: Prepare environment
@@ -36,8 +36,8 @@ jobs:
 
       - name: Configure CMake
         env:
+          CC: ${{matrix.cc}}
           CXX: ${{matrix.cxx}}
-          CXXFLAGS: ${{matrix.cxxflags}}
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
           -G Ninja
