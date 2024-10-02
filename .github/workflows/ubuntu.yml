@@ -28,7 +28,9 @@ jobs:
           sudo wget https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-linux.zip
           sudo unzip ninja-linux.zip
           sudo mv ninja /usr/local/bin/ninja
-          sudo bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 18 all
           sudo apt-get install -y clang-tools-18  # Ensure clang-scan-deps is installed
 
       - name: Set reusable strings
@@ -48,6 +50,7 @@ jobs:
           -DCMAKE_C_COMPILER=${{ matrix.c}}
           -DCMAKE_CXX_COMPILER=${{ matrix.cxx}}
           -DCMAKE_CXX_STANDARD=${{matrix.std}}
+          -DCMAKE_CXX_COMPILER_SCAN_DEPS="/usr/lib/llvm-18/bin/clang-scan-deps"
           -S ${{ github.workspace }}
 
       - name: Build
