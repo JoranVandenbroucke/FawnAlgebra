@@ -33,11 +33,12 @@ jobs:
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
       - name: Configure CMake
+        env:
+          CXX: ${{matrix.cxx}}
+          CXXFLAGS: ${{matrix.cxxflags}}
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
           -G Ninja
-          -DCMAKE_C_COMPILER=${{ matrix.cc}}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cxx}}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DCMAKE_CXX_STANDARD=${{matrix.std}}
           -S ${{ github.workspace }}
