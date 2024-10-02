@@ -115,7 +115,7 @@ namespace FawnAlgebra
 
     constexpr uint32_t rot( const uint32_t x, const uint32_t k ) noexcept
     {
-        return x << k | x >> 32U - k;
+        return ( x << k ) | ( x >> ( 32U - k ) );
     }
 
     constexpr void mix( uint32_t& a, uint32_t& b, uint32_t& c ) noexcept
@@ -204,7 +204,7 @@ namespace FawnAlgebra
         return c;
     }
 
-    export template<size_t length>                                /* the length of the key, in uint32_ts */
+    export template<std::size_t length>                           /* the length of the key, in uint32_ts */
     constexpr uint32_t hashword( const uint32_t ( &k )[ length ], /* the key, an array of uint32_t values */
                                  const uint32_t initval ) noexcept/* the previous hash, or an arbitrary value */
     {
@@ -250,7 +250,7 @@ namespace FawnAlgebra
         *pb = b;
     }
 
-    export template<size_t length>                                 /* the length of the key, in uint32_ts */
+    export template<std::size_t length>                            /* the length of the key, in uint32_ts */
     constexpr void hashword2( const uint32_t ( &k )[ length ],     /* the key, an array of uint32_t values */
                               uint32_t ( &pc )[ length ],          /* IN: seed OUT: primary hash value */
                               uint32_t ( &pb )[ length ] ) noexcept/* IN: more seed OUT: secondary hash value */
@@ -259,7 +259,7 @@ namespace FawnAlgebra
         return hashword2( &k[ 0 ], length, &pc[ 0 ], &pb[ 0 ] );
     }
 
-    export constexpr uint32_t hashlittle( const void* key, size_t length, const uint32_t initval ) noexcept
+    export constexpr uint32_t hashlittle( const void* key, std::size_t length, const uint32_t initval ) noexcept
     {
         uint32_t b, c;/* internal state */
 
@@ -475,7 +475,7 @@ namespace FawnAlgebra
  * a 64-bit value do something like "*pc + (((uint64_t)*pb)<<32)".
  */
     export constexpr void hashlittle2( const void* key,       /* the key to hash */
-                                       size_t length,         /* length of the key */
+                                       std::size_t length,    /* length of the key */
                                        uint32_t* pc,          /* IN: primary initval, OUT: primary hash */
                                        uint32_t* pb ) noexcept/* IN: secondary initval, OUT: secondary hash */
     {
@@ -699,7 +699,7 @@ namespace FawnAlgebra
  * from hashlittle() on all machines.  hashbig() takes advantage of
  * big-endian byte ordering.
  */
-    export constexpr uint32_t hashbig( const void* key, size_t length, const uint32_t initval ) noexcept
+    export constexpr uint32_t hashbig( const void* key, std::size_t length, const uint32_t initval ) noexcept
     {
         uint32_t b, c;
 

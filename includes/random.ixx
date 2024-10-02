@@ -2226,10 +2226,10 @@ namespace FawnAlgebra
             return static_cast<float>(value) * div;
         }
 
-        template<size_t N>
+        template<std::size_t N>
         constexpr void nextBytes( uint32_t ( &data )[ N ] ) noexcept
         {
-            for ( size_t i = 0; i < N; i++ )
+            for ( std::size_t i = 0; i < N; i++ )
             {
                 data[ i ] = next();
             }

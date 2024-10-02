@@ -13,7 +13,7 @@ import FawnAlgebra.Aritmetics;
 
 namespace FawnAlgebra
 {
-    export template<typename T, size_t N>
+    export template<typename T, std::size_t N>
     struct QuadraticBezier
     {
         constexpr QuadraticBezier() = default;
@@ -25,12 +25,12 @@ namespace FawnAlgebra
 
         std::vector<Vec<T, N>> points;
 
-        constexpr Vec<T, N>& operator[]( size_t idx )
+        constexpr Vec<T, N>& operator[]( std::size_t idx )
         {
             return points[ idx ];
         }
 
-        constexpr const Vec<T, N>& operator[]( size_t idx ) const
+        constexpr const Vec<T, N>& operator[]( std::size_t idx ) const
         {
             return points[ idx ];
         }
@@ -141,13 +141,13 @@ namespace FawnAlgebra
         }
     };
 
-    export template<typename T, size_t N, typename V>
+    export template<typename T, std::size_t N, typename V>
         requires std::is_floating_point_v<V>
     constexpr Vec<T, N> evaluate( const QuadraticBezier<T, N>& bezier, const V& t )
     {
         Vec<T, N> result{};
-        const size_t numSegments{bezier.size() / 2ULL};
-        const size_t from{static_cast<size_t>(std::floor( t )) % numSegments};
+        const std::size_t numSegments{bezier.size() / 2ULL};
+        const std::size_t from{static_cast<std::size_t>(std::floor( t )) % numSegments};
         if ( from == t )
         {
             return bezier.points[ from * 2 ];
@@ -163,13 +163,13 @@ namespace FawnAlgebra
         return result;
     }
 
-    export template<typename T, size_t N>
+    export template<typename T, std::size_t N>
     constexpr bool isClosed( const QuadraticBezier<T, N>& bezier )
     {
         return ( bezier.size() & 1ULL ) == 0ULL;
     }
 
-    export template<typename T, size_t N>
+    export template<typename T, std::size_t N>
     constexpr void addPoint( QuadraticBezier<T, N>& bezier, const Vec<T, N>& newPoint )
     {
         if ( bezier.points.empty() )
@@ -185,7 +185,7 @@ namespace FawnAlgebra
         }
     }
 
-    export template<typename T, size_t N>
+    export template<typename T, std::size_t N>
     constexpr void removePoint( QuadraticBezier<T, N>& bezier )
     {
         if ( bezier.size() > 1ULL )
@@ -199,16 +199,16 @@ namespace FawnAlgebra
         }
     }
 
-    export template<typename T, size_t N>
+    export template<typename T, std::size_t N>
     constexpr void addPoints( QuadraticBezier<T, N>& bezier, const std::vector<Vec<T, N>>& newPoints )
     {
-        for ( size_t i{}; i < newPoints.size(); ++i )
+        for ( std::size_t i{}; i < newPoints.size(); ++i )
         {
             bezier.points.push_back( newPoints[ i ] );
         }
     }
 
-    export template<typename T, size_t N>
+    export template<typename T, std::size_t N>
     constexpr uint32 segmentCount( const QuadraticBezier<T, N>& bezier )
     {
         return static_cast<uint32>(bezier.size() > 2ULL ? ( bezier.size() - 1ULL ) / 2ULL : 0ULL);

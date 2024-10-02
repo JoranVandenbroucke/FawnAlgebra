@@ -47,11 +47,11 @@ namespace FawnAlgebra
     {
         static_assert( !std::empty( a ), "An empty array doesn't have a frequency table." );
 
-        std::vector<std::pair<T, size_t>> table;
-        for ( size_t i = 0; i < std::size( a ); i++ )
+        std::vector<std::pair<T, std::size_t>> table;
+        for ( std::size_t i = 0; i < std::size( a ); i++ )
         {
-            const size_t firstIndex = std::ranges::lower_bound( a, a[ i ] ) - std::cbegin( a );
-            const size_t lastIndex = std::ranges::upper_bound( a, a[ i ] ) - std::cbegin( a ) - 1;
+            const std::size_t firstIndex = std::ranges::lower_bound( a, a[ i ] ) - std::cbegin( a );
+            const std::size_t lastIndex = std::ranges::upper_bound( a, a[ i ] ) - std::cbegin( a ) - 1;
             i = lastIndex;
             table.emplace_back( std::make_pair( a[ firstIndex ], lastIndex - firstIndex + 1 ) );
         }
@@ -70,7 +70,7 @@ namespace FawnAlgebra
     constexpr auto quartilesQ1( const Container& a ) noexcept
     {
         const double idx{std::size( a ) / 4.0};
-        return static_cast<T>(std::size( a ) & 3) != 0 ? a[ static_cast<size_t>(std::ceil( idx )) ] : ( a[ static_cast<size_t>(idx) ] + a[ static_cast<size_t>(idx + 1) ] ) / 2;
+        return static_cast<T>(std::size( a ) & 3) != 0 ? a[ static_cast<std::size_t>(std::ceil( idx )) ] : ( a[ static_cast<std::size_t>(idx) ] + a[ static_cast<std::size_t>(idx + 1) ] ) / 2;
     }
 
     /**
@@ -85,7 +85,7 @@ namespace FawnAlgebra
     constexpr auto quartilesQ2( const Container& a ) noexcept
     {
         const double idx{std::size( a ) / 2.0};
-        return static_cast<T>(std::size( a ) & 1) != 0 ? a[ static_cast<size_t>(std::ceil( idx )) ] : ( a[ static_cast<size_t>(idx) ] + a[ static_cast<size_t>(idx + 1) ] ) / 2;
+        return static_cast<T>(std::size( a ) & 1) != 0 ? a[ static_cast<std::size_t>(std::ceil( idx )) ] : ( a[ static_cast<std::size_t>(idx) ] + a[ static_cast<std::size_t>(idx + 1) ] ) / 2;
     }
 
     /**
@@ -100,7 +100,7 @@ namespace FawnAlgebra
     constexpr auto quartilesQ3( const Container& a ) noexcept
     {
         const double idx{3 * std::size( a ) / 4.0};
-        return static_cast<T>(std::size( a ) & 3) != 0 ? a[ static_cast<size_t>(std::ceil( idx )) ] : ( a[ static_cast<size_t>(idx) ] + a[ static_cast<size_t>(idx + 1) ] ) / 2;
+        return static_cast<T>(std::size( a ) & 3) != 0 ? a[ static_cast<std::size_t>(std::ceil( idx )) ] : ( a[ static_cast<std::size_t>(idx) ] + a[ static_cast<std::size_t>(idx + 1) ] ) / 2;
     }
     #pragma endregion
     #pragma region central tendency
@@ -131,7 +131,7 @@ namespace FawnAlgebra
     {
         static_assert( !std::empty( a ), "Can not calculate median from empty array" );
 
-        constexpr size_t size{std::size( a )};
+        constexpr std::size_t size{std::size( a )};
         return static_cast<T>(( size & 2 ) != 0 ? a[ size / 2 ] : ( a[ ( size - 1 ) / 2 ] + a[ size / 2 ] ) / 2);
     }
 
@@ -148,13 +148,13 @@ namespace FawnAlgebra
     {
         static_assert( !std::empty( a ), "Can not calculate mod from empty array" );
 
-        constexpr size_t size{std::size( a )};
+        constexpr std::size_t size{std::size( a )};
         T value{a[ 0 ]};
         T mode{value};
         uint32_t count{1u};
         uint32_t countMode{1u};
 
-        for ( size_t i{1U}; i < size; i++ )
+        for ( std::size_t i{1U}; i < size; i++ )
         {
             if ( a[ i ] == value )
             {

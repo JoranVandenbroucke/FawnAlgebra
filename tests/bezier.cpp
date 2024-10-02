@@ -106,7 +106,7 @@ TEST_CASE( "Bezier: AddPoints", "[Bezier]" )
 
     addPoints( bezier, newPoints );
     REQUIRE( bezier.size() == newSize );
-    for ( size_t i = 0; i < newSize; ++i )
+    for ( std::size_t i = 0; i < newSize; ++i )
     {
         REQUIRE( bezier[i] == newPoints[i] );
     }
