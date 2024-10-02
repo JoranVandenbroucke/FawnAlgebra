@@ -17,15 +17,15 @@ jobs:
       matrix:
         build_type: [ Debug, Release ]
         std: [ 23 ]
-        cc: [ clang ]
-        cxx: [ clang++ ]
+        cc: [ clang-18 ]
+        cxx: [ clang++-18 ]
     steps:
       - uses: actions/checkout@v4
       - name: Prepare environment
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build
-          wget -O - https://apt.llvm.org/llvm.sh
+          bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
 
 
       - name: Set reusable strings
