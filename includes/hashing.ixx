@@ -3,9 +3,11 @@
 // Author: Joran Vandenbroucke.
 //
 
-#pragma once
+module;
 #include <bit>
 #include <cstdint>
+
+export module FawnAlgebra.Hashing;
 
 namespace FawnAlgebra
 {
@@ -41,7 +43,7 @@ namespace FawnAlgebra
 
     // https://github.com/blender/blender/blob/main/intern/cycles/util/hash.h
     /* [0, uint_max] -> [0.0, 1.0) */
-    constexpr float uintToFloatExcl( const uint32_t n ) noexcept
+    export constexpr float uintToFloatExcl( const uint32_t n ) noexcept
     {
         // Note: we divide by 4294967808 instead of 2^32 because the latter
         // leads to a [0.0, 1.0] mapping instead of [0.0, 1.0) due to floating
@@ -52,14 +54,14 @@ namespace FawnAlgebra
     }
 
     /* [0, uint_max] -> [0.0, 1.0] */
-    constexpr float uintToFloatIncl( const uint32_t n ) noexcept
+    export constexpr float uintToFloatIncl( const uint32_t n ) noexcept
     {
         return static_cast<float>(n) * ( 1.0f / static_cast<float>(0xFFFFFFFFu) );
     }
 
     #pragma region yorku
     // http://www.cse.yorku.ca/~oz/hash.html
-    constexpr unsigned long hash_djb2( const char* str ) noexcept
+    export constexpr unsigned long hashDjb2( const char* str ) noexcept
     {
         unsigned long hash = 5381;
         int c;
@@ -72,7 +74,7 @@ namespace FawnAlgebra
         return hash;
     }
 
-    constexpr unsigned long hash_sdbm( const char* str ) noexcept
+    export constexpr unsigned long hashSdbm( const char* str ) noexcept
     {
         unsigned long hash = 0;
         int c;
@@ -85,7 +87,7 @@ namespace FawnAlgebra
         return hash;
     }
 
-    constexpr unsigned long hash_lose_lose( const char* str ) noexcept
+    export constexpr unsigned long hashLoseLose( const char* str ) noexcept
     {
         unsigned int hash = 0;
         int c;
@@ -167,9 +169,9 @@ namespace FawnAlgebra
         c -= rot( b, 24U );
     }
 
-    constexpr uint32_t hashword( const uint32_t*& k,              /* the key, an array of uint32_t values */
-                                 uint32_t length,                 /* the length of the key, in uint32_ts */
-                                 const uint32_t initval ) noexcept/* the previous hash, or an arbitrary value */
+    export constexpr uint32_t hashword( const uint32_t*& k,              /* the key, an array of uint32_t values */
+                                        uint32_t length,                 /* the length of the key, in uint32_ts */
+                                        const uint32_t initval ) noexcept/* the previous hash, or an arbitrary value */
     {
         uint32_t b, c;
 
@@ -202,7 +204,7 @@ namespace FawnAlgebra
         return c;
     }
 
-    template<size_t length>                                       /* the length of the key, in uint32_ts */
+    export template<size_t length>                                /* the length of the key, in uint32_ts */
     constexpr uint32_t hashword( const uint32_t ( &k )[ length ], /* the key, an array of uint32_t values */
                                  const uint32_t initval ) noexcept/* the previous hash, or an arbitrary value */
     {
@@ -210,10 +212,10 @@ namespace FawnAlgebra
         return hashword( &k[ 0 ], length, initval );
     }
 
-    constexpr void hashword2( const uint32_t* k,     /* the key, an array of uint32_t values */
-                              uint32_t length,       /* the length of the key, in uint32_ts */
-                              uint32_t* pc,          /* IN: seed OUT: primary hash value */
-                              uint32_t* pb ) noexcept/* IN: more seed OUT: secondary hash value */
+    export constexpr void hashword2( const uint32_t* k,     /* the key, an array of uint32_t values */
+                                     uint32_t length,       /* the length of the key, in uint32_ts */
+                                     uint32_t* pc,          /* IN: seed OUT: primary hash value */
+                                     uint32_t* pb ) noexcept/* IN: more seed OUT: secondary hash value */
     {
         uint32_t b, c;
 
@@ -248,7 +250,7 @@ namespace FawnAlgebra
         *pb = b;
     }
 
-    template<size_t length>                                        /* the length of the key, in uint32_ts */
+    export template<size_t length>                                 /* the length of the key, in uint32_ts */
     constexpr void hashword2( const uint32_t ( &k )[ length ],     /* the key, an array of uint32_t values */
                               uint32_t ( &pc )[ length ],          /* IN: seed OUT: primary hash value */
                               uint32_t ( &pb )[ length ] ) noexcept/* IN: more seed OUT: secondary hash value */
@@ -257,7 +259,7 @@ namespace FawnAlgebra
         return hashword2( &k[ 0 ], length, &pc[ 0 ], &pb[ 0 ] );
     }
 
-    constexpr uint32_t hashlittle( const void* key, size_t length, const uint32_t initval ) noexcept
+    export constexpr uint32_t hashlittle( const void* key, size_t length, const uint32_t initval ) noexcept
     {
         uint32_t b, c;/* internal state */
 
@@ -472,10 +474,10 @@ namespace FawnAlgebra
  * the key.  *pc is better mixed than *pb, so use *pc first.  If you want
  * a 64-bit value do something like "*pc + (((uint64_t)*pb)<<32)".
  */
-    constexpr void hashlittle2( const void* key,       /* the key to hash */
-                                size_t length,         /* length of the key */
-                                uint32_t* pc,          /* IN: primary initval, OUT: primary hash */
-                                uint32_t* pb ) noexcept/* IN: secondary initval, OUT: secondary hash */
+    export constexpr void hashlittle2( const void* key,       /* the key to hash */
+                                       size_t length,         /* length of the key */
+                                       uint32_t* pc,          /* IN: primary initval, OUT: primary hash */
+                                       uint32_t* pb ) noexcept/* IN: secondary initval, OUT: secondary hash */
     {
         uint32_t b, c;/* internal state */
 
@@ -697,7 +699,7 @@ namespace FawnAlgebra
  * from hashlittle() on all machines.  hashbig() takes advantage of
  * big-endian byte ordering.
  */
-    constexpr uint32_t hashbig( const void* key, size_t length, const uint32_t initval ) noexcept
+    export constexpr uint32_t hashbig( const void* key, size_t length, const uint32_t initval ) noexcept
     {
         uint32_t b, c;
 
