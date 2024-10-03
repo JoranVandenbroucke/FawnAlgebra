@@ -1,0 +1,61 @@
+name: Linux - Build & Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Linux - Build & Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        build_type: [ Debug, Release ]
+        std: [ 23 ]
+        cc: [ clang-18 ]
+        cxx: [ clang++-18 ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip wget
+          sudo wget https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-linux.zip
+          sudo unzip ninja-linux.zip
+          sudo mv ninja /usr/local/bin/ninja
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 18 all
+          sudo apt-get install -y clang-tools-18  # Ensure clang-scan-deps is installed
+
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+      - name: Configure CMake
+        env:
+          CC: ${{matrix.cc}}
+          CXX: ${{matrix.cxx}}
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -G Ninja
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_C_COMPILER=${{ matrix.c}}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cxx}}
+          -DCMAKE_CXX_STANDARD=${{matrix.std}}
+          -DCMAKE_CXX_COMPILER_SCAN_DEPS="/usr/lib/llvm-18/bin/clang-scan-deps"
+          -S ${{ github.workspace }}
+
+      - name: Build
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+
+      - name: Test
+        working-directory: ${{ steps.strings.outputs.build-output-dir }}/tests
+        run: ctest --build-config ${{ matrix.build_type }}

@@ -1,21 +1,34 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.28)
+project(FawnAlgebra VERSION 0.2.0 LANGUAGES C CXX)
 
-project(FawnAlgebra VERSION 0.1.0)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
-add_library(FawnAlgebra INTERFACE
-        includes/arithmetic.hpp
-        includes/constants.hpp
-        includes/dekkerdouble.hpp
-        includes/hashing.hpp
-        includes/interpolation.hpp
-        includes/random.hpp
-        includes/statistics.hpp
-        includes/trigonometric.hpp
+add_library(${PROJECT_NAME})
+target_sources(${PROJECT_NAME}
+        PRIVATE
+        includes/config/todo.hpp
+        PUBLIC
+        FILE_SET CXX_MODULES FILES
+        includes/FawnAlgebra.ixx
+        includes/aritmetics.ixx
+        includes/bezier.ixx
+        includes/constants.ixx
+        includes/hashing.ixx
+        includes/interpolation.ixx
+        includes/random.ixx
+        includes/statistics.ixx
+        includes/trigonometric.ixx
 )
-add_library(FawnAlgebra::FawnAlgebra ALIAS FawnAlgebra)
-target_include_directories(FawnAlgebra INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/includes>
-        $<INSTALL_INTERFACE:include>
+
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+
+set(gcc_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>")
+target_compile_options(${PROJECT_NAME} PUBLIC
+        $<$<CXX_COMPILER_ID:GNU>:-fmodules-ts>
 )
 
 add_subdirectory(tests)

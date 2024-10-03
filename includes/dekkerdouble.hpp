@@ -6,6 +6,7 @@
 #pragma once
 
 #include <cmath>
+#include <cstdint>
 #include <ostream>
 
 class dekker_double
@@ -179,15 +180,13 @@ private:
         return dekker_double{A, value - A};
     }
 
-    /*
-     * masking mantisa only works in IEEE745 floating points
+    // masking mantisa only works in IEEE745 floating points
     [[nodiscard]] static constexpr dekker_double&& SplitFast( const double value )
     {
         constexpr unsigned long long MASK { ~0x3ffffffU };
         const double z { std::bit_cast<double>( std::bit_cast<unsigned long long>( value ) & MASK ) };
         return dekker_double { z, value - z };
     }
-    */
     static constexpr dekker_double&& Mul12( const double valueA, const double valueB )
     {
         const dekker_double doubleA{Split( valueA )};
