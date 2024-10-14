@@ -8,12 +8,13 @@ module;
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <cstdint>
+#include <cstddef>
 #include <numeric>
 #include <random>
 #include <vector>
 
 export module FawnAlgebra.Statistics;
+import FawnAlgebra.Arithmetics;
 import FawnAlgebra.Constants;
 
 
@@ -151,8 +152,8 @@ namespace FawnAlgebra
         constexpr std::size_t size{std::size( a )};
         T value{a[ 0 ]};
         T mode{value};
-        uint32_t count{1u};
-        uint32_t countMode{1u};
+        uint32 count{1u};
+        uint32 countMode{1u};
 
         for ( std::size_t i{1U}; i < size; i++ )
         {
@@ -229,7 +230,7 @@ namespace FawnAlgebra
      * @param a The container whose interquartile range is to be calculated.
      * @return The interquartile range (IQR).
      */
-    export template<typename Container, typename T = typename Container::value_type>
+    export template<typename Container, typename = typename Container::value_type>
     constexpr auto interquartileRange( Container a ) noexcept
     {
         return quartilesQ3( a ) - quartilesQ1( a );
@@ -350,7 +351,7 @@ namespace FawnAlgebra
         const T s{standardDeviationPopulation( a )};
 
         std::vector<std::pair<T, double>> p( std::size( a ) );// an std::vector because size is not always know on compile time.
-        for ( int i = 0; i < std::size( a ); ++i )
+        for ( std::size_t i{}; i < std::size( a ); ++i )
         {
             p[ i ] = std::make_pair( a[ i ], normalProbabilityDensity( a[ i ], m, v, s ) );
         }
@@ -384,7 +385,7 @@ namespace FawnAlgebra
     export template<typename T = int, typename C = int>
     constexpr auto poissonDistribution( const T& k, const C& l )
     {
-        uint32_t factorial{1};
+        uint32 factorial{1};
         for ( T i{2}; i <= k; ++i )
         {
             factorial *= i;
@@ -400,7 +401,7 @@ namespace FawnAlgebra
         // static_assert( std::size( O ) == std::size( E ), "Chi-Square requires both containers to be the same size." );
 
         double sum{};
-        for ( int i = 0; i < std::size( O ); ++i )
+        for ( std::size_t i{}; i < std::size( O ); ++i )
         {
             T oe{O[ i ] - E[ i ]};
             if ( E[ i ] != 0 )

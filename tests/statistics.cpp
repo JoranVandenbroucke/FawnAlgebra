@@ -3,11 +3,12 @@
 // Author: Joran.
 //
 
+#define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
 #include <algorithm>
-#include <cstdint>
 #include <array>
+#include <cstddef>
 #include <ranges>
 #include <utility>
 #include <vector>

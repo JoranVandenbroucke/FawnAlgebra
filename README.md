@@ -17,13 +17,13 @@ into our [hashing.hpp](includes/hashing.ixx)!
 them out in our [interpolation.hpp](includes/interpolation.ixx)!
 
 🎲 Feeling lucky? Try our **random number generator**! It's lightning fast, thanks to its use of a permutation table!
-Take a peek at our [random.hpp](includes/random.hpp)!
+Take a peek at our [random.hpp](includes/random.ixx)!
 
 📊 Crunch those numbers with our **basic statistics**! Get the mean, median, and more out of an array! It's all in
-our [statistics.hpp](includes/statistics.hpp)!
+our [statistics.hpp](includes/statistics.ixx)!
 
 📐 And let's not forget about **trigonometry**! We've got some trigonometric functions just for you in
-our [trigonometric.hpp](includes/trigonometric.hpp)!
+our [trigonometric.hpp](includes/trigonometric.ixx)!
 
 💡 And for those who aren't fans of the long double, we've got the **Dekker Double**! (Note: It does not work with other
 functions.) You can find it in our [dekkerdouble.hpp](includes/dekkerdouble.hpp)!

@@ -5,18 +5,19 @@
 
 module;
 
+#include <chrono>
 #include <cmath>
-#include <cstdint>
-#include <ctime>
+#include <cstddef>
 
 export module FawnAlgebra.Random;
 
+import FawnAlgebra.Arithmetics;
 import FawnAlgebra.Interpolation;
 
 namespace FawnAlgebra
 {
-    constexpr uint32_t MAX_PERMUTATION_INDEX{0xFFFF};
-    constexpr uint32_t permutation[ ]{50680, 11117, 10917, 7153, 39481, 6986, 37910, 18503, 46153, 34167, 10417, 56057, 8083, 45767, 60327, 34033, 23556, 44989, 43640, 7050, 60372, 21413, 62683, 19049, 8020, 18399, 35298, 46346, 57083, 4443, 43423,
+    constexpr uint32 MAX_PERMUTATION_INDEX{0xFFFF};
+    constexpr uint32 permutation[ ]{50680, 11117, 10917, 7153, 39481, 6986, 37910, 18503, 46153, 34167, 10417, 56057, 8083, 45767, 60327, 34033, 23556, 44989, 43640, 7050, 60372, 21413, 62683, 19049, 8020, 18399, 35298, 46346, 57083, 4443, 43423,
                                       28122, 51083, 62460, 11799, 20549, 49700, 23416, 65417, 11073, 44292, 2796, 25474, 16107, 20134, 39182, 46580, 7374, 2935, 12002, 64629, 17843, 876, 53314, 15148, 32894, 3502, 28367, 51897, 30917, 54889, 56236,
                                       44196, 23216, 25447, 29249, 29264, 25376, 55032, 24540, 21505, 46810, 12332, 12437, 4853, 47333, 31648, 24765, 27295, 11, 42204, 50163, 22839, 10998, 17070, 2310, 23026, 1185, 37458, 54483, 42348, 56198, 17365,
                                       31780, 50787, 59157, 50669, 44028, 27535, 46550, 41553, 49359, 54206, 15411, 31882, 53599, 15560, 12102, 47033, 31929, 8369, 28400, 64129, 52167, 36565, 45051, 44093, 10711, 64375, 5575, 21328, 10993, 38795,
@@ -2152,82 +2153,82 @@ namespace FawnAlgebra
     export class Random
     {
     public:
-        constexpr explicit Random( const uint32_t seed = time( nullptr ) & MAX_PERMUTATION_INDEX )
-            : m_offset{seed & MAX_PERMUTATION_INDEX}
+        constexpr explicit Random( const uint32 seed =  std::chrono::system_clock::from_time_t(0).time_since_epoch().count() & MAX_PERMUTATION_INDEX )
+            : m_index{seed & MAX_PERMUTATION_INDEX}
         {
         }
 
-        constexpr void initState( const uint32_t seed = time( nullptr ) & MAX_PERMUTATION_INDEX ) noexcept
+        constexpr void initState( const uint32 seed = std::chrono::system_clock::from_time_t(0).time_since_epoch().count() & MAX_PERMUTATION_INDEX ) noexcept
         {
-            m_offset = seed & MAX_PERMUTATION_INDEX;
+            m_index = seed & MAX_PERMUTATION_INDEX;
         }
 
-        constexpr uint32_t next() noexcept
+        constexpr uint32 next() noexcept
         {
-            const uint32_t value = permutation[ m_offset ];
-            m_offset = ++m_offset & MAX_PERMUTATION_INDEX;
+            const uint32 value = permutation[ m_index++ ];
+            m_index &= MAX_PERMUTATION_INDEX;
             return value;
         }
 
-        constexpr uint32_t next( const uint32_t min, const uint32_t max ) noexcept
+        constexpr uint32 next( const uint32 min, const uint32 max ) noexcept
         {
-            const uint32_t diff = max - min;
-            const uint32_t value = permutation[ m_offset ];
-            m_offset = ++m_offset & MAX_PERMUTATION_INDEX;
+            const uint32 diff = max - min;
+            const uint32 value = permutation[ m_index++ ];
+            m_index &= MAX_PERMUTATION_INDEX;
             return min + value % diff;
         }
 
-        constexpr uint32_t next( const uint32_t max ) noexcept
+        constexpr uint32 next( const uint32 max ) noexcept
         {
             return next( 0, max );
         }
 
-        constexpr uint64_t next64() noexcept
+        constexpr uint64 next64() noexcept
         {
-            const uint32_t value1 = permutation[ m_offset ];
-            m_offset = ++m_offset & MAX_PERMUTATION_INDEX;
-            const uint32_t value2 = permutation[ m_offset ];
-            m_offset = ++m_offset & MAX_PERMUTATION_INDEX;
+            const uint32 value1 = permutation[ m_index++ ];
+            m_index = m_index & MAX_PERMUTATION_INDEX;
+            const uint32 value2 = permutation[ m_index++ ];
+            m_index = m_index & MAX_PERMUTATION_INDEX;
 
-            const uint64_t value3 = static_cast<uint64_t>(value1) << 32ULL;
-            return value3 | static_cast<uint64_t>(value2);
+            const uint64 value3 = static_cast<uint64>(value1) << 32ULL;
+            return value3 | static_cast<uint64>(value2);
         }
 
-        constexpr uint32_t next64( const uint64_t min, const uint64_t max ) noexcept
+        constexpr uint64 next64( const uint64 min, const uint64 max ) noexcept
         {
-            const uint32_t diff = max - min;
-            const uint32_t value1 = permutation[ m_offset ];
-            m_offset = ++m_offset & MAX_PERMUTATION_INDEX;
-            const uint32_t value2 = permutation[ m_offset ];
-            m_offset = ++m_offset & MAX_PERMUTATION_INDEX;
+            const uint64 diff = max - min;
+            const uint32 value1 = permutation[ m_index++ ];
+            m_index = m_index & MAX_PERMUTATION_INDEX;
+            const uint32 value2 = permutation[ m_index++ ];
+            m_index = m_index & MAX_PERMUTATION_INDEX;
 
-            const uint64_t value3 = static_cast<uint64_t>(value1) << 32ULL;
+            const uint64 value3 = static_cast<uint64>(value1) << 32ULL;
             return min + ( value3 | value2 ) % diff;
         }
 
-        constexpr uint32_t next64( const uint64_t max ) noexcept
+        constexpr uint64 next64( const uint64 max ) noexcept
         {
-            return next64( 0, max );
+            return next64( 0ULL, max );
         }
 
         constexpr double nextDouble() noexcept
         {
-            constexpr double div = 1.0 / 255.0;
-            const uint32_t value = next();
+            constexpr double div = 1.0 / MAX_PERMUTATION_INDEX;
+            const uint64 value = next64(~0ULL);
 
             return static_cast<double>(value) * div;
         }
 
         constexpr float nextSingle() noexcept
         {
-            constexpr float div = 1.0F / 255.0F;
-            const uint32_t value = next();
+            constexpr float div = 1.0F / MAX_PERMUTATION_INDEX;
+            const uint32 value = next(~0UL);
 
             return static_cast<float>(value) * div;
         }
 
         template<std::size_t N>
-        constexpr void nextBytes( uint32_t ( &data )[ N ] ) noexcept
+        constexpr void nextBytes( uint32 ( &data )[ N ] ) noexcept
         {
             for ( std::size_t i = 0; i < N; i++ )
             {
@@ -2238,9 +2239,9 @@ namespace FawnAlgebra
         // https://mrl.cs.nyu.edu/~perlin/noise/
         static inline float Perlin( float x, float y, float z = 0.0f ) noexcept
         {
-            const uint32_t X = static_cast<uint32_t>(std::floor( x )) & MAX_PERMUTATION_INDEX;// FIND UNIT CUBE THAT
-            const uint32_t Y = static_cast<uint32_t>(std::floor( y )) & MAX_PERMUTATION_INDEX;// CONTAINS POINT.
-            const uint32_t Z = static_cast<uint32_t>(std::floor( z )) & MAX_PERMUTATION_INDEX;
+            const uint32 X = static_cast<uint32>(std::floor( x )) & MAX_PERMUTATION_INDEX;// FIND UNIT CUBE THAT
+            const uint32 Y = static_cast<uint32>(std::floor( y )) & MAX_PERMUTATION_INDEX;// CONTAINS POINT.
+            const uint32 Z = static_cast<uint32>(std::floor( z )) & MAX_PERMUTATION_INDEX;
 
             x -= std::floor( x );// FIND RELATIVE X,Y,Z
             y -= std::floor( y );// OF POINT IN CUBE.
@@ -2250,12 +2251,12 @@ namespace FawnAlgebra
             const float v = fade( y );// FOR EACH OF X,Y,Z.
             const float w = fade( z );
 
-            const uint32_t A = permutation[ X ] + Y; // HASH COORDINATES OF
-            const uint32_t AA = permutation[ A ] + Z;// THE 8 CUBE CORNERS,
-            const uint32_t AB = permutation[ A + 1 & MAX_PERMUTATION_INDEX ] + Z;
-            const uint32_t B = permutation[ X + 1 & MAX_PERMUTATION_INDEX ] + Y;
-            const uint32_t BA = permutation[ B ] + Z;
-            const uint32_t BB = permutation[ B + 1 & MAX_PERMUTATION_INDEX ] + Z;
+            const uint32 A = permutation[ X ] + Y; // HASH COORDINATES OF
+            const uint32 AA = permutation[ A ] + Z;// THE 8 CUBE CORNERS,
+            const uint32 AB = permutation[ (A + 1) & MAX_PERMUTATION_INDEX ] + Z;
+            const uint32 B = permutation[ (X + 1) & MAX_PERMUTATION_INDEX ] + Y;
+            const uint32 BA = permutation[ B ] + Z;
+            const uint32 BB = permutation[ (B + 1) & MAX_PERMUTATION_INDEX ] + Z;
 
             return lerp( w,
                          lerp( v,
@@ -2271,14 +2272,14 @@ namespace FawnAlgebra
                          // FROM  8
                          lerp( v,
                                lerp( u,
-                                     grad( permutation[ AA + 1 & MAX_PERMUTATION_INDEX ], x, y, z - 1 ),
+                                     grad( permutation[ (AA + 1) & MAX_PERMUTATION_INDEX ], x, y, z - 1 ),
                                      // CORNERS
-                                     grad( permutation[ BA + 1 & MAX_PERMUTATION_INDEX ], x - 1, y, z - 1 ) ),
+                                     grad( permutation[ (BA + 1) & MAX_PERMUTATION_INDEX ], x - 1, y, z - 1 ) ),
                                // OF CUBE
-                               lerp( u, grad( permutation[ AB + 1 & MAX_PERMUTATION_INDEX ], x, y - 1, z - 1 ), grad( permutation[ BB + 1 & MAX_PERMUTATION_INDEX ], x - 1, y - 1, z - 1 ) ) ) );
+                               lerp( u, grad( permutation[ (AB + 1) & MAX_PERMUTATION_INDEX ], x, y - 1, z - 1 ), grad( permutation[ (BB + 1) & MAX_PERMUTATION_INDEX ], x - 1, y - 1, z - 1 ) ) ) );
         }
 
     private:
-        uint32_t m_offset;
+        uint32_t m_index;
     };
 }// namespace FawnAlgebra

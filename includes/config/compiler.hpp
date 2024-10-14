@@ -92,8 +92,6 @@
 #    define BALBINO_CONSTEXPR_SINCE_CXX23 constexpr
 #endif
 
-#define BALBINO_DEBUG _DEBUG
-
 #if BALBINO_COMPILER_ACTIVE == BALBINO_COMPILER_CLANG || BALBINO_COMPILER_ACTIVE == BALBINO_COMPILER_GNU
 #    define BALBINO_LIKELY(expr) __builtin_expect(!!(expr), 1)
 #    define BALBINO_UNLIKELY(expr) __builtin_expect(!!(expr), 0)
