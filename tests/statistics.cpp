@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-import FawnAlgebra;
+import FawnAlgebra.Statistics;
 
 TEST_CASE( "statistics" )
 {

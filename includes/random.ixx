@@ -2247,9 +2247,9 @@ namespace FawnAlgebra
             y -= std::floor( y );// OF POINT IN CUBE.
             z -= std::floor( z );
 
-            const float u = fade( x );// COMPUTE FADE CURVES
-            const float v = fade( y );// FOR EACH OF X,Y,Z.
-            const float w = fade( z );
+            const float u = Fade( x );// COMPUTE FADE CURVES
+            const float v = Fade( y );// FOR EACH OF X,Y,Z.
+            const float w = Fade( z );
 
             const uint32 A = permutation[ X ] + Y; // HASH COORDINATES OF
             const uint32 AA = permutation[ A ] + Z;// THE 8 CUBE CORNERS,
@@ -2258,25 +2258,25 @@ namespace FawnAlgebra
             const uint32 BA = permutation[ B ] + Z;
             const uint32 BB = permutation[ ( B + 1 ) & MAX_PERMUTATION_INDEX ] + Z;
 
-            return lerp( w,
-                         lerp( v,
-                               lerp( u,
-                                     grad( permutation[ AA & MAX_PERMUTATION_INDEX ], x, y, z ),
+            return Lerp( w,
+                         Lerp( v,
+                               Lerp( u,
+                                     Grad( permutation[ AA & MAX_PERMUTATION_INDEX ], x, y, z ),
                                      // AND ADD
-                                     grad( permutation[ BA & MAX_PERMUTATION_INDEX ], x - 1, y, z ) ),
+                                     Grad( permutation[ BA & MAX_PERMUTATION_INDEX ], x - 1, y, z ) ),
                                // BLENDED
-                               lerp( u,
-                                     grad( permutation[ AB & MAX_PERMUTATION_INDEX ], x, y - 1, z ),
+                               Lerp( u,
+                                     Grad( permutation[ AB & MAX_PERMUTATION_INDEX ], x, y - 1, z ),
                                      // RESULTS
-                                     grad( permutation[ BB & MAX_PERMUTATION_INDEX ], x - 1, y - 1, z ) ) ),
+                                     Grad( permutation[ BB & MAX_PERMUTATION_INDEX ], x - 1, y - 1, z ) ) ),
                          // FROM  8
-                         lerp( v,
-                               lerp( u,
-                                     grad( permutation[ ( AA + 1 ) & MAX_PERMUTATION_INDEX ], x, y, z - 1 ),
+                         Lerp( v,
+                               Lerp( u,
+                                     Grad( permutation[ ( AA + 1 ) & MAX_PERMUTATION_INDEX ], x, y, z - 1 ),
                                      // CORNERS
-                                     grad( permutation[ ( BA + 1 ) & MAX_PERMUTATION_INDEX ], x - 1, y, z - 1 ) ),
+                                     Grad( permutation[ ( BA + 1 ) & MAX_PERMUTATION_INDEX ], x - 1, y, z - 1 ) ),
                                // OF CUBE
-                               lerp( u, grad( permutation[ ( AB + 1 ) & MAX_PERMUTATION_INDEX ], x, y - 1, z - 1 ), grad( permutation[ ( BB + 1 ) & MAX_PERMUTATION_INDEX ], x - 1, y - 1, z - 1 ) ) ) );
+                               Lerp( u, Grad( permutation[ ( AB + 1 ) & MAX_PERMUTATION_INDEX ], x, y - 1, z - 1 ), Grad( permutation[ ( BB + 1 ) & MAX_PERMUTATION_INDEX ], x - 1, y - 1, z - 1 ) ) ) );
         }
 
     private:

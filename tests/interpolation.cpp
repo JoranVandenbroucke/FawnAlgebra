@@ -5,316 +5,318 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
-import FawnAlgebra;
+import FawnAlgebra.Interpolation;
+import FawnAlgebra.Constants;
 using namespace FawnAlgebra;
+
 TEST_CASE( "Math: toRadians", "[math]" )
 {
-    REQUIRE( toRadians( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( toRadians( 180.0f ) == Catch::Approx( 3.14159f ) );
-    REQUIRE( toRadians( 360.0f ) == Catch::Approx( 6.28318f ) );
+    REQUIRE( ToRadians( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( ToRadians( 180.0f ) == Catch::Approx( 3.14159f ) );
+    REQUIRE( ToRadians( 360.0f ) == Catch::Approx( 6.28318f ) );
 }
 
 TEST_CASE( "Math: toDegree", "[math]" )
 {
-    REQUIRE( toDegree( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( toDegree( 3.14159f ) == Catch::Approx( 180.0f ) );
-    REQUIRE( toDegree( 6.28318f ) == Catch::Approx( 360.0f ) );
+    REQUIRE( ToDegree( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( ToDegree( 3.14159f ) == Catch::Approx( 180.0f ) );
+    REQUIRE( ToDegree( 6.28318f ) == Catch::Approx( 360.0f ) );
 }
 
 TEST_CASE( "Math: fade", "[math]" )
 {
-    REQUIRE( fade( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( fade( 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( fade( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( Fade( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( Fade( 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( Fade( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
 TEST_CASE( "Math: grad", "[math]" )
 {
-    REQUIRE( grad( 1, 0.5f, 0.5f, 0.5f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( Grad( 1, 0.5f, 0.5f, 0.5f ) == Catch::Approx( 0.0f ) );
 }
 
 TEST_CASE( "Math: lerp", "[math]" )
 {
-    REQUIRE( lerp( 0.0f, 1.0f, 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( lerp( 1.0f, 2.0f, 0.25f ) == Catch::Approx( 1.25f ) );
+    REQUIRE( Lerp( 0.0f, 1.0f, 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( Lerp( 1.0f, 2.0f, 0.25f ) == Catch::Approx( 1.25f ) );
 }
 
 TEST_CASE( "Math: ilerp", "[math]" )
 {
-    REQUIRE( ilerp( 0.0f, 1.0f, 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( ilerp( 1.0f, 2.0f, 1.25f ) == Catch::Approx( 0.25f ) );
+    REQUIRE( Ilerp( 0.0f, 1.0f, 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( Ilerp( 1.0f, 2.0f, 1.25f ) == Catch::Approx( 0.25f ) );
 }
 
 TEST_CASE( "Math: remap", "[math]" )
 {
-    REQUIRE( remap( 0.0f, 100.0f, 0.0f, 1.0f, 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( remap( 0.0f, 100.0f, 0.0f, 1.0f, 50.0f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( remap( 0.0f, 100.0f, 0.0f, 1.0f, 100.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( Remap( 0.0f, 100.0f, 0.0f, 1.0f, 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( Remap( 0.0f, 100.0f, 0.0f, 1.0f, 50.0f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( Remap( 0.0f, 100.0f, 0.0f, 1.0f, 100.0f ) == Catch::Approx( 1.0f ) );
 }
 
 TEST_CASE( "Math: lerpAngleEuler", "[math]" )
 {
-    REQUIRE( lerpAngleEuler( 0.0f, 360.0f, 0.5f ) == Catch::Approx( 180.0f ) );
+    REQUIRE( LerpAngleEuler( 0.0f, 360.0f, 0.5f ) == Catch::Approx( 180.0f ) );
 }
 
 TEST_CASE( "Math: ilerpAngleEuler", "[math]" )
 {
-    REQUIRE( ilerpAngleEuler( 0.0f, 360.0f, 180.0f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( IlerpAngleEuler( 0.0f, 360.0f, 180.0f ) == Catch::Approx( 0.5f ) );
 }
 
 TEST_CASE( "Math: remapAngleToValueEuler", "[math]" )
 {
-    REQUIRE( remapAngleToValueEuler( 0.0f, 360.0f, 0.0f, 100.0f, 180.0f ) == Catch::Approx( 50.0f ) );
+    REQUIRE( RemapAngleToValueEuler( 0.0f, 360.0f, 0.0f, 100.0f, 180.0f ) == Catch::Approx( 50.0f ) );
 }
 
 TEST_CASE( "Math: remapAngleFromValueEuler", "[math]" )
 {
-    REQUIRE( remapAngleFromValueEuler( 0.0f, 100.0f, 0.0f, 360.0f, 50.0f ) == Catch::Approx( 180.0f ) );
+    REQUIRE( RemapAngleFromValueEuler( 0.0f, 100.0f, 0.0f, 360.0f, 50.0f ) == Catch::Approx( 180.0f ) );
 }
 
 TEST_CASE( "Math: remapAngleEuler", "[math]" )
 {
-    REQUIRE( remapAngleEuler( 0.0f, 360.0f, 0.0f, 100.0f, 180.0f ) == Catch::Approx( 50.0f ) );
+    REQUIRE( RemapAngleEuler( 0.0f, 360.0f, 0.0f, 100.0f, 180.0f ) == Catch::Approx( 50.0f ) );
 }
 
 TEST_CASE( "Math: lerpAngleRad", "[math]" )
 {
-    REQUIRE( lerpAngleRad( 0.0f, FawnAlgebra::two_pi<float>, 0.5f ) == Catch::Approx( FawnAlgebra::pi<float> ) );
+    REQUIRE( LerpAngleRad( 0.0f, FawnAlgebra::two_pi<float>, 0.5f ) == Catch::Approx( FawnAlgebra::pi<float> ) );
 }
 
 TEST_CASE( "Math: ilerpAngleRad", "[math]" )
 {
-    REQUIRE( ilerpAngleRad( 0.0f, FawnAlgebra::two_pi<float>, FawnAlgebra::pi<float> ) == Catch::Approx( 0.5f ) );
+    REQUIRE( IlerpAngleRad( 0.0f, FawnAlgebra::two_pi<float>, FawnAlgebra::pi<float> ) == Catch::Approx( 0.5f ) );
 }
 
 TEST_CASE( "Math: remapAngleToValueRad", "[math]" )
 {
-    REQUIRE( remapAngleToValueRad( 0.0f, FawnAlgebra::two_pi<float>, 0.0f, 100.0f, FawnAlgebra::pi<float> ) == Catch::Approx( 50.0f ) );
+    REQUIRE( RemapAngleToValueRad( 0.0f, FawnAlgebra::two_pi<float>, 0.0f, 100.0f, FawnAlgebra::pi<float> ) == Catch::Approx( 50.0f ) );
 }
 
 TEST_CASE( "Math: remapAngleFromValueRad", "[math]" )
 {
-    REQUIRE( remapAngleFromValueRad( 0.0f, 100.0f, 0.0f, FawnAlgebra::two_pi<float>, 50.0f ) == Catch::Approx( 3.14159f ) );
+    REQUIRE( RemapAngleFromValueRad( 0.0f, 100.0f, 0.0f, FawnAlgebra::two_pi<float>, 50.0f ) == Catch::Approx( 3.14159f ) );
 }
 
 TEST_CASE( "Math: remapAngleRad", "[math]" )
 {
-    REQUIRE( remapAngleRad( 0.0f, FawnAlgebra::two_pi<float>, 0.0f, 100.0f,  FawnAlgebra::pi<float>) == Catch::Approx( -0.265483737f ) );
+    REQUIRE( RemapAngleRad( 0.0f, FawnAlgebra::two_pi<float>, 0.0f, 100.0f, FawnAlgebra::pi<float>) == Catch::Approx( -0.265483737f ) );
 }
 
 TEST_CASE( "Math: exponentialDecay", "[math]" )
 {
-    REQUIRE( exponentialDecay( 0.0f, 1.0f, 1.0f, 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( exponentialDecay( 0.0f, 1.0f, 1.0f, 0.5f ) == Catch::Approx( 0.393469334f ) );
-    REQUIRE( exponentialDecay( 0.0f, 1.0f, 1.0f, 1.0f ) == Catch::Approx( 0.63212055f ) );
+    REQUIRE( ExponentialDecay( 0.0f, 1.0f, 1.0f, 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( ExponentialDecay( 0.0f, 1.0f, 1.0f, 0.5f ) == Catch::Approx( 0.393469334f ) );
+    REQUIRE( ExponentialDecay( 0.0f, 1.0f, 1.0f, 1.0f ) == Catch::Approx( 0.63212055f ) );
 }
 
-TEST_CASE( "Easing: easeInSine", "[easing]" )
+TEST_CASE( "Easing: EaseInSine", "[easing]" )
 {
-    REQUIRE( easeInSine( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInSine( 0.5f ) == Catch::Approx( 0.292893231f ) );
-    REQUIRE( easeInSine( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInSine( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInSine( 0.5f ) == Catch::Approx( 0.292893231f ) );
+    REQUIRE( EaseInSine( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeOutSine", "[easing]" )
+TEST_CASE( "Easing: EaseOutSine", "[easing]" )
 {
-    REQUIRE( easeOutSine( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeOutSine( 0.5f ) == Catch::Approx( 0.7071f ) );
-    REQUIRE( easeOutSine( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseOutSine( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseOutSine( 0.5f ) == Catch::Approx( 0.7071f ) );
+    REQUIRE( EaseOutSine( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInOutSine", "[easing]" )
+TEST_CASE( "Easing: EaseInOutSine", "[easing]" )
 {
-    REQUIRE( easeInOutSine( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInOutSine( 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( easeInOutSine( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInOutSine( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInOutSine( 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( EaseInOutSine( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInQuad", "[easing]" )
+TEST_CASE( "Easing: EaseInQuad", "[easing]" )
 {
-    REQUIRE( easeInQuad( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInQuad( 0.5f ) == Catch::Approx( 0.25f ) );
-    REQUIRE( easeInQuad( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInQuad( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInQuad( 0.5f ) == Catch::Approx( 0.25f ) );
+    REQUIRE( EaseInQuad( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeOutQuad", "[easing]" )
+TEST_CASE( "Easing: EaseOutQuad", "[easing]" )
 {
-    REQUIRE( easeOutQuad( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeOutQuad( 0.5f ) == Catch::Approx( 0.75f ) );
-    REQUIRE( easeOutQuad( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseOutQuad( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseOutQuad( 0.5f ) == Catch::Approx( 0.75f ) );
+    REQUIRE( EaseOutQuad( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInOutQuad", "[easing]" )
+TEST_CASE( "Easing: EaseInOutQuad", "[easing]" )
 {
-    REQUIRE( easeInOutQuad( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInOutQuad( 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( easeInOutQuad( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInOutQuad( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInOutQuad( 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( EaseInOutQuad( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInCubic", "[easing]" )
+TEST_CASE( "Easing: EaseInCubic", "[easing]" )
 {
-    REQUIRE( easeInCube( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInCube( 0.5f ) == Catch::Approx( 0.125f ) );
-    REQUIRE( easeInCube( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInCube( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInCube( 0.5f ) == Catch::Approx( 0.125f ) );
+    REQUIRE( EaseInCube( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeOutCubic", "[easing]" )
+TEST_CASE( "Easing: EaseOutCubic", "[easing]" )
 {
-    REQUIRE( easeOutCube( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeOutCube( 0.5f ) == Catch::Approx( 0.875f ) );
-    REQUIRE( easeOutCube( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseOutCube( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseOutCube( 0.5f ) == Catch::Approx( 0.875f ) );
+    REQUIRE( EaseOutCube( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInOutCubic", "[easing]" )
+TEST_CASE( "Easing: EaseInOutCubic", "[easing]" )
 {
-    REQUIRE( easeInOutCube( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInOutCube( 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( easeInOutCube( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInOutCube( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInOutCube( 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( EaseInOutCube( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInQuart", "[easing]" )
+TEST_CASE( "Easing: EaseInQuart", "[easing]" )
 {
-    REQUIRE( easeInQuart( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInQuart( 0.5f ) == Catch::Approx( 0.0625f ) );
-    REQUIRE( easeInQuart( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInQuart( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInQuart( 0.5f ) == Catch::Approx( 0.0625f ) );
+    REQUIRE( EaseInQuart( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeOutQuart", "[easing]" )
+TEST_CASE( "Easing: EaseOutQuart", "[easing]" )
 {
-    REQUIRE( easeOutQuart( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeOutQuart( 0.5f ) == Catch::Approx( 0.9375f ) );
-    REQUIRE( easeOutQuart( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseOutQuart( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseOutQuart( 0.5f ) == Catch::Approx( 0.9375f ) );
+    REQUIRE( EaseOutQuart( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInOutQuart", "[easing]" )
+TEST_CASE( "Easing: EaseInOutQuart", "[easing]" )
 {
-    REQUIRE( easeInOutQuart( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInOutQuart( 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( easeInOutQuart( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInOutQuart( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInOutQuart( 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( EaseInOutQuart( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInQuint", "[easing]" )
+TEST_CASE( "Easing: EaseInQuint", "[easing]" )
 {
-    REQUIRE( easeInQuint( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInQuint( 0.5f ) == Catch::Approx( 0.03125f ) );
-    REQUIRE( easeInQuint( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInQuint( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInQuint( 0.5f ) == Catch::Approx( 0.03125f ) );
+    REQUIRE( EaseInQuint( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeOutQuint", "[easing]" )
+TEST_CASE( "Easing: EaseOutQuint", "[easing]" )
 {
-    REQUIRE( easeOutQuint( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeOutQuint( 0.5f ) == Catch::Approx( 0.96875f ) );
-    REQUIRE( easeOutQuint( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseOutQuint( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseOutQuint( 0.5f ) == Catch::Approx( 0.96875f ) );
+    REQUIRE( EaseOutQuint( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInOutQuint", "[easing]" )
+TEST_CASE( "Easing: EaseInOutQuint", "[easing]" )
 {
-    REQUIRE( easeInOutQuint( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInOutQuint( 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( easeInOutQuint( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInOutQuint( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInOutQuint( 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( EaseInOutQuint( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInExpo", "[easing]" )
+TEST_CASE( "Easing: EaseInExpo", "[easing]" )
 {
-    REQUIRE( easeInExpo( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInExpo( 0.5f ) == Catch::Approx( 0.03125f ) );
-    REQUIRE( easeInExpo( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInExpo( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInExpo( 0.5f ) == Catch::Approx( 0.03125f ) );
+    REQUIRE( EaseInExpo( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeOutExpo", "[easing]" )
+TEST_CASE( "Easing: EaseOutExpo", "[easing]" )
 {
-    REQUIRE( easeOutExpo( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeOutExpo( 0.5f ) == Catch::Approx( 0.96875f ) );
-    REQUIRE( easeOutExpo( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseOutExpo( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseOutExpo( 0.5f ) == Catch::Approx( 0.96875f ) );
+    REQUIRE( EaseOutExpo( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInOutExpo", "[easing]" )
+TEST_CASE( "Easing: EaseInOutExpo", "[easing]" )
 {
-    REQUIRE( easeInOutExpo( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInOutExpo( 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( easeInOutExpo( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInOutExpo( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInOutExpo( 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( EaseInOutExpo( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInCirc", "[easing]" )
+TEST_CASE( "Easing: EaseInCirc", "[easing]" )
 {
-    REQUIRE( easeInCirc( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInCirc( 0.5f ) == Catch::Approx( 0.133974612f ) );
-    REQUIRE( easeInCirc( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInCirc( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInCirc( 0.5f ) == Catch::Approx( 0.133974612f ) );
+    REQUIRE( EaseInCirc( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeOutCirc", "[easing]" )
+TEST_CASE( "Easing: EaseOutCirc", "[easing]" )
 {
-    REQUIRE( easeOutCirc( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeOutCirc( 0.5f ) == Catch::Approx( 0.86602f ) );
-    REQUIRE( easeOutCirc( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseOutCirc( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseOutCirc( 0.5f ) == Catch::Approx( 0.86602f ) );
+    REQUIRE( EaseOutCirc( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInOutCirc", "[easing]" )
+TEST_CASE( "Easing: EaseInOutCirc", "[easing]" )
 {
-    REQUIRE( easeInOutCirc( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInOutCirc( 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( easeInOutCirc( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInOutCirc( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInOutCirc( 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( EaseInOutCirc( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInBack", "[easing]" )
+TEST_CASE( "Easing: EaseInBack", "[easing]" )
 {
-    REQUIRE( easeInBack( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInBack( 0.5f ) == Catch::Approx( -0.087697506f ) );
-    REQUIRE( easeInBack( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInBack( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInBack( 0.5f ) == Catch::Approx( -0.087697506f ) );
+    REQUIRE( EaseInBack( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeOutBack", "[easing]" )
+TEST_CASE( "Easing: EaseOutBack", "[easing]" )
 {
-    REQUIRE( easeOutBack( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeOutBack( 0.5f ) == Catch::Approx( 1.087697506f ) );
-    REQUIRE( easeOutBack( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseOutBack( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseOutBack( 0.5f ) == Catch::Approx( 1.087697506f ) );
+    REQUIRE( EaseOutBack( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInOutBack", "[easing]" )
+TEST_CASE( "Easing: EaseInOutBack", "[easing]" )
 {
-    REQUIRE( easeInOutBack( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInOutBack( 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( easeInOutBack( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInOutBack( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInOutBack( 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( EaseInOutBack( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInElastic", "[easing]" )
+TEST_CASE( "Easing: EaseInElastic", "[easing]" )
 {
-    REQUIRE( easeInElastic( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInElastic( 0.5f ) == Catch::Approx( -0.015624988f ) );
-    REQUIRE( easeInElastic( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInElastic( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInElastic( 0.5f ) == Catch::Approx( -0.015624988f ) );
+    REQUIRE( EaseInElastic( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeOutElastic", "[easing]" )
+TEST_CASE( "Easing: EaseOutElastic", "[easing]" )
 {
-    REQUIRE( easeOutElastic( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeOutElastic( 0.5f ) == Catch::Approx( 1.015625f ) );
-    REQUIRE( easeOutElastic( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseOutElastic( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseOutElastic( 0.5f ) == Catch::Approx( 1.015625f ) );
+    REQUIRE( EaseOutElastic( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInOutElastic", "[easing]" )
+TEST_CASE( "Easing: EaseInOutElastic", "[easing]" )
 {
-    REQUIRE( easeInOutElastic( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInOutElastic( 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( easeInOutElastic( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInOutElastic( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInOutElastic( 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( EaseInOutElastic( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInBounce", "[easing]" )
+TEST_CASE( "Easing: EaseInBounce", "[easing]" )
 {
-    REQUIRE( easeInBounce( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInBounce( 0.5f ) == Catch::Approx( 0.234375f ) );
-    REQUIRE( easeInBounce( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInBounce( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInBounce( 0.5f ) == Catch::Approx( 0.234375f ) );
+    REQUIRE( EaseInBounce( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeOutBounce", "[easing]" )
+TEST_CASE( "Easing: EaseOutBounce", "[easing]" )
 {
-    REQUIRE( easeOutBounce( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeOutBounce( 0.5f ) == Catch::Approx( 0.76562f ) );
-    REQUIRE( easeOutBounce( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseOutBounce( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseOutBounce( 0.5f ) == Catch::Approx( 0.76562f ) );
+    REQUIRE( EaseOutBounce( 1.0f ) == Catch::Approx( 1.0f ) );
 }
 
-TEST_CASE( "Easing: easeInOutBounce", "[easing]" )
+TEST_CASE( "Easing: EaseInOutBounce", "[easing]" )
 {
-    REQUIRE( easeInOutBounce( 0.0f ) == Catch::Approx( 0.0f ) );
-    REQUIRE( easeInOutBounce( 0.5f ) == Catch::Approx( 0.5f ) );
-    REQUIRE( easeInOutBounce( 1.0f ) == Catch::Approx( 1.0f ) );
+    REQUIRE( EaseInOutBounce( 0.0f ) == Catch::Approx( 0.0f ) );
+    REQUIRE( EaseInOutBounce( 0.5f ) == Catch::Approx( 0.5f ) );
+    REQUIRE( EaseInOutBounce( 1.0f ) == Catch::Approx( 1.0f ) );
 }
