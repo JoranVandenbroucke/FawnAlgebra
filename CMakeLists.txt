@@ -39,7 +39,6 @@ target_compile_options(${PROJECT_NAME}
         $<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>
         #todo -embed-dir="${CMAKE_SOURCE_DIR}/Embedded"
         $<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>
-
 )
 
 add_subdirectory(tests)
