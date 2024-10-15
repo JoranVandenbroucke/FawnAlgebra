@@ -45,3 +45,7 @@ jobs:
       - name: Test
         working-directory: ${{ steps.strings.outputs.build-output-dir }}/tests
         run: ctest
+
+      - name: Test2
+        working-directory: ${{ steps.strings.outputs.build-output-dir }}/tests
+        run: ./FawnAlgebra_test.exe
