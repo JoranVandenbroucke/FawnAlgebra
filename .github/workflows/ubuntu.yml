@@ -33,18 +33,12 @@ jobs:
           sudo ./llvm.sh 18 all
           sudo apt-get install -y clang-tools-18  # Ensure clang-scan-deps is installed
 
-      - name: Set reusable strings
-        id: strings
-        shell: bash
-        run: |
-          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-
       - name: Configure CMake
         env:
           CC: ${{matrix.cc}}
           CXX: ${{matrix.cxx}}
         run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          cmake -B ${{runner.workspace}}\Buil
           -G Ninja
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DCMAKE_C_COMPILER=${{ matrix.c}}
@@ -54,12 +48,13 @@ jobs:
           -S ${{ github.workspace }}
 
       - name: Build
-        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+        run: cmake --build ${{runner.workspace}}\Buil --config ${{ matrix.build_type }}
 
       - name: Test
-        working-directory: ${{ steps.strings.outputs.build-output-dir }}/tests
+        working-directory: ${{runner.workspace}}\Buil\tests
         run: ctest
 
       - name: Test2
-        working-directory: ${{ steps.strings.outputs.build-output-dir }}/tests
-        run: FawnAlgebra_test.exe
+        working-directory: ${{runner.workspace}}\Buil\tests
+        run: ./FawnAlgebra_test.exe
+
