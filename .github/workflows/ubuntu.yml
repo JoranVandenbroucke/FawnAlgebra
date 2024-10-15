@@ -38,23 +38,22 @@ jobs:
           CC: ${{matrix.cc}}
           CXX: ${{matrix.cxx}}
         run: >
-          cmake -B ${{runner.workspace}}\Buil
+          cmake -B ${{runner.workspace}}/Build
           -G Ninja
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DCMAKE_C_COMPILER=${{ matrix.c}}
+          -DCMAKE_C_COMPILER=${{ matrix.cc}}
           -DCMAKE_CXX_COMPILER=${{ matrix.cxx}}
           -DCMAKE_CXX_STANDARD=${{matrix.std}}
           -DCMAKE_CXX_COMPILER_SCAN_DEPS="/usr/lib/llvm-18/bin/clang-scan-deps"
           -S ${{ github.workspace }}
 
       - name: Build
-        run: cmake --build ${{runner.workspace}}\Buil --config ${{ matrix.build_type }}
+        run: cmake --build ${{runner.workspace}}/Build --config ${{ matrix.build_type }}
 
       - name: Test
-        working-directory: ${{runner.workspace}}\Buil\tests
-        run: ctest
+        working-directory: ${{runner.workspace}}/Build/tests
+        run: ctest --output-on-failure
 
       - name: Test2
-        working-directory: ${{runner.workspace}}\Buil\tests
-        run: ./FawnAlgebra_test.exe
+        run: ${{runner.workspace}}/Build/tests/FawnAlgebra_test
 

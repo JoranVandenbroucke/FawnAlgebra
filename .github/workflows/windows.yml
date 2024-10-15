@@ -17,7 +17,7 @@ jobs:
       matrix:
         build_type: [ Debug, Release ]
         std: [ 23 ]
-        c: [ cl ]
+        cc: [ cl ]
         cxx: [ cl ]
 
 
@@ -26,20 +26,19 @@ jobs:
 
       - name: Configure CMake
         run: >
-          cmake -B ${{runner.workspace}}\Buil
-          -DCMAKE_C_COMPILER=${{ matrix.c}}
+          cmake -B ${{runner.workspace}}\Build
+          -DCMAKE_C_COMPILER=${{ matrix.cc}}
           -DCMAKE_CXX_COMPILER=${{ matrix.cxx}}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DCMAKE_CXX_STANDARD=${{matrix.std}}
           -S ${{ github.workspace }}
 
       - name: Build
-        run: cmake --build ${{runner.workspace}}\Buil --config ${{ matrix.build_type }}
+        run: cmake --build ${{runner.workspace}}\Build --config ${{ matrix.build_type }}
 
       - name: Test
-        working-directory: ${{runner.workspace}}\Buil\tests
-        run: ctest
+        working-directory: ${{runner.workspace}}\Build\tests
+        run: ctest --output-on-failure
 
       - name: Test2
-        working-directory: ${{runner.workspace}}\Buil\tests
-        run: ./FawnAlgebra_test.exe
+        run: ${{runner.workspace}}\Build\tests\FawnAlgebra_test.exe
