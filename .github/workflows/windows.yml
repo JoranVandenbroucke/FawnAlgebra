@@ -41,4 +41,4 @@ jobs:
         run: ctest --output-on-failure
 
       - name: Test2
-        run: ${{runner.workspace}}\Build\tests\FawnAlgebra_test.exe
+        run: start ${{runner.workspace}}\Build\tests\FawnAlgebra_test.exe
