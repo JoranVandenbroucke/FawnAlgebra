@@ -29,8 +29,6 @@ function(setup_catch target_name)
                         GIT_PROGRESS TRUE
                 )
                 FetchContent_MakeAvailable(Catch2)
-                set_property(DIRECTORY "${CMAKE_BINARY_DIR}/_deps/Catch2-src" PROPERTY EXCLUDE_FROM_ALL TRUE)
-                set(Catch2_SOURCE_DIR "${CMAKE_BINARY_DIR}/_deps/Catch2-src")
             endif ()
         else ()
             set(Catch2_SOURCE_DIR "${Catch2_DIR}")
