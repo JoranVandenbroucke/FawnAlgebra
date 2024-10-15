@@ -35,11 +35,10 @@ target_compile_options(${PROJECT_NAME}
         $<$<CONFIG:Debug>:${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT} ${DEFAULT_CXX_EXCEPTION_HANDLING}>
         $<$<CXX_COMPILER_ID:MSVC>: /W4 /WX /MP $<$<CONFIG:Debug>:${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT} ${DEFAULT_CXX_EXCEPTION_HANDLING}>>
         $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+        $<$<CXX_COMPILER_ID:GNU>:-fmodules-ts>
         PUBLIC
-        $<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>
         #todo -embed-dir="${CMAKE_SOURCE_DIR}/Embedded"
-        $<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>
-
+        $<$<CXX_COMPILER_ID:Clang>:-fembed-bitcode>
 )
 
 add_subdirectory(tests)

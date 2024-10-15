@@ -55,10 +55,10 @@ BreakBeforeBraces: Custom
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeComma
 BreakConstructorInitializersBeforeComma: false
-ColumnLimit: 250
+ColumnLimit: 220
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
-ContinuationIndentWidth: 8
+ContinuationIndentWidth: 4
 IncludeCategories:
   - Regex: '^<.*'
     Priority: 1
@@ -76,7 +76,7 @@ KeepEmptyLinesAtTheStartOfBlocks: true
 MacroBlockBegin: ''
 MacroBlockEnd: ''
 MaxEmptyLinesToKeep: 1
-NamespaceIndentation: All
+NamespaceIndentation: Inner
 ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: false
 PointerAlignment: Left
