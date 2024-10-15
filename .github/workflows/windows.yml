@@ -40,11 +40,5 @@ jobs:
         working-directory: ${{runner.workspace}}\Build\tests
         run: ctest --output-on-failure
 
-      - name: What
-        working-directory: ${{runner.workspace}}
-        run: |
-          dir
-          cd Build
-          dir
-          cd tests
-          dir
+      - name: Test2
+        run: ${{runner.workspace}}/Build/tests/${{ matrix.build_type }}/FawnAlgebra_test
