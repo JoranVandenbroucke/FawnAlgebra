@@ -8,16 +8,15 @@ module;
 #include <chrono>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 
-export module FawnAlgebra.Random;
-
-import FawnAlgebra.Arithmetics;
-import FawnAlgebra.Interpolation;
+export module FawnAlgebra:Random;
+import :Interpolation;
 
 namespace FawnAlgebra
 {
-    constexpr uint32 MAX_PERMUTATION_INDEX{0xFFFF};
-    constexpr uint32 permutation[ ]{50680, 11117, 10917, 7153, 39481, 6986, 37910, 18503, 46153, 34167, 10417, 56057, 8083, 45767, 60327, 34033, 23556, 44989, 43640, 7050, 60372, 21413, 62683, 19049, 8020, 18399, 35298, 46346, 57083, 4443, 43423,
+    inline constexpr uint32_t MAX_PERMUTATION_INDEX{0xFFFF};
+    inline constexpr uint32_t permutation[]{50680, 11117, 10917, 7153, 39481, 6986, 37910, 18503, 46153, 34167, 10417, 56057, 8083, 45767, 60327, 34033, 23556, 44989, 43640, 7050, 60372, 21413, 62683, 19049, 8020, 18399, 35298, 46346, 57083, 4443, 43423,
                                     28122, 51083, 62460, 11799, 20549, 49700, 23416, 65417, 11073, 44292, 2796, 25474, 16107, 20134, 39182, 46580, 7374, 2935, 12002, 64629, 17843, 876, 53314, 15148, 32894, 3502, 28367, 51897, 30917, 54889, 56236,
                                     44196, 23216, 25447, 29249, 29264, 25376, 55032, 24540, 21505, 46810, 12332, 12437, 4853, 47333, 31648, 24765, 27295, 11, 42204, 50163, 22839, 10998, 17070, 2310, 23026, 1185, 37458, 54483, 42348, 56198, 17365,
                                     31780, 50787, 59157, 50669, 44028, 27535, 46550, 41553, 49359, 54206, 15411, 31882, 53599, 15560, 12102, 47033, 31929, 8369, 28400, 64129, 52167, 36565, 45051, 44093, 10711, 64375, 5575, 21328, 10993, 38795,
@@ -1456,14 +1455,7 @@ namespace FawnAlgebra
                                     1226, 33148, 48801, 2034, 44248, 18508, 32344, 796, 4081, 8157, 64748, 45114, 20542, 23488, 43199, 11031, 30445, 10968, 44006, 3632, 4329, 5889, 63395, 48108, 4548, 57729, 7323, 49907, 28183, 22867, 61255, 7109,
                                     29754, 65269, 6504, 46071, 6580, 7445, 24104, 32521, 57377, 21348, 31332, 42832, 40943, 13378, 34216, 60411, 37866, 4808, 15460, 31849, 20131, 30633, 41414, 50708, 63725, 30140, 36504, 42437, 36936, 26505, 64172,
                                     64768, 6914, 4643, 41040, 35939, 11732, 7243, 58281, 48607, 24925, 12151, 8960, 61347, 21749, 45911, 34068, 36887, 18125, 55612, 20521, 41955, 26298, 60714, 44138, 35165, 3819, 41238, 798, 46318, 3789, 29843,
-                                    64415, 37004, 55893, 65182, 269, 35032, 7883, 24752, 15312, 21466, 41731, 50519, 13409, 25389, 52029, 58768, 29292, 8192, 54693, 64492, 12757, 43654, 4567, 40465, 5824, 50521, 10599, 59688, 2655, 29272, 14705,
-                                    26985, 54205, 29635, 405, 10813, 31634, 37777, 51652, 65132, 26007, 40712, 51034, 36241, 22691, 38413, 2756, 58081, 35245, 55031, 35913, 15049, 7311, 34066, 9612, 34070, 16874, 50185, 55641, 15282, 64447, 17522,
-                                    61124, 1913, 62987, 59019, 4587, 4046, 34952, 11270, 32963, 21010, 3993, 46600, 7096, 55942, 42102, 16202, 4900, 37627, 38077, 19198, 7972, 42297, 31866, 29369, 21376, 15781, 40203, 5537, 26997, 815, 34740,
-                                    35757, 2054, 15223, 32738, 1563, 28877, 60968, 23476, 64148, 42509, 61661, 20647, 21091, 48817, 48300, 4975, 55458, 35498, 48793, 64185, 17610, 45235, 15590, 45353, 57016, 23473, 17043, 24477, 34607, 25654,
-                                    12397, 20946, 6096, 29306, 19302, 7041, 13819, 58588, 38505, 47126, 53860, 9589, 39494, 13707, 51857, 57992, 43261, 42393, 11961, 52764, 42, 18352, 11988, 57113, 62322, 47371, 24778, 13542, 28906, 44717, 29969,
-                                    50063, 49174, 21300, 42086, 56589, 35054, 40573, 63258, 43736, 58742, 35402, 14576, 61493, 64199, 1127, 51877, 14680, 19196, 40305, 56086, 52299, 17619, 17081, 13927, 4359, 23711, 27028, 6540, 6731, 11214, 65351,
-                                    44723, 13959, 31913, 41241, 7301, 36570, 28724, 48383, 57095, 6879, 14749, 45716, 37595, 26044, 50538, 13836, 9880, 22336, 3378, 51412, 61313, 59187, 41394, 60148, 33491, 25864, 43774, 41893, 27826, 38690, 61026,
-                                    6820, 11861, 52551, 4420, 25821, 58183, 53081, 45553, 14635, 64695, 42799, 52005, 57933, 15193, 50959, 56732, 24881, 58628, 18532, 19860, 21181, 8990, 50472, 24577, 34577, 55403, 29182, 6150, 15298, 5649, 16420,
+                                    64415, 37004, 55893, 65182, 269, 35032, 7883, 24752, 15312, 21466, 41731, 50519, 13409, 25389, 52029, 58768, 29292, 8192, 54693, 64492, 12757, 43654, 4567, 40465, 5824, 50521, 10599, 59688, 2655, 29272, 14705, 26985, 54205, 29635, 405, 10813, 31634, 37777, 51652, 65132, 26007, 40712, 51034, 36241, 22691, 38413, 2756, 58081, 35245, 55031, 35913, 15049, 7311, 34066, 9612, 34070, 16874, 50185, 55641, 15282, 64447, 17522, 61124, 1913, 62987, 59019, 4587, 4046, 34952, 11270, 32963, 21010, 3993, 46600, 7096, 55942, 42102, 16202, 4900, 37627, 38077, 19198, 7972, 42297, 31866, 29369, 21376, 15781, 40203, 5537, 26997, 815, 34740, 35757, 2054, 15223, 32738, 1563, 28877, 60968, 23476, 64148, 42509, 61661, 20647, 21091, 48817, 48300, 4975, 55458, 35498, 48793, 64185, 17610, 45235, 15590, 45353, 57016, 23473, 17043, 24477, 34607, 25654, 12397, 20946, 6096, 29306, 19302, 7041, 13819, 58588, 38505, 47126, 53860, 9589, 39494, 13707, 51857, 57992, 43261, 42393, 11961, 52764, 42, 18352, 11988, 57113, 62322, 47371, 24778, 13542, 28906, 44717, 29969, 50063, 49174, 21300, 42086, 56589, 35054, 40573, 63258, 43736, 58742, 35402, 14576, 61493, 64199, 1127, 51877, 14680, 19196, 40305, 56086, 52299, 17619, 17081, 13927, 4359, 23711, 27028, 6540, 6731, 11214, 65351, 44723, 13959, 31913, 41241, 7301, 36570, 28724, 48383, 57095, 6879, 14749, 45716, 37595, 26044, 50538, 13836, 9880, 22336, 3378, 51412, 61313, 59187, 41394, 60148, 33491, 25864, 43774, 41893, 27826, 38690, 61026, 6820, 11861, 52551, 4420, 25821, 58183, 53081, 45553, 14635, 64695, 42799, 52005, 57933, 15193, 50959, 56732, 24881, 58628, 18532, 19860, 21181, 8990, 50472, 24577, 34577, 55403, 29182, 6150, 15298, 5649, 16420,
                                     31436, 29152, 39717, 61735, 6163, 39463, 41011, 24126, 49517, 53855, 62624, 2335, 40102, 37575, 35411, 45571, 6883, 18018, 56953, 24941, 49952, 23046, 55257, 32582, 46026, 7666, 23612, 2387, 40073, 23813, 6461,
                                     51020, 44872, 272, 21834, 24671, 28500, 10470, 14413, 34782, 22664, 40103, 8872, 56642, 1478, 29368, 49358, 25998, 31937, 29347, 40244, 10364, 42695, 10155, 56949, 35274, 57544, 43922, 22689, 25565, 24901, 45096,
                                     33158, 7741, 39599, 22430, 3095, 56759, 15334, 49828, 51207, 53806, 13469, 55340, 37913, 45072, 38911, 2915, 8252, 29342, 26557, 58941, 32829, 24766, 21708, 2219, 8851, 46022, 11286, 64071, 12351, 37451, 43726,
@@ -2153,95 +2145,94 @@ namespace FawnAlgebra
     export class Random
     {
     public:
-        constexpr explicit Random( const uint32 seed = std::chrono::system_clock::from_time_t( 0 ).time_since_epoch().count() & MAX_PERMUTATION_INDEX )
+        constexpr explicit Random( const uint32_t seed = std::chrono::system_clock::from_time_t( 0 ).time_since_epoch().count() & MAX_PERMUTATION_INDEX )
             : m_index{seed & MAX_PERMUTATION_INDEX}
         {
         }
 
-        constexpr void initState( const uint32 seed = std::chrono::system_clock::from_time_t( 0 ).time_since_epoch().count() & MAX_PERMUTATION_INDEX ) noexcept
+        constexpr void InitState( const uint32_t seed = std::chrono::system_clock::from_time_t( 0 ).time_since_epoch().count() & MAX_PERMUTATION_INDEX ) noexcept
         {
             m_index = seed & MAX_PERMUTATION_INDEX;
         }
 
-        constexpr uint32 next() noexcept
+        constexpr uint32_t Next() noexcept
         {
-            const uint32 value = permutation[ m_index++ ];
+            const uint32_t value { permutation[ m_index++ ]};
             m_index &= MAX_PERMUTATION_INDEX;
             return value;
         }
 
-        constexpr uint32 next( const uint32 min, const uint32 max ) noexcept
+        constexpr uint32_t Next( const uint32_t min, const uint32_t max ) noexcept
         {
-            const uint32 diff = max - min;
-            const uint32 value = permutation[ m_index++ ];
+            const uint32_t diff { max - min};
+            const uint32_t value { permutation[ m_index++ ]};
             m_index &= MAX_PERMUTATION_INDEX;
             return min + value % diff;
         }
 
-        constexpr uint32 next( const uint32 max ) noexcept
-        {
-            return next( 0, max );
+        constexpr uint32_t Next( const uint32_t max ) noexcept {
+            return Next( 0, max );
         }
 
-        constexpr uint64 next64() noexcept
+        constexpr uint64_t Next64() noexcept
         {
-            const uint32 value1 = permutation[ m_index++ ];
+            const uint32_t value1 { permutation[ m_index++ ]};
             m_index = m_index & MAX_PERMUTATION_INDEX;
-            const uint32 value2 = permutation[ m_index++ ];
+            const uint32_t value2 { permutation[ m_index++ ]};
             m_index = m_index & MAX_PERMUTATION_INDEX;
 
-            const uint64 value3 = static_cast<uint64>(value1) << 32ULL;
-            return value3 | static_cast<uint64>(value2);
+            const uint64_t value3 { static_cast<uint64_t>(value1) << 32ULL};
+            return value3 | static_cast<uint64_t>(value2);
         }
 
-        constexpr uint64 next64( const uint64 min, const uint64 max ) noexcept
+        constexpr uint64_t Next64( const uint64_t min, const uint64_t max ) noexcept
         {
-            const uint64 diff = max - min;
-            const uint32 value1 = permutation[ m_index++ ];
+            const uint64_t diff { max - min};
+            const uint32_t value1 { permutation[ m_index++ ]};
             m_index = m_index & MAX_PERMUTATION_INDEX;
-            const uint32 value2 = permutation[ m_index++ ];
+            const uint32_t value2 { permutation[ m_index++ ]};
             m_index = m_index & MAX_PERMUTATION_INDEX;
 
-            const uint64 value3 = static_cast<uint64>(value1) << 32ULL;
+            const uint64_t value3 { static_cast<uint64_t>(value1) << 32ULL};
             return min + ( value3 | value2 ) % diff;
         }
 
-        constexpr uint64 next64( const uint64 max ) noexcept
+        constexpr uint64_t Next64( const uint64_t max ) noexcept
         {
-            return next64( 0ULL, max );
+            return Next64( 0ULL, max );
         }
 
-        constexpr double nextDouble() noexcept
+        constexpr double NextDouble() noexcept
         {
-            constexpr double div = 1.0 / MAX_PERMUTATION_INDEX;
-            const uint64 value = next64( ~0ULL );
+            constexpr double div { 1.0 / static_cast<double>(MAX_PERMUTATION_INDEX)};
+            const uint64_t value { Next64( ~0ULL )};
 
             return static_cast<double>(value) * div;
         }
 
-        constexpr float nextSingle() noexcept
+        constexpr float NextSingle() noexcept
         {
-            constexpr float div = 1.0F / MAX_PERMUTATION_INDEX;
-            const uint32 value = next( ~0U );
+            constexpr float div { 1.0F / static_cast<float>(MAX_PERMUTATION_INDEX)};
+            const uint32_t value {Next( ~0U )};
 
             return static_cast<float>(value) * div;
         }
 
         template<std::size_t N>
-        constexpr void nextBytes( uint32 ( &data )[ N ] ) noexcept
+        constexpr void NextBytes( uint32_t ( &data )[ N ] ) noexcept
         {
             for ( std::size_t i = 0; i < N; i++ )
             {
-                data[ i ] = next();
+                data[ i ] = Next();
             }
         }
 
         // https://mrl.cs.nyu.edu/~perlin/noise/
         static inline float Perlin( float x, float y, float z = 0.0f ) noexcept
         {
-            const uint32 X = static_cast<uint32>(std::floor( x )) & MAX_PERMUTATION_INDEX;// FIND UNIT CUBE THAT
-            const uint32 Y = static_cast<uint32>(std::floor( y )) & MAX_PERMUTATION_INDEX;// CONTAINS POINT.
-            const uint32 Z = static_cast<uint32>(std::floor( z )) & MAX_PERMUTATION_INDEX;
+            const uint32_t X = static_cast<uint32_t>(std::floor( x )) & MAX_PERMUTATION_INDEX;// FIND UNIT CUBE THAT
+            const uint32_t Y = static_cast<uint32_t>(std::floor( y )) & MAX_PERMUTATION_INDEX;// CONTAINS POINT.
+            const uint32_t Z = static_cast<uint32_t>(std::floor( z )) & MAX_PERMUTATION_INDEX;
 
             x -= std::floor( x );// FIND RELATIVE X,Y,Z
             y -= std::floor( y );// OF POINT IN CUBE.
@@ -2251,12 +2242,12 @@ namespace FawnAlgebra
             const float v = Fade( y );// FOR EACH OF X,Y,Z.
             const float w = Fade( z );
 
-            const uint32 A = permutation[ X ] + Y; // HASH COORDINATES OF
-            const uint32 AA = permutation[ A ] + Z;// THE 8 CUBE CORNERS,
-            const uint32 AB = permutation[ ( A + 1 ) & MAX_PERMUTATION_INDEX ] + Z;
-            const uint32 B = permutation[ ( X + 1 ) & MAX_PERMUTATION_INDEX ] + Y;
-            const uint32 BA = permutation[ B ] + Z;
-            const uint32 BB = permutation[ ( B + 1 ) & MAX_PERMUTATION_INDEX ] + Z;
+            const uint32_t A = permutation[ X ] + Y; // HASH COORDINATES OF
+            const uint32_t AA = permutation[ A ] + Z;// THE 8 CUBE CORNERS,
+            const uint32_t AB = permutation[ ( A + 1 ) & MAX_PERMUTATION_INDEX ] + Z;
+            const uint32_t B = permutation[ ( X + 1 ) & MAX_PERMUTATION_INDEX ] + Y;
+            const uint32_t BA = permutation[ B ] + Z;
+            const uint32_t BB = permutation[ ( B + 1 ) & MAX_PERMUTATION_INDEX ] + Z;
 
             return Lerp( w,
                          Lerp( v,
