@@ -8,30 +8,6 @@ set(CXX_EXTENSIONS OFF)
 
 option(FawnAlgebra_Test "If the tests need to be build to (Default OFF)" ON)
 
-include(CheckCXXSymbolExists)
-
-# Determine which header to use based on C++ standard support
-if(cxx_std_${CMAKE_CXX_STANDARD} IN_LIST CMAKE_CXX_COMPILE_FEATURES)
-    set(header version)
-else()
-    set(header ciso646)
-endif()
-
-# Detect libc++
-check_cxx_symbol_exists(_LIBCPP_VERSION ${header} LIBCPP)
-if(LIBCPP)
-    message(STATUS "libc++ detected")
-    set(USE_LIBCXX ON)
-    set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra;compiler-rt;lld")
-    set(LLVM_USE_LINKER lld)
-    set(CMAKE_LINKER lld)
-    set(HAVE_CXX_ATOMICS64_WITHOUT_LIB ON)
-    set(HAVE_CXX_ATOMICS_WITHOUT_LIB ON)
-
-else()
-    set(USE_LIBCXX OFF)
-endif()
-
 add_library(${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME}
@@ -86,7 +62,8 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD_REQUIRED ON)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/compiler_flags.cmake)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(compiler_flags)
 set(FUNCTION_NAME "get_compile_flags_${CMAKE_BUILD_TYPE}_${CMAKE_CXX_COMPILER_ID}")
 
 # Call the dynamically constructed function
@@ -112,7 +89,6 @@ target_link_options(${PROJECT_NAME}
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:-DBALBINO_DEBUG>)
-
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
 
 if (DEFINED FawnAlgebra_Test AND FawnAlgebra_Test )

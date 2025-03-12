@@ -25,8 +25,6 @@ function(setup_catch target_name)
                         Catch2
                         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
                         GIT_TAG devel  # Replace with a specific tag or commit hash if needed
-                        GIT_SHALLOW TRUE
-                        GIT_PROGRESS TRUE
                 )
                 FetchContent_MakeAvailable(Catch2)
             endif ()
@@ -40,13 +38,13 @@ function(setup_catch target_name)
 
     get_target_property(Catch2_INCLUDE_DIRS Catch2::Catch2 INCLUDE_DIRECTORIES)
     # Add Catch2 as a dependency and link it to the target
-    add_dependencies(${target_name}_test Catch2::Catch2)
-    target_include_directories(${target_name}_test PUBLIC ${Catch2_INCLUDE_DIRS})
-    target_link_libraries(${target_name}_test PUBLIC Catch2::Catch2WithMain)
+    add_dependencies(${target_name} Catch2::Catch2)
+    target_include_directories(${target_name} PUBLIC ${Catch2_INCLUDE_DIRS})
+    target_link_libraries(${target_name} PUBLIC Catch2::Catch2WithMain)
 
     list(APPEND CMAKE_MODULE_PATH "${Catch2_SOURCE_DIR}/extras")
 
     include(CTest)
     include(Catch)
-    catch_discover_tests(${target_name}_test)
+    catch_discover_tests(${target_name})
 endfunction()
