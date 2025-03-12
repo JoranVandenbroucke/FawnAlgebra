@@ -6,9 +6,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
-#include <cstdint>
-import FawnAlgebra.Arithmetics;
-import FawnAlgebra.Hashing;
+import FawnAlgebra;
 using namespace FawnAlgebra;
 
 // todo : find a constexpr version that guarantees same output everytime no matter the compiler
@@ -33,16 +31,16 @@ TEST_CASE( "Hash: hashLoseLose computes correct hash", "[hash]" )
 
 TEST_CASE( "Hash: hashword computes correct hash", "[hash]" )
 {
-    constexpr uint32 data[ ]{1, 2, 3, 4};
-    const uint32* ptr{data};
+    constexpr uint32_t data[ ]{1, 2, 3, 4};
+    const uint32_t* ptr{data};
     REQUIRE( HashWord( ptr, 4, 0 ) == 0x66491246 );
 }
 
 TEST_CASE( "Hash: hashword2 computes correct hashes", "[hash]" )
 {
-    constexpr uint32 data[ ]{1, 2, 3, 4};
-    uint32 pc{};
-    uint32 pb{};
+    constexpr uint32_t data[ ]{1, 2, 3, 4};
+    uint32_t pc{};
+    uint32_t pb{};
     HashWord2( data, 4, &pc, &pb );
     REQUIRE( pc == 0x66491246 );
     REQUIRE( pb == 0xBF826FCA );
@@ -50,9 +48,9 @@ TEST_CASE( "Hash: hashword2 computes correct hashes", "[hash]" )
 
 TEST_CASE( "Hash: hashword2 with array computes correct hashes", "[hash]" )
 {
-    constexpr uint32 data[ ]{1, 2, 3, 4};
-    uint32 pc[ 4 ]{};
-    uint32 pb[ 4 ]{};
+    constexpr uint32_t data[ ]{1, 2, 3, 4};
+    uint32_t pc[ 4 ]{};
+    uint32_t pb[ 4 ]{};
     HashWord2( data, pc, pb );
     REQUIRE( pc[ 0 ] == 0x66491246 );
     REQUIRE( pb[ 0 ] == 0xBF826FCA );
@@ -69,8 +67,8 @@ TEST_CASE( "Hash: hashword2 with array computes correct hashes", "[hash]" )
 // TEST_CASE( "Hash: hashlittle2 computes correct hashes", "[hash]" )
 // {
 //     const auto* const data{"test data"};
-//     uint32 pc{};
-//     uint32 pb{};
+//     uint32_t pc{};
+//     uint32_t pb{};
 //     HashLittle2( data, strlen( data ), &pc, &pb );
 //     REQUIRE( pc == 0x6458EDF1 );// Replace with actual expected primary hash
 //     REQUIRE( pb == 0x5D960786 );// Replace with actual expected secondary hash
@@ -80,7 +78,7 @@ TEST_CASE( "Hash: hashword2 with array computes correct hashes", "[hash]" )
 // TEST_CASE( "Hash: hashbig computes correct hash", "[hash]" )
 // {
 //     const auto* const data{"test data"};
-//     const uint32 hash{HashBig( data, strlen( data ), 0 )};
+//     const uint32_t hash{HashBig( data, strlen( data ), 0 )};
 //     const bool isOk{hash == 0xb6e43300U || hash == 1449816008U};// Clang return 0xb6e43300U, MSVC give 1449816008U
 //     REQUIRE( isOk );
 // }

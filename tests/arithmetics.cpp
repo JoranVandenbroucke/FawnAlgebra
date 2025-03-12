@@ -1,15 +1,14 @@
 //
-// Copyright (c) 2024.
+// Copyright (c) 2025.
 // Author: Joran.
 //
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
-#include <cstdint>
-import FawnAlgebra.Arithmetics;
+import FawnAlgebra;
 using namespace FawnAlgebra;
 
-TEST_CASE( "Vec: Vector arithmetic operations", "[Vector]" )
+TEST_CASE( "int2: Vector arithmetic operations", "[Vector]" )
 {
     constexpr int2 a{1, 2};
     constexpr int2 b{3, 4};
@@ -45,6 +44,23 @@ TEST_CASE( "Vec: Vector arithmetic operations", "[Vector]" )
     {
         constexpr int result{b | a};
         REQUIRE( result == 11 );
+    }
+    SECTION( "Cross" )
+    {
+        constexpr int result{b ^ a};
+        REQUIRE( result == 2 );
+    }
+    SECTION( "Project" )
+    {
+        constexpr int2 result{b & a};
+        REQUIRE( result[ 0 ] == 11 );
+        REQUIRE( result[ 1 ] == 22 );
+    }
+    SECTION( "Reject" )
+    {
+        constexpr int2 result{b % a};
+        REQUIRE( result[ 0 ] == 1 );
+        REQUIRE( result[ 1 ] == 0 );
     }
 }
 

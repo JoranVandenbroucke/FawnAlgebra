@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-import FawnAlgebra.Statistics;
+import FawnAlgebra;
 
 TEST_CASE( "statistics" )
 {
@@ -24,39 +24,39 @@ TEST_CASE( "statistics" )
     {
         std::array sorted{array1};
         std::ranges::sort( sorted );
-        REQUIRE( FawnAlgebra::frequencyTable(sorted ) == std::vector<std::pair<int, std::size_t>>{{-70, 1}, {0, 1}, {10, 2}, {20, 2}, {30, 1}, {40, 1}, {50, 1}, {60, 1}, {80, 1}, {90, 1}, {100, 1}} );
-        REQUIRE( FawnAlgebra::quartilesQ1(sorted ) == 20 );
+        REQUIRE( FawnAlgebra::FrequencyTable(sorted ) == std::vector<std::pair<int, std::size_t>>{{-70, 1}, {0, 1}, {10, 2}, {20, 2}, {30, 1}, {40, 1}, {50, 1}, {60, 1}, {80, 1}, {90, 1}, {100, 1}} );
+        REQUIRE( FawnAlgebra::QuartilesQ1(sorted ) == 20 );
         REQUIRE( FawnAlgebra::quartilesQ2(sorted ) == 40 );
-        REQUIRE( FawnAlgebra::quartilesQ3(sorted ) == 80 );
+        REQUIRE( FawnAlgebra::QuartilesQ3(sorted ) == 80 );
     }
     SECTION( "central tendency" )
     {
         std::array sorted{array1};
         std::ranges::sort( sorted );
-        REQUIRE( FawnAlgebra::mean( sorted ) == 33 );
-        REQUIRE( FawnAlgebra::median( sorted ) == 30 );
-        REQUIRE( FawnAlgebra::mode( sorted ) == 10 );
-        REQUIRE( FawnAlgebra::gemetricMedian( sorted ) == 0 );
+        REQUIRE( FawnAlgebra::Mean( sorted ) == 33 );
+        REQUIRE( FawnAlgebra::Median( sorted ) == 30 );
+        REQUIRE( FawnAlgebra::Mode( sorted ) == 10 );
+        REQUIRE( FawnAlgebra::GemetricMedian( sorted ) == 0 );
     }
 
     SECTION( "measures of variability" )
     {
         std::array sorted{array1};
         std::ranges::sort( sorted );
-        REQUIRE( FawnAlgebra::range( sorted ) == 170 );
-        REQUIRE( FawnAlgebra::interquartileRange( sorted ) == 60 );
-        REQUIRE( FawnAlgebra::variancePopulation( sorted ) == 11 );
-        REQUIRE( FawnAlgebra::varianceSample( sorted ) == 12 );
-        REQUIRE( FawnAlgebra::standardDeviationPopulation( sorted ) == 3 );
-        REQUIRE( FawnAlgebra::standardDeviationSample( sorted ) == 3 );
+        REQUIRE( FawnAlgebra::Range( sorted ) == 170 );
+        REQUIRE( FawnAlgebra::InterquartileRange( sorted ) == 60 );
+        REQUIRE( FawnAlgebra::VariancePopulation( sorted ) == 11 );
+        REQUIRE( FawnAlgebra::VarianceSample( sorted ) == 12 );
+        REQUIRE( FawnAlgebra::StandardDeviationPopulation( sorted ) == 3 );
+        REQUIRE( FawnAlgebra::StandardDeviationSample( sorted ) == 3 );
     }
 
     SECTION( "normal distribution" )
     {
         std::array sorted{array1};
         std::ranges::sort( sorted );
-        REQUIRE_THAT( FawnAlgebra::normalProbabilityDensity( 33, 30, 11, 3 ), Catch::Matchers::WithinAbs( 0.13298076013381091, 1e-6 ) );
-        REQUIRE( FawnAlgebra::normalProbabilityDensity( sorted ) == std::vector<std::pair<int,
+        REQUIRE_THAT( FawnAlgebra::NormalProbabilityDensity( 33, 30, 11, 3 ), Catch::Matchers::WithinAbs( 0.13298076013381091, 1e-6 ) );
+        REQUIRE( FawnAlgebra::NormalProbabilityDensity( sorted ) == std::vector<std::pair<int,
                  double>>{ {-70,
                  6.2208328709615639E-211},
                  {0,
@@ -85,7 +85,7 @@ TEST_CASE( "statistics" )
                  3.3706565508222219e-90}} );
     }
 
-    REQUIRE_THAT( FawnAlgebra::zScore( 33, 30, 3 ), Catch::Matchers::WithinAbs( 1.0, 1e-6 ) );
-    REQUIRE_THAT( FawnAlgebra::poissonDistribution( 2, 0.61 ), Catch::Matchers::WithinAbs( 0.1010904292, 1e-6 ) );
-    REQUIRE_THAT( FawnAlgebra::chiSquareTest( array1, array2 ), Catch::Matchers::WithinAbs( 7, 1e-6 ) );
+    REQUIRE_THAT( FawnAlgebra::ZScore( 33, 30, 3 ), Catch::Matchers::WithinAbs( 1.0, 1e-6 ) );
+    REQUIRE_THAT( FawnAlgebra::PoissonDistribution( 2, 0.61 ), Catch::Matchers::WithinAbs( 0.1010904292, 1e-6 ) );
+    REQUIRE_THAT( FawnAlgebra::ChiSquareTest( array1, array2 ), Catch::Matchers::WithinAbs( 7, 1e-6 ) );
 }

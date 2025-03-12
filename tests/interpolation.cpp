@@ -5,8 +5,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
-import FawnAlgebra.Interpolation;
-import FawnAlgebra.Constants;
+import FawnAlgebra;
 using namespace FawnAlgebra;
 
 TEST_CASE( "Math: toRadians", "[math]" )
