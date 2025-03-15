@@ -9,6 +9,10 @@ set(CXX_EXTENSIONS OFF)
 option(FawnAlgebra_Test "If the tests need to be build to (Default OFF)" ON)
 
 add_library(${PROJECT_NAME})
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD_REQUIRED ON)
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
 
 target_sources(${PROJECT_NAME}
         PRIVATE
@@ -57,23 +61,13 @@ target_sources(${PROJECT_NAME}
         source/trigonometric.ixx
 )
 
-add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD_REQUIRED ON)
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
-
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(compiler_flags)
 set(FUNCTION_NAME "get_compile_flags_${CMAKE_BUILD_TYPE}_${CMAKE_CXX_COMPILER_ID}")
-
-# Call the dynamically constructed function
 if(EXISTS ${FUNCTION_NAME})
     execute_process(COMMAND ${FUNCTION_NAME} COMPILER_FLAGS)
 endif()
-target_compile_options(${PROJECT_NAME}
-        PRIVATE
-            ${COMPILER_FLAGS}
-)
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILER_FLAGS})
 
 target_link_options(${PROJECT_NAME}
         PRIVATE
