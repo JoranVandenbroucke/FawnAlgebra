@@ -474,7 +474,12 @@ class Vec
     std::array<T, N> data{};
     //        abi_type simdData;
 
-    Vec() = default;
+    Vec()                          = default;
+    ~Vec()                         = default;
+    Vec(Vec&&) noexcept            = default;
+    Vec(const Vec&)                = default;
+    Vec& operator=(Vec&&) noexcept = default;
+    Vec& operator=(const Vec&)     = default;
     explicit Vec(T v) noexcept
     {
         std::fill(data.cbegin(), data.cend(), v);
@@ -592,7 +597,12 @@ class Vec<T, 2>
         SWIZZLE_2D(value_type, value_type)
     };
 
-    Vec() = default;
+    Vec()                          = default;
+    ~Vec()                         = default;
+    Vec(Vec&&) noexcept            = default;
+    Vec(const Vec&)                = default;
+    Vec& operator=(Vec&&) noexcept = default;
+    Vec& operator=(const Vec&)     = default;
     constexpr explicit Vec(T v) noexcept : coord{v, v} {}
     template <typename TT>
         requires std::is_convertible_v<TT, value_type>
@@ -710,7 +720,12 @@ class Vec<T, 3>
         SWIZZLE_3D(value_type, value_type, value_type, value_type)
     };
 
-    Vec() = default;
+    Vec()                          = default;
+    ~Vec()                         = default;
+    Vec(Vec&&) noexcept            = default;
+    Vec(const Vec&)                = default;
+    Vec& operator=(Vec&&) noexcept = default;
+    Vec& operator=(const Vec&)     = default;
     constexpr explicit Vec(T v) noexcept : coord{v, v, v} {}
     template <typename TT>
         requires std::is_convertible_v<TT, value_type>
@@ -836,7 +851,12 @@ class Vec<T, 4>
         SWIZZLE_4D(value_type, value_type, value_type, value_type, value_type, value_type)
     };
 
-    Vec() = default;
+    Vec()                          = default;
+    ~Vec()                         = default;
+    Vec(Vec&&) noexcept            = default;
+    Vec(const Vec&)                = default;
+    Vec& operator=(Vec&&) noexcept = default;
+    Vec& operator=(const Vec&)     = default;
     constexpr explicit Vec(T v) noexcept : coord{v, v, v, v} {}
     template <typename TT>
         requires std::is_convertible_v<TT, value_type>
