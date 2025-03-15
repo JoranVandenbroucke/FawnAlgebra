@@ -31,5 +31,7 @@ target_compile_options(${PROJECT_NAME}_test
 target_compile_features(${PROJECT_NAME}_test PRIVATE cxx_std_23)
 target_include_directories(${PROJECT_NAME}_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../source)
 
+enable_testing()
+
 include(setup_catch)
 setup_catch(${PROJECT_NAME}_test)
