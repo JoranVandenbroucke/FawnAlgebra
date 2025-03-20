@@ -480,26 +480,25 @@ class Vec
     Vec(const Vec&)                = default;
     Vec& operator=(Vec&&) noexcept = default;
     Vec& operator=(const Vec&)     = default;
-    explicit Vec(T v) noexcept
+    Vec(const T v) noexcept
     {
         std::fill(data.cbegin(), data.cend(), v);
     }
     template <typename TT>
         requires std::is_convertible_v<TT, T>
-    constexpr explicit Vec(TT v) noexcept
+    constexpr Vec(const TT v) noexcept
     {
         std::for_each(data.begin(), data.end(), [v](T& d) { d = v; });
     }
     constexpr Vec(std::initializer_list<T> initializers) noexcept
     {
-        std::size_t count{};
-        for (auto& i{initializers.begin()}; i < initializers.end(); ++i)
+        for (std::size_t i{}; i < initializers.size(); ++i)
         {
-            data[count++] = initializers[i];
-            if (count == N)
+            if (i == N)
             {
                 break;
             }
+            data[i] = initializers[i];
         }
     }
     constexpr auto operator[](const std::size_t idx) const noexcept -> const T&
@@ -603,13 +602,18 @@ class Vec<T, 2>
     Vec(const Vec&)                = default;
     Vec& operator=(Vec&&) noexcept = default;
     Vec& operator=(const Vec&)     = default;
-    constexpr explicit Vec(T v) noexcept : coord{v, v} {}
+    constexpr Vec(T v) noexcept : coord{v, v} {}
+    constexpr Vec(const T x, const T y) noexcept : coord{x, y} {}
     template <typename TT>
         requires std::is_convertible_v<TT, value_type>
-    constexpr explicit Vec(TT v) noexcept : coord{v, v}
+    constexpr Vec(const TT x, const TT y) noexcept : coord{x, y}
     {
     }
-    constexpr Vec(std::initializer_list<value_type> initializers) noexcept : coord{*initializers.begin(), *(initializers.begin() + 1)} {}
+    template <typename TT, std::uint8_t NN>
+        requires(std::is_convertible_v<TT, value_type> && NN >= 2)
+    constexpr Vec(const TT x, const Vec<TT, NN>& y) noexcept : coord{x, y[0]}
+    {
+    }
     constexpr auto operator[](const std::size_t idx) const noexcept -> const T&
     {
         assert(idx < Size);
@@ -726,14 +730,40 @@ class Vec<T, 3>
     Vec(const Vec&)                = default;
     Vec& operator=(Vec&&) noexcept = default;
     Vec& operator=(const Vec&)     = default;
-    constexpr explicit Vec(T v) noexcept : coord{v, v, v} {}
+    constexpr Vec(T v) noexcept : coord{v, v, v} {}
+
+    constexpr Vec(const T x, const T y, const T z = 0) noexcept : coord{x, y, z} {}
+
     template <typename TT>
         requires std::is_convertible_v<TT, value_type>
-    constexpr explicit Vec(TT v) noexcept : coord{v, v, v}
+    constexpr Vec(const T x, const Vec<TT, 2>& v) noexcept : coord{x, v[0], v[1]}
     {
     }
-    constexpr Vec(std::initializer_list<value_type> initializers) noexcept :
-        coord{*initializers.begin(), *(initializers.begin() + 1), *(initializers.begin() + 2)}
+
+    constexpr Vec(const Vec<T, 2>& v, const T z) noexcept : coord{v[0], v[1], z} {}
+    template <typename TT>
+        requires std::is_convertible_v<TT, value_type>
+    constexpr Vec(const Vec<TT, 2>& v, const T z) noexcept : coord{v[0], v[1], z}
+    {
+    }
+    template <typename TT, std::uint8_t NN>
+        requires(std::is_convertible_v<TT, value_type> && NN > 1)
+    constexpr Vec(const T x, const Vec<TT, NN>& y) noexcept : coord{x, y[0], y[1]}
+    {
+    }
+    template <typename TT, std::uint8_t NN>
+        requires(std::is_convertible_v<TT, value_type> && NN > 1)
+    constexpr Vec(const T x, const T y, const Vec<TT, NN>& z) noexcept : coord{x, y, z[0]}
+    {
+    }
+    template <typename TT, std::uint8_t NN>
+        requires(std::is_convertible_v<TT, value_type> && NN == 2)
+    constexpr Vec(const Vec<TT, NN>& v, const T z) noexcept : coord{v[0], v[1], z}
+    {
+    }
+    template <typename TT, std::uint8_t NN>
+        requires(std::is_convertible_v<TT, value_type> && NN > 2)
+    constexpr explicit Vec(const Vec<TT, NN>& v) noexcept : coord{v[0], v[1], v[2]}
     {
     }
     constexpr auto operator[](const std::size_t idx) const noexcept -> const T&
@@ -857,14 +887,36 @@ class Vec<T, 4>
     Vec(const Vec&)                = default;
     Vec& operator=(Vec&&) noexcept = default;
     Vec& operator=(const Vec&)     = default;
-    constexpr explicit Vec(T v) noexcept : coord{v, v, v, v} {}
-    template <typename TT>
-        requires std::is_convertible_v<TT, value_type>
-    constexpr explicit Vec(TT v) noexcept : coord{v, v, v, v}
+    constexpr Vec(T v) noexcept : coord{v, v, v, v} {}
+    constexpr Vec(T x, T y, T z = 0, T w = 0) noexcept : coord{x, y, z, w} {}
+    template <typename TT, std::uint8_t NN>
+        requires(std::is_convertible_v<TT, value_type> && NN > 1)
+    constexpr Vec(const T x, const T y, const T z, const Vec<TT, NN>& v) noexcept : coord{x, y, z, v[0]}
     {
     }
-    constexpr Vec(std::initializer_list<value_type> initializers) noexcept :
-        coord{*initializers.begin(), *(initializers.begin() + 1), *(initializers.begin() + 2), *(initializers.begin() + 3)}
+    template <typename TT, std::uint8_t NN>
+        requires(std::is_convertible_v<TT, value_type> && NN > 1)
+    constexpr Vec(const T x, const T y, const Vec<TT, NN>& v) noexcept : coord{x, y, v[0], v[1]}
+    {
+    }
+    template <typename TT, std::uint8_t NN>
+        requires(std::is_convertible_v<TT, value_type> && NN == 2)
+    constexpr Vec(const T x, const Vec<TT, NN>& v, const T w) noexcept : coord{x, v[0], v[1], w}
+    {
+    }
+    template <typename TT, std::uint8_t NN>
+        requires(std::is_convertible_v<TT, value_type> && NN > 2)
+    constexpr Vec(const T x, const Vec<TT, NN>& v) noexcept : coord{x, v[0], v[1], v[2]}
+    {
+    }
+    template <typename TT, std::uint8_t NN>
+        requires(std::is_convertible_v<TT, value_type> && NN == 3)
+    constexpr Vec(const Vec<TT, NN>& v, T w) noexcept : coord{v[0], v[1], v[2], w}
+    {
+    }
+    template <typename TT, std::uint8_t NN>
+        requires(std::is_convertible_v<TT, value_type> && NN > 3)
+    constexpr explicit Vec(const Vec<TT, NN>& v) noexcept : coord{v[0], v[1], v[2], v[3]}
     {
     }
     constexpr auto operator[](const std::size_t idx) const noexcept -> const T&

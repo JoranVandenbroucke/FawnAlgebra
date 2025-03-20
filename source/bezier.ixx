@@ -14,24 +14,22 @@ import :Arithmetics;
 
 namespace FawnAlgebra
 {
-export template<typename T, std::size_t N, std::size_t S>
+export template <typename T, std::size_t N, std::size_t S>
 class StaticQuadraticBezier
 {
-public:
+  public:
     constexpr StaticQuadraticBezier() = default;
 
-    explicit constexpr StaticQuadraticBezier( std::array<Vec<T, N>, S> pts ) : points { std::move( pts ) }
+    explicit constexpr StaticQuadraticBezier(std::array<Vec<T, N>, S> pts) : points{std::move(pts)} {}
+
+    constexpr Vec<T, N>& operator[](std::size_t idx)
     {
+        return points[idx];
     }
 
-    constexpr Vec<T, N>& operator[]( std::size_t idx )
+    constexpr const Vec<T, N>& operator[](std::size_t idx) const
     {
-        return points[ idx ];
-    }
-
-    constexpr const Vec<T, N>& operator[]( std::size_t idx ) const
-    {
-        return points[ idx ];
+        return points[idx];
     }
 
     constexpr auto* data() noexcept
@@ -129,27 +127,25 @@ public:
         return points.size();
     }
 
-private:
-    std::array<Vec<T, N>, S> points {};
+  private:
+    std::array<Vec<T, N>, S> points{};
 };
-export template<typename T, std::size_t N>
+export template <typename T, std::size_t N>
 class DynamicQuadraticBezier
 {
-public:
+  public:
     constexpr DynamicQuadraticBezier() = default;
 
-    explicit constexpr DynamicQuadraticBezier( std::vector<Vec<T, N>> pts ) : points { std::move( pts ) }
+    explicit constexpr DynamicQuadraticBezier(std::vector<Vec<T, N>> pts) : points{std::move(pts)} {}
+
+    constexpr Vec<T, N>& operator[](std::size_t idx)
     {
+        return points[idx];
     }
 
-    constexpr Vec<T, N>& operator[]( std::size_t idx )
+    constexpr const Vec<T, N>& operator[](std::size_t idx) const
     {
-        return points[ idx ];
-    }
-
-    constexpr const Vec<T, N>& operator[]( std::size_t idx ) const
-    {
-        return points[ idx ];
+        return points[idx];
     }
 
     constexpr auto data() noexcept
@@ -267,14 +263,14 @@ public:
         return points.back();
     }
 
-    constexpr auto push_back( const Vec<T, N>& val ) noexcept -> const Vec<T, N>&
+    constexpr auto push_back(const Vec<T, N>& val) noexcept -> const Vec<T, N>&
     {
-        return points.emplace_back( val );
+        return points.emplace_back(val);
     }
 
-    constexpr auto emplace_back( const Vec<T, N>& val ) noexcept -> const Vec<T, N>&
+    constexpr auto emplace_back(const Vec<T, N>& val) noexcept -> const Vec<T, N>&
     {
-        return points.emplace_back( val );
+        return points.emplace_back(val);
     }
 
     constexpr void pop_back() noexcept
@@ -282,153 +278,153 @@ public:
         points.pop_back();
     }
 
-private:
-    std::vector<Vec<T, N>> points {};
+  private:
+    std::vector<Vec<T, N>> points{};
 };
 
-export template<typename T, std::size_t N, std::size_t S, typename V = T>
+export template <typename T, std::size_t N, std::size_t S, typename V = T>
     requires std::is_floating_point_v<V>
-constexpr auto Evaluate( const StaticQuadraticBezier<T, N, S>& bezier, const V& t ) -> Vec<T, N>
+constexpr auto Evaluate(const StaticQuadraticBezier<T, N, S>& bezier, const V& t) -> Vec<T, N>
 {
-    Vec<T, N> result {};
-    const std::size_t numSegments { bezier.size() / 2ULL };
-    const std::size_t from { static_cast<std::size_t>( std::floor( t ) ) % numSegments };
-    if ( from == t )
+    Vec<T, N>         result{};
+    const std::size_t numSegments{bezier.size() / 2ULL};
+    const std::size_t from{static_cast<std::size_t>(std::floor(t)) % numSegments};
+    if (from == t)
     {
-        return bezier[ from * 2 ];
+        return bezier[from * 2];
     }
 
-    const Vec<T, N>& p0 { bezier[ from * 2 ] };
-    const Vec<T, N>& p1 { bezier[ from * 2 + 1 ] };
-    const Vec<T, N>& p2 { bezier[ ( from * 2 + 2 ) % bezier.size() ] };
+    const Vec<T, N>& p0{bezier[from * 2]};
+    const Vec<T, N>& p1{bezier[from * 2 + 1]};
+    const Vec<T, N>& p2{bezier[(from * 2 + 2) % bezier.size()]};
 
-    const T u { 1 - t };
-    result += p0 * ( u * u ) + p1 * ( 2 * u * t ) + p2 * ( t * t );
+    const T u{1 - t};
+    result += p0 * (u * u) + p1 * (2 * u * t) + p2 * (t * t);
 
     return result;
 }
 
-export template<typename T, std::size_t N, typename V>
+export template <typename T, std::size_t N, typename V>
     requires std::is_floating_point_v<V>
-constexpr auto Evaluate( const DynamicQuadraticBezier<T, N>& bezier, const V& t ) -> Vec<T, N>
+constexpr auto Evaluate(const DynamicQuadraticBezier<T, N>& bezier, const V& t) -> Vec<T, N>
 {
-    Vec<T, N> result {};
-    const std::size_t numSegments { bezier.size() / 2ULL };
-    const std::size_t from { static_cast<std::size_t>( std::floor( t ) ) % numSegments };
-    if ( from == t )
+    Vec<T, N>         result{};
+    const std::size_t numSegments{bezier.size() / 2ULL};
+    const std::size_t from{static_cast<std::size_t>(std::floor(t)) % numSegments};
+    if (from == t)
     {
-        return bezier[ from * 2 ];
+        return bezier[from * 2];
     }
 
-    const Vec<T, N>& p0 { bezier[ from * 2 ] };
-    const Vec<T, N>& p1 { bezier[ from * 2 + 1 ] };
-    const Vec<T, N>& p2 { bezier[ ( from * 2 + 2 ) % bezier.size() ] };
+    const Vec<T, N>& p0{bezier[from * 2]};
+    const Vec<T, N>& p1{bezier[from * 2 + 1]};
+    const Vec<T, N>& p2{bezier[(from * 2 + 2) % bezier.size()]};
 
-    const T u { 1 - t };
-    result += p0 * ( u * u ) + p1 * ( 2 * u * t ) + p2 * ( t * t );
+    const T u{1 - t};
+    result += p0 * (u * u) + p1 * (2 * u * t) + p2 * (t * t);
 
     return result;
 }
 
-export template<typename T, std::size_t N, std::size_t S>
-constexpr auto IsClosed( const StaticQuadraticBezier<T, N, S>& ) -> bool
+export template <typename T, std::size_t N, std::size_t S>
+constexpr auto IsClosed(const StaticQuadraticBezier<T, N, S>&) -> bool
 {
-    return ( S & 1ULL ) == 0ULL;
+    return (S & 1ULL) == 0ULL;
 }
 
-export template<typename T, std::size_t N>
-constexpr auto IsClosed( const DynamicQuadraticBezier<T, N>& bezier ) -> bool
+export template <typename T, std::size_t N>
+constexpr auto IsClosed(const DynamicQuadraticBezier<T, N>& bezier) -> bool
 {
-    return ( bezier.size() & 1ULL ) == 0ULL;
+    return (bezier.size() & 1ULL) == 0ULL;
 }
 
-export template<typename T, std::size_t N>
-constexpr void Close( DynamicQuadraticBezier<T, N>& bezier )
+export template <typename T, std::size_t N>
+constexpr void Close(DynamicQuadraticBezier<T, N>& bezier)
 {
     // if points are odd and not empty
-    if ( ( bezier.size() & 1 ) && !bezier.empty() )
+    if ((bezier.size() & 1) && !bezier.empty())
     {
-        const Vec<T, N>& lastPoint { bezier.back() };
-        const Vec<T, N>& controlPoint { ( lastPoint + bezier[ 0 ] ) / 2 };
-        bezier.emplace_back( controlPoint );
+        const Vec<T, N>& lastPoint{bezier.back()};
+        const Vec<T, N>& controlPoint{(lastPoint + bezier[0]) / 2};
+        bezier.emplace_back(controlPoint);
     }
 }
 
-export template<typename T, std::size_t N>
-constexpr void Open( DynamicQuadraticBezier<T, N>& bezier )
+export template <typename T, std::size_t N>
+constexpr void Open(DynamicQuadraticBezier<T, N>& bezier)
 {
     // if points are even and not empty
-    if ( !( bezier.size() & 1ULL ) && !bezier.empty() )
+    if (!(bezier.size() & 1ULL) && !bezier.empty())
     {
         bezier.pop_back();
     }
 }
 
-export template<typename T, std::size_t N>
-constexpr void AddPoint( DynamicQuadraticBezier<T, N>& bezier, const Vec<T, N>& newPoint )
+export template <typename T, std::size_t N>
+constexpr void AddPoint(DynamicQuadraticBezier<T, N>& bezier, const Vec<T, N>& newPoint)
 {
     // if points are odd
-    if ( bezier.size() & 1ULL )
+    if (bezier.size() & 1ULL)
     {
-        const Vec<T, N> lastPoint { bezier.back() };
-        const Vec<T, N> controlPoint { ( lastPoint + newPoint ) / Vec<T, N> { 2 } };
-        bezier.emplace_back( controlPoint );
-        bezier.emplace_back( newPoint );
+        const Vec<T, N> lastPoint{bezier.back()};
+        const Vec<T, N> controlPoint{(lastPoint + newPoint) / Vec<T, N>{2}};
+        bezier.emplace_back(controlPoint);
+        bezier.emplace_back(newPoint);
     }
     else
     {
-        bezier.emplace_back( newPoint );
+        bezier.emplace_back(newPoint);
     }
 }
 
-export template<typename T, std::size_t N>
-constexpr void AddControlPoint( DynamicQuadraticBezier<T, N>& bezier, const Vec<T, N>& newPoint )
+export template <typename T, std::size_t N>
+constexpr void AddControlPoint(DynamicQuadraticBezier<T, N>& bezier, const Vec<T, N>& newPoint)
 {
-    if ( bezier.empty() )
+    if (bezier.empty())
     {
         return;
     }
     // if points are odd
-    if ( bezier.size() & 1ULL )
+    if (bezier.size() & 1ULL)
     {
-        bezier.emplace_back( newPoint );
+        bezier.emplace_back(newPoint);
     }
     else
     {
-        const Vec<T, N>& lastPoint { bezier.back() };
-        const Vec<T, N> controlPoint { ( lastPoint + newPoint ) / Vec<T, N> { 2 } };
-        bezier.emplace_back( controlPoint );
-        bezier.emplace_back( newPoint );
+        const Vec<T, N>& lastPoint{bezier.back()};
+        const Vec<T, N>  controlPoint{(lastPoint + newPoint) / Vec<T, N>{2}};
+        bezier.emplace_back(controlPoint);
+        bezier.emplace_back(newPoint);
     }
 }
 
-export template<typename T, std::size_t N>
-constexpr void RemovePoint( DynamicQuadraticBezier<T, N>& bezier )
+export template <typename T, std::size_t N>
+constexpr void RemovePoint(DynamicQuadraticBezier<T, N>& bezier)
 {
-    if ( bezier.empty() )
+    if (bezier.empty())
     {
         return;
     }
-    if ( bezier.size() > 1 )
+    if (bezier.size() > 1)
     {
-        bezier.pop_back();// Remove the control point before the last point
+        bezier.pop_back(); // Remove the control point before the last point
     }
-    bezier.pop_back();// Remove the last point
+    bezier.pop_back(); // Remove the last point
 }
 
-export template<typename T, std::size_t N>
-constexpr void AddPoints( DynamicQuadraticBezier<T, N>& bezier, const std::vector<Vec<T, N>>& newPoints )
+export template <typename T, std::size_t N>
+constexpr void AddPoints(DynamicQuadraticBezier<T, N>& bezier, const std::vector<Vec<T, N>>& newPoints)
 {
-    for ( std::size_t i {}; i < newPoints.size(); ++i )
+    for (std::size_t i{}; i < newPoints.size(); ++i)
     {
-        bezier.push_back( newPoints[ i ] );
+        bezier.push_back(newPoints[i]);
     }
 }
 
-export template<typename T, std::size_t N>
-constexpr ui32 SegmentCount( const DynamicQuadraticBezier<T, N>& bezier )
+export template <typename T, std::size_t N>
+constexpr ui32 SegmentCount(const DynamicQuadraticBezier<T, N>& bezier)
 {
-    return static_cast<ui32>( bezier.size() > 2ULL ? ( bezier.size() - 1ULL ) / 2ULL : 0ULL );
+    return static_cast<ui32>(bezier.size() > 2ULL ? (bezier.size() - 1ULL) / 2ULL : 0ULL);
 }
 
 export using dynamic_bezierI2 = DynamicQuadraticBezier<i32, 2>;
@@ -462,4 +458,4 @@ export using static_bezierF4 = DynamicQuadraticBezier<f32, 4>;
 export using static_bezierD2 = DynamicQuadraticBezier<f64, 2>;
 export using static_bezierD3 = DynamicQuadraticBezier<f64, 3>;
 export using static_bezierD4 = DynamicQuadraticBezier<f64, 4>;
-}// namespace FawnAlgebra
+} // namespace FawnAlgebra
