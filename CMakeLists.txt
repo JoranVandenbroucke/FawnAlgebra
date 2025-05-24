@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 4.0.1)
 project(FawnAlgebra VERSION 0.2.0 LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -13,12 +13,15 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD_REQUIRED ON)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
 
 target_sources(${PROJECT_NAME}
         PRIVATE
-        FILE_SET fawnalgebra_config TYPE HEADERS
+        FILE_SET fawnalgebra_headers TYPE HEADERS
         BASE_DIRS
         ${PROJECT_SOURCE_DIR}/source/config
+        ${PROJECT_SOURCE_DIR}/source/geometry
+        ${PROJECT_SOURCE_DIR}/source/space_partitioning
         FILES
         source/config/architecture.hpp
         source/config/assert.hpp
@@ -26,18 +29,11 @@ target_sources(${PROJECT_NAME}
         source/config/platform.hpp
         source/config/todo.hpp
 
-        FILE_SET fawnalgebra_geometry TYPE HEADERS
-        BASE_DIRS
-        ${PROJECT_SOURCE_DIR}/source/geometry
-        FILES
         source/geometry/aabb.hpp
         source/geometry/bounding_sphere.hpp
         source/geometry/obb.hpp
 
-        FILE_SET fawnalgebra_space_partitioning TYPE HEADERS
-        BASE_DIRS
-        ${PROJECT_SOURCE_DIR}/source/space_partitioning
-        FILES
+
         source/space_partitioning/bounding_volume_hierarchy.hpp
         source/space_partitioning/kdtree.hpp
         source/space_partitioning/octree.hpp

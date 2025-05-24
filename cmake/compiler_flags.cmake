@@ -22,6 +22,8 @@ macro(get_compile_flags_Release_MSVC Output)
         /W4
         /WX
         /MP
+        /GA
+        /EHr
         /fp:fast
         /arch:AVX2
     PARENT_SCOPE)
@@ -36,6 +38,8 @@ macro(get_compile_flags_RelWithDebInfo_MSVC Output)
         /W4
         /WX
         /MP
+        /EHr
+        /GA
         /Zi
         /DEBUG:FULL
         /fp:fast
@@ -52,6 +56,8 @@ macro(get_compile_flags_MinSizeRel_MSVC Output)
         /W4
         /WX
         /MP
+        /EHr
+        /GA
         /Zi
         /DEBUG:FULL
         /Os                      # Favor smaller code
