@@ -4,18 +4,11 @@
 //
 
 #pragma once
-#include <array>
-#include <cstddef>
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
-#include <limits>
-#include <utility>
-
 #include "aabb.hpp"
 #include "ray.hpp"
 
 import FawnAlgebra;
+import std;
 
 namespace FawnAlgebra
 {
@@ -25,8 +18,8 @@ template <typename Type, std::uint8_t Dimension>
 struct Node
 {
     aabb<float, Dimension> boundingBox{};
-    std::uint32_t          leftFirst{};
-    std::uint32_t          objCount{};
+    std::uint32_t leftFirst{};
+    std::uint32_t objCount{};
 };
 using Node2D = Node<float, 2>;
 using Node3D = Node<float, 3>;
@@ -44,7 +37,7 @@ template <typename NodeN, std::uint8_t Dimension>
     const auto delta{node.boundingBox.bMax - node.boundingBox.bMin};
 
     float surfaceAreaSum{};
-    for (std::uint8_t i {}; i < Dimension; ++i)
+    for (std::uint8_t i{}; i < Dimension; ++i)
     {
         float faceArea{1.0f};
         for (std::uint8_t j = 0; j < Dimension; ++j)
@@ -69,8 +62,7 @@ template <typename NodeN, std::uint8_t Dimension>
 [[nodiscard]] constexpr Type CalculateNodeCost(const Node3D& node) noexcept
 {
     const Vec<Type, Dimension> delta{node.boundingBox.bMax - node.boundingBox.bMin};
-    return (delta.coord.x * delta.coord.y + delta.coord.y * delta.coord.z + delta.coord.z * delta.coord.x)
-           * static_cast<float>(node.objCount);
+    return (delta.coord.x * delta.coord.y + delta.coord.y * delta.coord.z + delta.coord.z * delta.coord.x) * static_cast<float>(node.objCount);
 }
 
 // the "ULTIMATE" goal is to have an enum called tree_type or space_tree_type
@@ -85,11 +77,11 @@ template <typename Type, std::uint8_t Dimension, HasSizeAndDataOrIsArray Contain
 class BoundingVolumeHierarchy
 {
   public:
-    BoundingVolumeHierarchy(const Container* pContainer) :
-        m_pContainer{pContainer},
-        m_bvhNode{new(std::align_val_t(64)) Node<Type, Dimension>[std::size(*pContainer) * 2 + 64]},
-        m_objIndex{new uint32_t[std::size(*pContainer)]} m_nodesUsed{2},
-        m_getSize{getSize}
+    BoundingVolumeHierarchy(const Container* pContainer)
+        : m_pContainer{pContainer}
+        , m_bvhNode{new (std::align_val_t(64)) Node<Type, Dimension>[std::size(*pContainer) * 2 + 64]}
+        , m_objIndex{new uint32_t[std::size(*pContainer)]} m_nodesUsed{2}
+        , m_getSize{getSize}
     {
         Build();
     }
@@ -124,7 +116,7 @@ class BoundingVolumeHierarchy
     {
         Node<Type, Dimension>* node{&m_bvhNode[0]}; // Start at root node
         Node<Type, Dimension>* stack[64];
-        uint32_t               stackPtr{};
+        uint32_t stackPtr{};
 
         while (true)
         {
@@ -252,19 +244,18 @@ class BoundingVolumeHierarchy
   private:
     struct BuildJob
     {
-        uint32_t             nodeIndex{};
+        uint32_t nodeIndex{};
         Vec<Type, Dimension> centroidMin{};
         Vec<Type, Dimension> centroidMax{};
     };
 
     Node<Type, Dimension>* m_bvhNode{nullptr};
-    Container              m_pContainer{nullptr};
-    uint32_t*              m_objIndex{nullptr};
-    uint32_t               m_nodesUsed{};
-    bool                   m_subdivToOnePrim{false};
+    Container m_pContainer{nullptr};
+    uint32_t* m_objIndex{nullptr};
+    uint32_t m_nodesUsed{};
+    bool m_subdivToOnePrim{false};
 
-    constexpr auto IntersectAABB(const Ray<Type, Dimension>& ray, const Vec<Type, Dimension>& bmin, const Vec<Type, Dimension>& bmax)
-        -> Type
+    constexpr auto IntersectAABB(const Ray<Type, Dimension>& ray, const Vec<Type, Dimension>& bmin, const Vec<Type, Dimension>& bmax) -> Type
     {
         // "slab test" ray/AABB intersection
         Vec<Type, Dimension> t1{bmin - ray.origine) * ray.reciprocalDirection};
@@ -301,11 +292,8 @@ class BoundingVolumeHierarchy
             centroidMax = max(centroidMax, current);
         }
     }
-    constexpr auto FindBestSplitPlane(const Node<Type, Dimension>& node,
-                                      const uint32_t&              axis,
-                                      const uint32_t&              splitPos,
-                                      const Vec<Type, Dimension>&  centroidMin,
-                                      const Vec<Type, Dimension>&  centroidMax) -> Type
+    constexpr auto FindBestSplitPlane(const Node<Type, Dimension>& node, const uint32_t& axis, const uint32_t& splitPos, const Vec<Type, Dimension>& centroidMin,
+                                      const Vec<Type, Dimension>& centroidMax) -> Type
     {
         const Type bestCost{std::numeric_limits<Type>::max()};
         for (int a{}; a < Dimension; a++)
@@ -328,14 +316,14 @@ class BoundingVolumeHierarchy
             struct Bin
             {
                 aabb<Typem, Dimension> bounds{};
-                int                    objCount{};
+                int objCount{};
             } bin[BINS];
 
             for (uint i{}; i < node.objCount; i++)
             {
                 const Vec<Type, Dimension>& obj{m_pContainer[m_objIndex[node.leftFirst + i]]};
 
-                const int binIdx{min(BINS - 1, (int) ((obj.centroid[a] - boundsMin) * scale))};
+                const int binIdx{min(BINS - 1, (int)((obj.centroid[a] - boundsMin) * scale))};
                 bin[binIdx].objCount++;
                 bin[binIdx].bounds.Grow(obj);
                 // NOTE : when we ACTUALLY ant triangles, we will have to replace this part with the below three lines,
@@ -351,8 +339,8 @@ class BoundingVolumeHierarchy
             {
                 leftSum += bin[i].objCount;
                 leftBox.Grow(bin[i].bounds);
-                leftCountArea[i] = leftSum * leftBox.Area();
-                rightSum += bin[BINS - 1 - i].objCount;
+                leftCountArea[i]  = leftSum * leftBox.Area();
+                rightSum         += bin[BINS - 1 - i].objCount;
                 rightBox.Grow(bin[BINS - 1 - i].bounds);
                 rightCountArea[BINS - 2 - i] = rightSum * rightBox.Area();
             }
@@ -367,17 +355,13 @@ class BoundingVolumeHierarchy
         }
         return bestCost;
     }
-    constexpr void Subdevide(uint32_t                    nodeIndex,
-                             uint32_t                    depth,
-                             uint32_t&                   nodePtr,
-                             const Vec<Type, Dimension>& centroidMin,
-                             const Vec<Type, Dimension>& centroidMax)
+    constexpr void Subdevide(uint32_t nodeIndex, uint32_t depth, uint32_t& nodePtr, const Vec<Type, Dimension>& centroidMin, const Vec<Type, Dimension>& centroidMax)
     {
         Node<Type, Dimension>& node{m_bvhNode[nodeIndex]};
 
         uint32_t axis{};
         uint32_t splitPosition{};
-        Type     splitCost{FindBestSplitPlane(node, axis, splitPos, centroidMin, centroidMax)};
+        Type splitCost{FindBestSplitPlane(node, axis, splitPos, centroidMin, centroidMax)};
         if (m_subdivToOnePrim)
         {
             if (node.objCount == 1)
@@ -393,8 +377,8 @@ class BoundingVolumeHierarchy
                 return;
             }
         }
-        uint32_t    i{node.leftFirst};
-        uint32_t    j{node.leftFirst + node.objCount - 1};
+        uint32_t i{node.leftFirst};
+        uint32_t j{node.leftFirst + node.objCount - 1};
         const float scale{static_cast<Type>(BINS) / (centroidMax[axis] - centroidMin[axis])};
         while (i <= j)
         {
@@ -440,8 +424,8 @@ class BoundingVolumeHierarchy
         std::memset(m_objIndex, 0, count * sizeof(uint32_t));
 
         Node<Type, Dimension>& rootNode{m_bvhNode[]};
-        Vec<Type, Dimension>   centroidMin{};
-        Vec<Type, Dimension>   centroidMax{};
+        Vec<Type, Dimension> centroidMin{};
+        Vec<Type, Dimension> centroidMax{};
 
         UpdateNodeBounds(0, centroidMin, centroidMax);
         Subdevide(0, 0, m_nodesUsed, centroidMin, centroidMax);

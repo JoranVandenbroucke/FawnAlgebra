@@ -1,40 +1,41 @@
+# Generated from CLion C/C++ Code Style settings
 Language: Cpp
 BasedOnStyle: LLVM
-IndentWidth: 4
-UseTab: Never
-BreakBeforeBraces: Allman
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
-AllowShortFunctionsOnASingleLine: Empty
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments:
+  AcrossComments: false
+  AcrossEmptyLines: false
+  AlignCompound: true
+  Enabled: true
+  PadOperators: true
+AlignConsecutiveBitFields:
+  AcrossComments: false
+  AcrossEmptyLines: false
+  AlignCompound: true
+  Enabled: true
+  PadOperators: true
+AlignConsecutiveDeclarations: None
+AlignOperands: false
+AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLambdasOnASingleLine: None
+AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
-AlwaysBreakBeforeMultilineStrings: false
-BinPackArguments: false
-BinPackParameters: false
-AllowAllParametersOfDeclarationOnNextLine: false
-AllowAllArgumentsOnNextLine: false
-AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
-AlignEscapedNewlines: Left
-AlignOperands: true
-AlignTrailingComments: true
-BreakConstructorInitializers: AfterColon
-BreakBeforeBinaryOperators: NonAssignment
-BreakStringLiterals: true
-PenaltyBreakBeforeFirstCallParameter: 1
-PenaltyExcessCharacter: 100
-PenaltyReturnTypeOnItsOwnLine: 50
-ColumnLimit: 140
-ContinuationIndentWidth: 4
-SpacesInParentheses: false
-SpacesInSquareBrackets: false
-SpaceAfterCStyleCast: true
-SpaceBeforeCpp11BracedList: false
-SpaceBeforeParens: ControlStatements
-SpaceAfterTemplateKeyword: true
-SortIncludes: CaseInsensitive
-IncludeBlocks: Preserve
-RemoveSemicolon: true
-BreakBeforeTernaryOperators: false
-DerivePointerAlignment: false
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeBinaryOperators: All
+BreakBeforeBraces: Allman
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+ColumnLimit: 180
+IndentPPDirectives: AfterHash
+IndentWidth: 4
 PointerAlignment: Left
-BreakTemplateDeclarations: Yes
+SpaceBeforeParens: ControlStatements
+TabWidth: 4
+

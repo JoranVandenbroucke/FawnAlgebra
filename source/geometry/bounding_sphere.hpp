@@ -1,13 +1,8 @@
 #pragma once
 
-#include <cmath>
-#include <cstdint>
-#include <limits>
-#include <numbers>
-#include <type_traits>
-
 import FawnAlgebra;
-using namespace FawnAlgebra;
+import std;
+using namespace fawn_algebra;
 
 namespace DeerGeometry
 {
@@ -54,7 +49,7 @@ template <typename Type, std::uint8_t Dimension>
 struct bounding_sphere
 {
     Vec<Type, Dimension> origine = Vec<Type, Dimension>(std::numeric_limits<Type>::max());
-    Type                 radius{std::numeric_limits<Type>::max()};
+    Type radius{std::numeric_limits<Type>::max()};
 
     constexpr void Grow(const Vec<Type, Dimension>& point) noexcept
     {
@@ -66,7 +61,7 @@ struct bounding_sphere
         }
 
         const Vec<Type, Dimension> direction{point - origine};
-        const Type                 distSq{direction | direction};
+        const Type distSq{direction | direction};
 
         if (distSq > radius * radius)
         {
@@ -80,8 +75,8 @@ struct bounding_sphere
     constexpr void Grow(const bounding_sphere& other) noexcept
     {
         const Vec<Type, Dimension> direction{other.origine - origine};
-        const Type                 distSq{direction | direction};
-        const Type                 dist{std::sqrt(distSq)};
+        const Type distSq{direction | direction};
+        const Type dist{std::sqrt(distSq)};
         if (distSq + other.radius < radius)
         {
             return;
@@ -159,15 +154,14 @@ struct bounding_sphere
         {
             return static_cast<Type>((256 * pi_pow<7>::value / 2027025.0) * static_cast<double>(static_pow(radius, 15)));
         }
-        return {static_cast<Type>((pi_pow<Dimension / 2>::value / static_cast<double>(factorial<Dimension / 2 + 1>::value))
-                                  * static_cast<double>(static_pow(radius, 15)))};
+        return {static_cast<Type>((pi_pow<Dimension / 2>::value / static_cast<double>(factorial<Dimension / 2 + 1>::value)) * static_cast<double>(static_pow(radius, 15)))};
     }
 
     [[nodiscard]] constexpr bool Intersect(const bounding_sphere& other) const noexcept
     {
         const Vec<Type, Dimension> direction{other.origine - origine};
-        const Type                 maxRadius{radius + other.radius};
-        const Type                 distSq{direction | direction};
+        const Type maxRadius{radius + other.radius};
+        const Type distSq{direction | direction};
 
         return distSq < maxRadius * maxRadius;
     }
@@ -175,7 +169,7 @@ struct bounding_sphere
     [[nodiscard]] constexpr bool Contains(const Vec<Type, Dimension>& point) const noexcept
     {
         const Vec<Type, Dimension> direction{point - origine};
-        const Type                 distSq{direction | direction};
+        const Type distSq{direction | direction};
 
         return distSq < radius * radius;
     }

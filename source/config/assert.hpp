@@ -8,7 +8,7 @@
 
 #include "compiler.hpp"
 
-inline void balbino_assert( const char* condition, const char* message, const char* fileline )
+inline void balbino_assert(const char* condition, const char* message, const char* fileline)
 {
     std::cerr << "[" << fileline << "] "
               << "Assertion `" << condition << "` failed.\n"
@@ -16,13 +16,13 @@ inline void balbino_assert( const char* condition, const char* message, const ch
     std::abort();
 }
 
-inline void balbino_assert( const char* condition, const std::string& message, const char* fileline )
+inline void balbino_assert(const char* condition, const std::string& message, const char* fileline)
 {
-    balbino_assert( condition, message.c_str(), fileline );
+    balbino_assert(condition, message.c_str(), fileline);
 }
 
 #ifdef BALBINO_DEBUG
-    #define BALBINO_ASSERT( expr, message ) static_cast<bool>( expr ) ? static_cast<void>( 0 ): balbino_assert(#expr, message, BALBINO_FILE ":" _STRINGIZE(__LINE__))
+#    define BALBINO_ASSERT(expr, message) static_cast<bool>(expr) ? static_cast<void>(0) : balbino_assert(#expr, message, BALBINO_FILE ":" _STRINGIZE(__LINE__))
 #else
-    #define BALBINO_ASSERT( expr, message ) ( static_cast<void>( 0 ) )
+#    define BALBINO_ASSERT(expr, message) (static_cast<void>(0))
 #endif

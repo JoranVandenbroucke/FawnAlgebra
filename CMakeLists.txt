@@ -1,19 +1,19 @@
-cmake_minimum_required(VERSION 4.0.1)
+cmake_minimum_required(VERSION 4.3.0)
+set(CMAKE_CXX_COMPILER_IMPORT_STD ON)
+set(CMAKE_EXPERIMENTAL_CXX_IMPORT_STD "451f2fe2-a8a2-47c3-bc32-94786d8fc91b")
 project(FawnAlgebra VERSION 0.2.0 LANGUAGES CXX)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CXX_SCAN_FOR_MODULES ON)
-set(CXX_STANDARD_REQUIRED ON)
-set(CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_MODULE_STD 1)
 
-option(FawnAlgebra_Test "If the tests need to be build to (Default OFF)" ON)
+option(FawnAlgebra_Test "If the tests need to be build to (Default OFF)" OFF)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 add_library(${PROJECT_NAME})
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD_REQUIRED ON)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_EXTENSIONS OFF)
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
 
 target_sources(${PROJECT_NAME}
         PRIVATE
@@ -57,29 +57,22 @@ target_sources(${PROJECT_NAME}
         source/trigonometric.ixx
 )
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-include(compiler_flags)
-set(FUNCTION_NAME "get_compile_flags_${CMAKE_BUILD_TYPE}_${CMAKE_CXX_COMPILER_ID}")
-if(EXISTS ${FUNCTION_NAME})
-    execute_process(COMMAND ${FUNCTION_NAME} COMPILER_FLAGS)
-endif()
-target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILER_FLAGS})
-
-target_link_options(${PROJECT_NAME}
-        PRIVATE
-        $<$<CXX_COMPILER_ID:Clang>: $<$<BOOL:${USE_LLD}>:-fuse-ld=lld>>>
-        $<$NOT<$<BOOL:${USE_LLD}>>:
-            $<$<CXX_COMPILER_ID:MSVC>:
-                /Gw /Gy /GL
-            >
-            $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
-                -flto=full
-            >
-        >
-)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/source)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:-DBALBINO_DEBUG>)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS        OFF
+    CXX_SCAN_FOR_MODULES  ON
+)
+
+include(compiler_select_flags)
+include(compiler_select_sdl)
+include(compiler_select_linker)
+set_compile_flags(${PROJECT_NAME})
+select_best_stl(${PROJECT_NAME})
+select_best_linker(${PROJECT_NAME})
 
 if (DEFINED FawnAlgebra_Test AND FawnAlgebra_Test )
     add_subdirectory(tests)

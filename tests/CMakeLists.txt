@@ -13,25 +13,21 @@ target_link_libraries(${PROJECT_NAME}_test PRIVATE
         ${PROJECT_NAME}::${PROJECT_NAME}
 )
 
+target_include_directories(${PROJECT_NAME}_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../source)
+
 set_target_properties(${PROJECT_NAME}_test PROPERTIES CXX_STANDARD_REQUIRED ON)
 set_target_properties(${PROJECT_NAME}_test PROPERTIES CXX_EXTENSIONS OFF)
 
-include(compiler_flags)
-set(FUNCTION_NAME "get_compile_flags_${CMAKE_BUILD_TYPE}_${CMAKE_CXX_COMPILER_ID}")
-
-# Call the dynamically constructed function
-if(EXISTS ${FUNCTION_NAME})
-    execute_process(COMMAND ${FUNCTION_NAME} COMPILER_FLAGS)
-endif()
-target_compile_options(${PROJECT_NAME}_test
-        PRIVATE
-            ${COMPILER_FLAGS}
-)
-
+target_compile_definitions(${PROJECT_NAME}_test PRIVATE $<$<CONFIG:Debug>:-DBALBINO_DEBUG>)
 target_compile_features(${PROJECT_NAME}_test PRIVATE cxx_std_23)
-target_include_directories(${PROJECT_NAME}_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../source)
+
+include(compiler_select_flags)
+include(compiler_select_sdl)
+include(compiler_select_linker)
+include(setup_catch)
+set_compile_flags(${PROJECT_NAME})
+select_best_stl(${PROJECT_NAME}_test)
+select_best_linker(${PROJECT_NAME}_test)
 
 enable_testing()
-
-include(setup_catch)
 setup_catch(${PROJECT_NAME}_test)

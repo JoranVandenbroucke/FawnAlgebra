@@ -6,84 +6,85 @@
 #include <catch2/catch_all.hpp>
 
 import FawnAlgebra;
-using namespace FawnAlgebra;
+import std;
+using namespace fawn_algebra;
 
-TEST_CASE( "int2: Vector arithmetic operations", "[Vector]" )
+TEST_CASE("int2: Vector arithmetic operations", "[Vector]")
 {
     constexpr int2 a{1, 2};
     constexpr int2 b{3, 4};
 
-    SECTION( "Addition" )
+    SECTION("Addition")
     {
         constexpr int2 result{a + b};
-        REQUIRE( result[ 0 ] == 4 );
-        REQUIRE( result[ 1 ] == 6 );
+        REQUIRE(result[0] == 4);
+        REQUIRE(result[1] == 6);
     }
 
-    SECTION( "Subtraction" )
+    SECTION("Subtraction")
     {
         constexpr int2 result{b - a};
-        REQUIRE( result[ 0 ] == 2 );
-        REQUIRE( result[ 1 ] == 2 );
+        REQUIRE(result[0] == 2);
+        REQUIRE(result[1] == 2);
     }
 
-    SECTION( "Multiplication" )
+    SECTION("Multiplication")
     {
         constexpr int2 result{a * b};
-        REQUIRE( result[ 0 ] == 3 );
-        REQUIRE( result[ 1 ] == 8 );
+        REQUIRE(result[0] == 3);
+        REQUIRE(result[1] == 8);
     }
 
-    SECTION( "Division" )
+    SECTION("Division")
     {
         constexpr int2 result{b / a};
-        REQUIRE( result[ 0 ] == 3 );
-        REQUIRE( result[ 1 ] == 2 );
+        REQUIRE(result[0] == 3);
+        REQUIRE(result[1] == 2);
     }
-    SECTION( "Dot" )
+    SECTION("Dot")
     {
         constexpr int result{b | a};
-        REQUIRE( result == 11 );
+        REQUIRE(result == 11);
     }
-    SECTION( "Cross" )
+    SECTION("Cross")
     {
         constexpr int result{b ^ a};
-        REQUIRE( result == 2 );
+        REQUIRE(result == 2);
     }
-    SECTION( "Project" )
+    SECTION("Project")
     {
         constexpr int2 result{b & a};
-        REQUIRE( result[ 0 ] == 11 );
-        REQUIRE( result[ 1 ] == 22 );
+        REQUIRE(result[0] == 11);
+        REQUIRE(result[1] == 22);
     }
-    SECTION( "Reject" )
+    SECTION("Reject")
     {
         constexpr int2 result{b % a};
-        REQUIRE( result[ 0 ] == 1 );
-        REQUIRE( result[ 1 ] == 0 );
+        REQUIRE(result[0] == 1);
+        REQUIRE(result[1] == 0);
     }
 }
 
-TEST_CASE( "Vec: Vector math operations", "[Vector]" )
+TEST_CASE("Vec: Vector math operations", "[Vector]")
 {
     constexpr float2 a{3.1f, 4.9f};
 
-    SECTION( "ceil" )
+    SECTION("ceil")
     {
-        const float2 squareRoot{ceil( a )};
-        REQUIRE_THAT( squareRoot[ 0 ], Catch::Matchers::WithinAbs( 2.f, 1e5f ) );
-        REQUIRE_THAT( squareRoot[ 1 ], Catch::Matchers::WithinAbs( 5.f, 1e5f ) );
+        const float2 squareRoot{ceil(a)};
+        REQUIRE_THAT(squareRoot[0], Catch::Matchers::WithinAbs(2.f, 1e5f));
+        REQUIRE_THAT(squareRoot[1], Catch::Matchers::WithinAbs(5.f, 1e5f));
     }
-    SECTION( "floor" )
+    SECTION("floor")
     {
-        const float2 squareRoot{floor( a )};
-        REQUIRE_THAT( squareRoot[ 0 ], Catch::Matchers::WithinAbs( 1.f, 1e5f ) );
-        REQUIRE_THAT( squareRoot[ 1 ], Catch::Matchers::WithinAbs( 4.f, 1e5f ) );
+        const float2 squareRoot{floor(a)};
+        REQUIRE_THAT(squareRoot[0], Catch::Matchers::WithinAbs(1.f, 1e5f));
+        REQUIRE_THAT(squareRoot[1], Catch::Matchers::WithinAbs(4.f, 1e5f));
     }
-    SECTION( "round" )
+    SECTION("round")
     {
-        const float2 squareRoot{round( a )};
-        REQUIRE_THAT( squareRoot[ 0 ], Catch::Matchers::WithinAbs( 1.f, 1e5f ) );
-        REQUIRE_THAT( squareRoot[ 1 ], Catch::Matchers::WithinAbs( 5.f, 1e5f ) );
+        const float2 squareRoot{round(a)};
+        REQUIRE_THAT(squareRoot[0], Catch::Matchers::WithinAbs(1.f, 1e5f));
+        REQUIRE_THAT(squareRoot[1], Catch::Matchers::WithinAbs(5.f, 1e5f));
     }
 }

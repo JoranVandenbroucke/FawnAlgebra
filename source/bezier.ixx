@@ -4,15 +4,12 @@
 //
 
 module;
-#include <array>
-#include <cmath>
-#include <cstddef>
-#include <vector>
 
 export module FawnAlgebra:Bezier;
 import :Arithmetics;
+import std;
 
-namespace FawnAlgebra
+namespace fawn_algebra
 {
 export template <typename T, std::size_t N, std::size_t S>
 class StaticQuadraticBezier
@@ -20,7 +17,10 @@ class StaticQuadraticBezier
   public:
     constexpr StaticQuadraticBezier() = default;
 
-    explicit constexpr StaticQuadraticBezier(std::array<Vec<T, N>, S> pts) : points{std::move(pts)} {}
+    explicit constexpr StaticQuadraticBezier(std::array<Vec<T, N>, S> pts)
+        : points{std::move(pts)}
+    {
+    }
 
     constexpr Vec<T, N>& operator[](std::size_t idx)
     {
@@ -136,7 +136,10 @@ class DynamicQuadraticBezier
   public:
     constexpr DynamicQuadraticBezier() = default;
 
-    explicit constexpr DynamicQuadraticBezier(std::vector<Vec<T, N>> pts) : points{std::move(pts)} {}
+    explicit constexpr DynamicQuadraticBezier(std::vector<Vec<T, N>> pts)
+        : points{std::move(pts)}
+    {
+    }
 
     constexpr Vec<T, N>& operator[](std::size_t idx)
     {
@@ -286,7 +289,7 @@ export template <typename T, std::size_t N, std::size_t S, typename V = T>
     requires std::is_floating_point_v<V>
 constexpr auto Evaluate(const StaticQuadraticBezier<T, N, S>& bezier, const V& t) -> Vec<T, N>
 {
-    Vec<T, N>         result{};
+    Vec<T, N> result{};
     const std::size_t numSegments{bezier.size() / 2ULL};
     const std::size_t from{static_cast<std::size_t>(std::floor(t)) % numSegments};
     if (from == t)
@@ -308,7 +311,7 @@ export template <typename T, std::size_t N, typename V>
     requires std::is_floating_point_v<V>
 constexpr auto Evaluate(const DynamicQuadraticBezier<T, N>& bezier, const V& t) -> Vec<T, N>
 {
-    Vec<T, N>         result{};
+    Vec<T, N> result{};
     const std::size_t numSegments{bezier.size() / 2ULL};
     const std::size_t from{static_cast<std::size_t>(std::floor(t)) % numSegments};
     if (from == t)
@@ -345,7 +348,7 @@ constexpr void Close(DynamicQuadraticBezier<T, N>& bezier)
     if ((bezier.size() & 1) && !bezier.empty())
     {
         const Vec<T, N>& lastPoint{bezier.back()};
-        const Vec<T, N>& controlPoint{(lastPoint + bezier[0]) / 2};
+        const Vec<T, N>& controlPoint{(lastPoint + bezier[0]) / static_cast<T>(2)};
         bezier.emplace_back(controlPoint);
     }
 }
@@ -392,7 +395,7 @@ constexpr void AddControlPoint(DynamicQuadraticBezier<T, N>& bezier, const Vec<T
     else
     {
         const Vec<T, N>& lastPoint{bezier.back()};
-        const Vec<T, N>  controlPoint{(lastPoint + newPoint) / Vec<T, N>{2}};
+        const Vec<T, N> controlPoint{(lastPoint + newPoint) / Vec<T, N>{2}};
         bezier.emplace_back(controlPoint);
         bezier.emplace_back(newPoint);
     }
@@ -422,40 +425,40 @@ constexpr void AddPoints(DynamicQuadraticBezier<T, N>& bezier, const std::vector
 }
 
 export template <typename T, std::size_t N>
-constexpr ui32 SegmentCount(const DynamicQuadraticBezier<T, N>& bezier)
+constexpr std::uint32_t SegmentCount(const DynamicQuadraticBezier<T, N>& bezier)
 {
-    return static_cast<ui32>(bezier.size() > 2ULL ? (bezier.size() - 1ULL) / 2ULL : 0ULL);
+    return static_cast<std::uint32_t>(bezier.size() > 2ULL ? (bezier.size() - 1ULL) / 2ULL : 0ULL);
 }
 
-export using dynamic_bezierI2 = DynamicQuadraticBezier<i32, 2>;
-export using dynamic_bezierI3 = DynamicQuadraticBezier<i32, 3>;
-export using dynamic_bezierI4 = DynamicQuadraticBezier<i32, 4>;
+export using dynamic_bezierI2 = DynamicQuadraticBezier<std::int32_t, 2>;
+export using dynamic_bezierI3 = DynamicQuadraticBezier<std::int32_t, 3>;
+export using dynamic_bezierI4 = DynamicQuadraticBezier<std::int32_t, 4>;
 
-export using dynamic_bezierUI2 = DynamicQuadraticBezier<ui32, 2>;
-export using dynamic_bezierUI3 = DynamicQuadraticBezier<ui32, 3>;
-export using dynamic_bezierUI4 = DynamicQuadraticBezier<ui32, 4>;
+export using dynamic_bezierUI2 = DynamicQuadraticBezier<std::uint32_t, 2>;
+export using dynamic_bezierUI3 = DynamicQuadraticBezier<std::uint32_t, 3>;
+export using dynamic_bezierUI4 = DynamicQuadraticBezier<std::uint32_t, 4>;
 
-export using dynamic_bezierF2 = DynamicQuadraticBezier<f32, 2>;
-export using dynamic_bezierF3 = DynamicQuadraticBezier<f32, 3>;
-export using dynamic_bezierF4 = DynamicQuadraticBezier<f32, 4>;
+export using dynamic_bezierF2 = DynamicQuadraticBezier<float, 2>;
+export using dynamic_bezierF3 = DynamicQuadraticBezier<float, 3>;
+export using dynamic_bezierF4 = DynamicQuadraticBezier<float, 4>;
 
-export using dynamic_bezierD2 = DynamicQuadraticBezier<f64, 2>;
-export using dynamic_bezierD3 = DynamicQuadraticBezier<f64, 3>;
-export using dynamic_bezierD4 = DynamicQuadraticBezier<f64, 4>;
+export using dynamic_bezierD2 = DynamicQuadraticBezier<double, 2>;
+export using dynamic_bezierD3 = DynamicQuadraticBezier<double, 3>;
+export using dynamic_bezierD4 = DynamicQuadraticBezier<double, 4>;
 
-export using static_bezierI2 = DynamicQuadraticBezier<i32, 2>;
-export using static_bezierI3 = DynamicQuadraticBezier<i32, 3>;
-export using static_bezierI4 = DynamicQuadraticBezier<i32, 4>;
+export using static_bezierI2 = DynamicQuadraticBezier<std::int32_t, 2>;
+export using static_bezierI3 = DynamicQuadraticBezier<std::int32_t, 3>;
+export using static_bezierI4 = DynamicQuadraticBezier<std::int32_t, 4>;
 
-export using static_bezierUI2 = DynamicQuadraticBezier<ui32, 2>;
-export using static_bezierUI3 = DynamicQuadraticBezier<ui32, 3>;
-export using static_bezierUI4 = DynamicQuadraticBezier<ui32, 4>;
+export using static_bezierUI2 = DynamicQuadraticBezier<std::uint32_t, 2>;
+export using static_bezierUI3 = DynamicQuadraticBezier<std::uint32_t, 3>;
+export using static_bezierUI4 = DynamicQuadraticBezier<std::uint32_t, 4>;
 
-export using static_bezierF2 = DynamicQuadraticBezier<f32, 2>;
-export using static_bezierF3 = DynamicQuadraticBezier<f32, 3>;
-export using static_bezierF4 = DynamicQuadraticBezier<f32, 4>;
+export using static_bezierF2 = DynamicQuadraticBezier<float, 2>;
+export using static_bezierF3 = DynamicQuadraticBezier<float, 3>;
+export using static_bezierF4 = DynamicQuadraticBezier<float, 4>;
 
-export using static_bezierD2 = DynamicQuadraticBezier<f64, 2>;
-export using static_bezierD3 = DynamicQuadraticBezier<f64, 3>;
-export using static_bezierD4 = DynamicQuadraticBezier<f64, 4>;
-} // namespace FawnAlgebra
+export using static_bezierD2 = DynamicQuadraticBezier<double, 2>;
+export using static_bezierD3 = DynamicQuadraticBezier<double, 3>;
+export using static_bezierD4 = DynamicQuadraticBezier<double, 4>;
+} // namespace fawn_algebra

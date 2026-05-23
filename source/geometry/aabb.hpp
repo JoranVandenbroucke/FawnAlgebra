@@ -4,12 +4,10 @@
 //
 
 #pragma once
-#include <cstdint>
-#include <limits>
-#include <type_traits>
 
 import FawnAlgebra;
-using namespace FawnAlgebra;
+import std;
+using namespace fawn_algebra;
 
 namespace DeerGeometry
 {

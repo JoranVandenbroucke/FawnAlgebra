@@ -4,143 +4,143 @@
 //
 
 module;
-#include <cmath>
 
 export module FawnAlgebra:Trigonometric;
+import std;
 
-namespace FawnAlgebra
+namespace fawn_algebra
 {
 // no need to make thing inline as it's implicit
 // can't make them constexpr as arithmatics can't be calculated at compile time (yet)
-export template<typename T>
+export template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Sin( const T& x ) noexcept
+constexpr T Sin(const T& x) noexcept
 {
-    return static_cast<T>( std::sin( static_cast<double>( x ) ) );
+    return static_cast<T>(std::sin(static_cast<double>(x)));
 }
 
-export template<typename T>
+export template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Cos( const T& x ) noexcept
+constexpr T Cos(const T& x) noexcept
 {
-    return static_cast<T>( std::cos( static_cast<double>( x ) ) );
+    return static_cast<T>(std::cos(static_cast<double>(x)));
 }
 
-export template<typename T>
+export template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Tan( const T& x ) noexcept
+constexpr T Tan(const T& x) noexcept
 {
-    return static_cast<T>( std::tan( static_cast<double>( x ) ) );
+    return static_cast<T>(std::tan(static_cast<double>(x)));
 }
 
-export template<typename T>
+export template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Cotan( const T& x ) noexcept
+constexpr T Cotan(const T& x) noexcept
 {
-    return static_cast<T>( 1 / tan( static_cast<double>( x ) ) );
+    return static_cast<T>(1 / Tan(static_cast<double>(x)));
 }
 
-export template<typename T>
+export template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Secant( const T& x ) noexcept
+constexpr T Secant(const T& x) noexcept
 {
-    return static_cast<T>( 1 / cos( static_cast<double>( x ) ) );
+    return static_cast<T>(1 / Cos(static_cast<double>(x)));
 }
 
-export template<typename T>
+export template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Cosecant( const T& x ) noexcept
+constexpr T Cosecant(const T& x) noexcept
 {
-    return static_cast<T>( 1 / sin( static_cast<double>( x ) ) );
+    return static_cast<T>(1 / Sin(static_cast<double>(x)));
 }
 
-export template<typename T>
+export template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Arcsin( const T& x ) noexcept
+constexpr T Arcsin(const T& x) noexcept
 {
-    return static_cast<T>( std::asin( static_cast<double>( x ) ) );
+    return static_cast<T>(std::asin(static_cast<double>(x)));
 }
 
-export template<typename T>
+export template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Arccos( const T& x ) noexcept
+constexpr T Arccos(const T& x) noexcept
 {
-    return static_cast<T>( std::acos( static_cast<double>( x ) ) );
+    return static_cast<T>(std::acos(static_cast<double>(x)));
 }
 
-export template<typename T>
+export template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Arctan( const T& x ) noexcept
+constexpr T Arctan(const T& x) noexcept
 {
-    return static_cast<T>( std::atan( static_cast<double>( x ) ) );
+    return static_cast<T>(std::atan(static_cast<double>(x)));
 }
 
-export template<typename T>
+export template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Arctan2( const T& y, const T& x ) noexcept
+constexpr T Arctan2(const T& y, const T& x) noexcept
 {
-    return static_cast<T>( std::atan2( static_cast<double>( y ), static_cast<double>( x ) ) );
+    return static_cast<T>(std::atan2(static_cast<double>(y), static_cast<double>(x)));
 }
-template<typename T>
+template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Sinh( const T& x ) noexcept
+constexpr T Sinh(const T& x) noexcept
 {
-    return static_cast<T>( std::sinh( static_cast<double>( x ) ) );
-}
-
-template<typename T>
-    requires std::is_arithmetic_v<T>
-constexpr T Cosh( const T& x ) noexcept
-{
-    return static_cast<T>( std::cosh( static_cast<double>( x ) ) );
+    return static_cast<T>(std::sinh(static_cast<double>(x)));
 }
 
-template<typename T>
+template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Tanh( const T& x ) noexcept
+constexpr T Cosh(const T& x) noexcept
 {
-    return static_cast<T>( std::tanh( static_cast<double>( x ) ) );
+    return static_cast<T>(std::cosh(static_cast<double>(x)));
 }
 
-template<typename T>
+template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Coth( const T& x ) noexcept
+constexpr T Tanh(const T& x) noexcept
 {
-    return static_cast<T>( 1 / tanh( static_cast<double>( x ) ) );
+    return static_cast<T>(std::tanh(static_cast<double>(x)));
 }
 
-template<typename T>
+template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Sech( const T& x ) noexcept
+constexpr T Coth(const T& x) noexcept
 {
-    return static_cast<T>( 1 / cosh( static_cast<double>( x ) ) );
+    return static_cast<T>(1 / Tanh(static_cast<double>(x)));
 }
 
-template<typename T>
+template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Cosech( const T& x ) noexcept
+constexpr T Sech(const T& x) noexcept
 {
-    return static_cast<T>( 1 / sinh( static_cast<double>( x ) ) );
+    return static_cast<T>(1 / Cosh(static_cast<double>(x)));
 }
 
-template<typename T>
+template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Arsinh( const T& x ) noexcept
+constexpr T Cosech(const T& x) noexcept
 {
-    return static_cast<T>( std::asinh( static_cast<double>( x ) ) );
+    return static_cast<T>(1 / Sinh(static_cast<double>(x)));
 }
 
-template<typename T>
+template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Arcosh( const T& x ) noexcept
+constexpr T Arsinh(const T& x) noexcept
 {
-    return static_cast<T>( std::acosh( static_cast<double>( x ) ) );
+    return static_cast<T>(std::asinh(static_cast<double>(x)));
 }
 
-template<typename T>
+template <typename T>
     requires std::is_arithmetic_v<T>
-constexpr T Artanh( const T& x ) noexcept
+constexpr T Arcosh(const T& x) noexcept
 {
-    return static_cast<T>( std::atanh( static_cast<double>( x ) ) );
+    return static_cast<T>(std::acosh(static_cast<double>(x)));
 }
-}// namespace FawnAlgebra
+
+template <typename T>
+    requires std::is_arithmetic_v<T>
+constexpr T Artanh(const T& x) noexcept
+{
+    return static_cast<T>(std::atanh(static_cast<double>(x)));
+}
+} // namespace fawn_algebra

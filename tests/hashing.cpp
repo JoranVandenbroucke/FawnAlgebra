@@ -7,7 +7,8 @@
 #include <catch2/catch_all.hpp>
 
 import FawnAlgebra;
-using namespace FawnAlgebra;
+import std;
+using namespace fawn_algebra;
 
 // todo : find a constexpr version that guarantees same output everytime no matter the compiler
 // TEST_CASE( "Hash: hashDjb2 computes correct hash", "[hash]" )
@@ -23,37 +24,37 @@ using namespace FawnAlgebra;
 // REQUIRE( HashSdbm( "world" ) == 0xF7E3AEB2 );
 // }
 
-TEST_CASE( "Hash: hashLoseLose computes correct hash", "[hash]" )
+TEST_CASE("Hash: hashLoseLose computes correct hash", "[hash]")
 {
-    REQUIRE( HashLoseLose( "hello" ) == 0x214 );
-    REQUIRE( HashLoseLose( "world" ) == 0x228 );
+    REQUIRE(HashLoseLose("hello") == 0x214);
+    REQUIRE(HashLoseLose("world") == 0x228);
 }
 
-TEST_CASE( "Hash: hashword computes correct hash", "[hash]" )
+TEST_CASE("Hash: hashword computes correct hash", "[hash]")
 {
-    constexpr uint32_t data[ ]{1, 2, 3, 4};
+    constexpr uint32_t data[]{1, 2, 3, 4};
     const uint32_t* ptr{data};
-    REQUIRE( HashWord( ptr, 4, 0 ) == 0x66491246 );
+    REQUIRE(HashWord(ptr, 4, 0) == 0x66491246);
 }
 
-TEST_CASE( "Hash: hashword2 computes correct hashes", "[hash]" )
+TEST_CASE("Hash: hashword2 computes correct hashes", "[hash]")
 {
-    constexpr uint32_t data[ ]{1, 2, 3, 4};
+    constexpr uint32_t data[]{1, 2, 3, 4};
     uint32_t pc{};
     uint32_t pb{};
-    HashWord2( data, 4, &pc, &pb );
-    REQUIRE( pc == 0x66491246 );
-    REQUIRE( pb == 0xBF826FCA );
+    HashWord2(data, 4, &pc, &pb);
+    REQUIRE(pc == 0x66491246);
+    REQUIRE(pb == 0xBF826FCA);
 }
 
-TEST_CASE( "Hash: hashword2 with array computes correct hashes", "[hash]" )
+TEST_CASE("Hash: hashword2 with array computes correct hashes", "[hash]")
 {
-    constexpr uint32_t data[ ]{1, 2, 3, 4};
-    uint32_t pc[ 4 ]{};
-    uint32_t pb[ 4 ]{};
-    HashWord2( data, pc, pb );
-    REQUIRE( pc[ 0 ] == 0x66491246 );
-    REQUIRE( pb[ 0 ] == 0xBF826FCA );
+    constexpr uint32_t data[]{1, 2, 3, 4};
+    uint32_t pc[4]{};
+    uint32_t pb[4]{};
+    HashWord2(data, pc, pb);
+    REQUIRE(pc[0] == 0x66491246);
+    REQUIRE(pb[0] == 0xBF826FCA);
 }
 
 // todo : find a constexpr version that guarantees same output everytime no matter the compiler
@@ -83,14 +84,14 @@ TEST_CASE( "Hash: hashword2 with array computes correct hashes", "[hash]" )
 //     REQUIRE( isOk );
 // }
 
-TEST_CASE( "Float: uintToFloatExcl conversion works", "[float]" )
+TEST_CASE("Float: uintToFloatExcl conversion works", "[float]")
 {
-    REQUIRE( UintToFloatExcl( 0 ) == Catch::Approx( 0.0f ) );
-    REQUIRE( UintToFloatExcl( 0xFFFFFFFFU ) == Catch::Approx( 1.0f ) );
+    REQUIRE(UintToFloatExcl(0) == Catch::Approx(0.0f));
+    REQUIRE(UintToFloatExcl(0xFFFFFFFFU) == Catch::Approx(1.0f));
 }
 
-TEST_CASE( "Float: uintToFloatIncl conversion works", "[float]" )
+TEST_CASE("Float: uintToFloatIncl conversion works", "[float]")
 {
-    REQUIRE( UintToFloatIncl( 0 ) == Catch::Approx( 0.0f ) );
-    REQUIRE( UintToFloatIncl( 0xFFFFFFFFU ) == Catch::Approx( 1.0f ) );
+    REQUIRE(UintToFloatIncl(0) == Catch::Approx(0.0f));
+    REQUIRE(UintToFloatIncl(0xFFFFFFFFU) == Catch::Approx(1.0f));
 }

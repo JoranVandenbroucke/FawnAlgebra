@@ -6,28 +6,27 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
-#include <cstddef>
-
 #include "geometry/bounding_sphere.hpp"
 import FawnAlgebra;
+import std;
 
-using namespace FawnAlgebra;
+using namespace fawn_algebra;
 using namespace DeerGeometry;
 
 TEST_CASE("bounding_sphere2d grows correctly with points", "[aabb]")
 {
     bounding_sphere2d<float> sphere;
-    REQUIRE_THAT(sphere.origine.coord.x, Catch::Matchers::WithinAbs(std::numeric_limits<float>::max(), 1e-6f));
+    REQUIRE_THAT(sphere.origine.x, Catch::Matchers::WithinAbs(std::numeric_limits<float>::max(), 1e-6f));
     REQUIRE_THAT(sphere.radius, Catch::Matchers::WithinAbs(std::numeric_limits<float>::max(), 1e-6f));
 
     sphere.Grow(float2{1.0f, 2.0f});
-    REQUIRE_THAT(sphere.origine.coord.x, Catch::Matchers::WithinAbs(1.0f, 1e-6f));
-    REQUIRE_THAT(sphere.origine.coord.y, Catch::Matchers::WithinAbs(2.0f, 1e-6f));
+    REQUIRE_THAT(sphere.origine.x, Catch::Matchers::WithinAbs(1.0f, 1e-6f));
+    REQUIRE_THAT(sphere.origine.y, Catch::Matchers::WithinAbs(2.0f, 1e-6f));
     REQUIRE_THAT(sphere.radius, Catch::Matchers::WithinAbs(0.0f, 1e-6f));
 
     sphere.Grow(float2{3.0f, 1.0f});
-    REQUIRE_THAT(sphere.origine.coord.x, Catch::Matchers::WithinAbs(2.0f, 1e-6f));
-    REQUIRE_THAT(sphere.origine.coord.y, Catch::Matchers::WithinAbs(1.5f, 1e-6f));
+    REQUIRE_THAT(sphere.origine.x, Catch::Matchers::WithinAbs(2.0f, 1e-6f));
+    REQUIRE_THAT(sphere.origine.y, Catch::Matchers::WithinAbs(1.5f, 1e-6f));
     REQUIRE_THAT(sphere.radius, Catch::Matchers::WithinAbs(1.11803398875f, 1e-6f));
 }
 
@@ -42,8 +41,8 @@ TEST_CASE("bounding_sphere2d grows correctly with another AABB", "[aabb]")
     sphere2.Grow(float2{4.0f, 4.0f});
 
     sphere1.Grow(sphere2);
-    REQUIRE_THAT(sphere1.origine.coord.x, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
-    REQUIRE_THAT(sphere1.origine.coord.y, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
+    REQUIRE_THAT(sphere1.origine.x, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
+    REQUIRE_THAT(sphere1.origine.y, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
     REQUIRE_THAT(sphere1.radius, Catch::Matchers::WithinAbs(2.121320248f, 1e-6f));
 }
 
@@ -79,19 +78,19 @@ TEST_CASE("bounding_sphere2d detects containment correctly", "[aabb]")
 TEST_CASE("bounding_sphere3d grows correctly with points", "[aabb]")
 {
     bounding_sphere3d<float> sphere;
-    REQUIRE(sphere.origine.coord.x == std::numeric_limits<float>::max());
+    REQUIRE(sphere.origine.x == std::numeric_limits<float>::max());
     REQUIRE(sphere.radius == std::numeric_limits<float>::max());
 
     sphere.Grow(float3{1.0f, 2.0f, 3.0f});
-    REQUIRE_THAT(sphere.origine.coord.x, Catch::Matchers::WithinAbs(1.0f, 1e-6f));
-    REQUIRE_THAT(sphere.origine.coord.y, Catch::Matchers::WithinAbs(2.0f, 1e-6f));
-    REQUIRE_THAT(sphere.origine.coord.z, Catch::Matchers::WithinAbs(3.0f, 1e-6f));
+    REQUIRE_THAT(sphere.origine.x, Catch::Matchers::WithinAbs(1.0f, 1e-6f));
+    REQUIRE_THAT(sphere.origine.y, Catch::Matchers::WithinAbs(2.0f, 1e-6f));
+    REQUIRE_THAT(sphere.origine.z, Catch::Matchers::WithinAbs(3.0f, 1e-6f));
     REQUIRE_THAT(sphere.radius, Catch::Matchers::WithinAbs(0.0f, 1e-6f));
 
     sphere.Grow(float3{4.0f, 1.0f, 0.0f});
-    REQUIRE_THAT(sphere.origine.coord.x, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
-    REQUIRE_THAT(sphere.origine.coord.y, Catch::Matchers::WithinAbs(1.5f, 1e-6f));
-    REQUIRE_THAT(sphere.origine.coord.z, Catch::Matchers::WithinAbs(1.5f, 1e-6f));
+    REQUIRE_THAT(sphere.origine.x, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
+    REQUIRE_THAT(sphere.origine.y, Catch::Matchers::WithinAbs(1.5f, 1e-6f));
+    REQUIRE_THAT(sphere.origine.z, Catch::Matchers::WithinAbs(1.5f, 1e-6f));
     REQUIRE_THAT(sphere.radius, Catch::Matchers::WithinAbs(2.179449558f, 1e-6f));
 }
 
@@ -106,9 +105,9 @@ TEST_CASE("bounding_sphere3d grows correctly with another AABB", "[aabb]")
     sphere2.Grow(float3(4.0f));
 
     sphere1.Grow(sphere2);
-    REQUIRE_THAT(sphere1.origine.coord.x, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
-    REQUIRE_THAT(sphere1.origine.coord.y, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
-    REQUIRE_THAT(sphere1.origine.coord.z, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
+    REQUIRE_THAT(sphere1.origine.x, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
+    REQUIRE_THAT(sphere1.origine.y, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
+    REQUIRE_THAT(sphere1.origine.z, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
     REQUIRE_THAT(sphere1.radius, Catch::Matchers::WithinAbs(2.598076105f, 1e-6f));
 }
 

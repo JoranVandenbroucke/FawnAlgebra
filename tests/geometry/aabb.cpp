@@ -6,31 +6,30 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
 
-#include <cstddef>
-
 #include "geometry/aabb.hpp"
 import FawnAlgebra;
+import std;
 
-using namespace FawnAlgebra;
+using namespace fawn_algebra;
 using namespace DeerGeometry;
 
 TEST_CASE("aabb2d grows correctly with points", "[aabb]")
 {
     aabb2d<float> box;
-    REQUIRE(box.bMin.coord.x == std::numeric_limits<float>::max());
-    REQUIRE(box.bMax.coord.x == std::numeric_limits<float>::min());
+    REQUIRE(box.bMin.x == std::numeric_limits<float>::max());
+    REQUIRE(box.bMax.x == std::numeric_limits<float>::min());
 
     box.Grow(float2{1.0f, 2.0f});
-    REQUIRE(box.bMin.coord.x == 1.0f);
-    REQUIRE(box.bMin.coord.y == 2.0f);
-    REQUIRE(box.bMax.coord.x == 1.0f);
-    REQUIRE(box.bMax.coord.y == 2.0f);
+    REQUIRE(box.bMin.x == 1.0f);
+    REQUIRE(box.bMin.y == 2.0f);
+    REQUIRE(box.bMax.x == 1.0f);
+    REQUIRE(box.bMax.y == 2.0f);
 
     box.Grow(float2{3.0f, 1.0f});
-    REQUIRE(box.bMin.coord.x == 1.0f);
-    REQUIRE(box.bMin.coord.y == 1.0f);
-    REQUIRE(box.bMax.coord.x == 3.0f);
-    REQUIRE(box.bMax.coord.y == 2.0f);
+    REQUIRE(box.bMin.x == 1.0f);
+    REQUIRE(box.bMin.y == 1.0f);
+    REQUIRE(box.bMax.x == 3.0f);
+    REQUIRE(box.bMax.y == 2.0f);
 }
 
 TEST_CASE("aabb2d grows correctly with another AABB", "[aabb]")
@@ -44,10 +43,10 @@ TEST_CASE("aabb2d grows correctly with another AABB", "[aabb]")
     box2.Grow(float2{4.0f, 4.0f});
 
     box1.Grow(box2);
-    REQUIRE(box1.bMin.coord.x == 1.0f);
-    REQUIRE(box1.bMin.coord.y == 1.0f);
-    REQUIRE(box1.bMax.coord.x == 4.0f);
-    REQUIRE(box1.bMax.coord.y == 4.0f);
+    REQUIRE(box1.bMin.x == 1.0f);
+    REQUIRE(box1.bMin.y == 1.0f);
+    REQUIRE(box1.bMax.x == 4.0f);
+    REQUIRE(box1.bMax.y == 4.0f);
 }
 
 TEST_CASE("aabb2d calculates Area correctly", "[aabb]")
@@ -82,24 +81,24 @@ TEST_CASE("aabb2d detects containment correctly", "[aabb]")
 TEST_CASE("aabb3d grows correctly with points", "[aabb]")
 {
     aabb3d<float> box;
-    REQUIRE(box.bMin.coord.x == std::numeric_limits<float>::max());
-    REQUIRE(box.bMax.coord.x == std::numeric_limits<float>::min());
+    REQUIRE(box.bMin.x == std::numeric_limits<float>::max());
+    REQUIRE(box.bMax.x == std::numeric_limits<float>::min());
 
     box.Grow(float3{1.0f, 2.0f, 3.0f});
-    REQUIRE(box.bMin.coord.x == 1.0f);
-    REQUIRE(box.bMin.coord.y == 2.0f);
-    REQUIRE(box.bMin.coord.z == 3.0f);
-    REQUIRE(box.bMax.coord.x == 1.0f);
-    REQUIRE(box.bMax.coord.y == 2.0f);
-    REQUIRE(box.bMax.coord.z == 3.0f);
+    REQUIRE(box.bMin.x == 1.0f);
+    REQUIRE(box.bMin.y == 2.0f);
+    REQUIRE(box.bMin.z == 3.0f);
+    REQUIRE(box.bMax.x == 1.0f);
+    REQUIRE(box.bMax.y == 2.0f);
+    REQUIRE(box.bMax.z == 3.0f);
 
     box.Grow(float3{4.0f, 1.0f, 0.0f});
-    REQUIRE(box.bMin.coord.x == 1.0f);
-    REQUIRE(box.bMin.coord.y == 1.0f);
-    REQUIRE(box.bMin.coord.z == 0.0f);
-    REQUIRE(box.bMax.coord.x == 4.0f);
-    REQUIRE(box.bMax.coord.y == 2.0f);
-    REQUIRE(box.bMax.coord.z == 3.0f);
+    REQUIRE(box.bMin.x == 1.0f);
+    REQUIRE(box.bMin.y == 1.0f);
+    REQUIRE(box.bMin.z == 0.0f);
+    REQUIRE(box.bMax.x == 4.0f);
+    REQUIRE(box.bMax.y == 2.0f);
+    REQUIRE(box.bMax.z == 3.0f);
 }
 
 TEST_CASE("aabb3d grows correctly with another AABB", "[aabb]")
@@ -113,12 +112,12 @@ TEST_CASE("aabb3d grows correctly with another AABB", "[aabb]")
     box2.Grow(float3(4.0f));
 
     box1.Grow(box2);
-    REQUIRE(box1.bMin.coord.x == 1.0f);
-    REQUIRE(box1.bMin.coord.y == 1.0f);
-    REQUIRE(box1.bMin.coord.z == 1.0f);
-    REQUIRE(box1.bMax.coord.x == 4.0f);
-    REQUIRE(box1.bMax.coord.y == 4.0f);
-    REQUIRE(box1.bMax.coord.z == 4.0f);
+    REQUIRE(box1.bMin.x == 1.0f);
+    REQUIRE(box1.bMin.y == 1.0f);
+    REQUIRE(box1.bMin.z == 1.0f);
+    REQUIRE(box1.bMax.x == 4.0f);
+    REQUIRE(box1.bMax.y == 4.0f);
+    REQUIRE(box1.bMax.z == 4.0f);
 }
 
 TEST_CASE("aabb3d calculates Area correctly", "[aabb]")
