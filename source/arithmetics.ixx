@@ -91,7 +91,6 @@ class Vec
 template <typename T>
 class Vec<T, 2>
 {
-  private:
     static constexpr auto Size{2ULL};
 
   public:
@@ -188,7 +187,6 @@ class Vec<T, 2>
 template <typename T>
 class Vec<T, 3>
 {
-  private:
     static constexpr auto Size{3ULL};
 
   public:
@@ -287,7 +285,6 @@ class Vec<T, 3>
 template <typename T>
 class Vec<T, 4>
 {
-  private:
     static constexpr auto Size{4ULL};
 
   public:

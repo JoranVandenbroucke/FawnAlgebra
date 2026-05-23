@@ -584,7 +584,7 @@ class simd<std::uint16_t, 16>
     [[nodiscard]] bool operator==(const simd& other) const noexcept
     {
         const abi_type cmp_mask{_mm256_cmpeq_epi16(m_value, other.m_value)};
-        return _mm256_movemask_epi8(cmp_mask) == static_cast<int>(0xFFFF);
+        return _mm256_movemask_epi8(cmp_mask) == 0xFFFF;
     }
 
     [[nodiscard]] bool operator!=(const simd& other) const noexcept

@@ -19,7 +19,7 @@ namespace fawn_algebra
  * @param a The container whose elements are to be summed.
  * @return The sum of the elements.
  */
-template <typename Container, typename T = typename Container::value_type>
+template <typename Container, typename T = Container::value_type>
 constexpr auto Sum(const Container& a) -> T
 {
     return static_cast<T>(std::accumulate(std::cbegin(a), std::cend(a), 0));
@@ -33,7 +33,7 @@ constexpr auto Sum(const Container& a) -> T
  * @param a The container whose frequency table is to be generated.
  * @return A vector of pairs where each pair contains an element and its frequency.
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto FrequencyTable(Container a) noexcept
 {
     static_assert(!std::empty(a), "An empty array doesn't have a frequency table.");
@@ -57,7 +57,7 @@ constexpr auto FrequencyTable(Container a) noexcept
  * @param a The container whose first quartile is to be calculated.
  * @return The first quartile (Q1).
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto QuartilesQ1(const Container& a) noexcept
 {
     const double idx{std::size(a) / 4.0};
@@ -72,7 +72,7 @@ constexpr auto QuartilesQ1(const Container& a) noexcept
  * @param a The container whose second quartile (Q2) or median is to be calculated.
  * @return The second quartile (Q2) or median.
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto quartilesQ2(const Container& a) noexcept
 {
     const double idx{std::size(a) / 2.0};
@@ -87,7 +87,7 @@ constexpr auto quartilesQ2(const Container& a) noexcept
  * @param a The container whose third quartile (Q3) is to be calculated.
  * @return The third quartile (Q3).
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto QuartilesQ3(const Container& a) noexcept
 {
     const double idx{3 * std::size(a) / 4.0};
@@ -101,7 +101,7 @@ constexpr auto QuartilesQ3(const Container& a) noexcept
  * @param a The container whose mean is to be calculated.
  * @return The mean of the elements.
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto Mean(const Container& a) noexcept -> T
 {
     return static_cast<T>(Sum(a) / std::size(a));
@@ -115,7 +115,7 @@ constexpr auto Mean(const Container& a) noexcept -> T
  * @param a The container whose median is to be calculated.
  * @return The median of the elements.
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto Median(Container a) noexcept -> T
 {
     static_assert(!std::empty(a), "Can not calculate median from empty array");
@@ -132,7 +132,7 @@ constexpr auto Median(Container a) noexcept -> T
  * @param a The container whose mode is to be calculated.
  * @return The mode of the elements.
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto Mode(Container a) noexcept -> T
 {
     static_assert(!std::empty(a), "Can not calculate mod from empty array");
@@ -171,7 +171,7 @@ constexpr auto Mode(Container a) noexcept -> T
  * @param a The container whose geometric median is to be calculated.
  * @return The geometric median of the elements.
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto GemetricMedian(Container a) noexcept -> T
 {
     static_assert(!std::empty(a), "Can not calculate median from empty array");
@@ -192,7 +192,7 @@ constexpr auto GemetricMedian(Container a) noexcept -> T
  * @param a The container whose range is to be calculated.
  * @return The range of the elements.
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto Range(const Container& a) noexcept
 {
     T max{std::numeric_limits<T>::min()};
@@ -214,8 +214,8 @@ constexpr auto Range(const Container& a) noexcept
  * @param a The container whose interquartile range is to be calculated.
  * @return The interquartile range (IQR).
  */
-export template <typename Container, typename = typename Container::value_type>
-constexpr auto InterquartileRange(Container a) noexcept -> typename Container::value_type
+export template <typename Container, typename = Container::value_type>
+constexpr auto InterquartileRange(Container a) noexcept -> Container::value_type
 {
     return QuartilesQ3(a) - QuartilesQ1(a);
 }
@@ -228,7 +228,7 @@ constexpr auto InterquartileRange(Container a) noexcept -> typename Container::v
  * @param a The container whose variance is to be calculated.
  * @return The variance of the elements.
  */
-template <typename Container, typename T = typename Container::value_type>
+template <typename Container, typename T = Container::value_type>
 constexpr auto Variance(const Container& a) noexcept -> double
 {
     if (std::size(a) <= 1)
@@ -253,7 +253,7 @@ constexpr auto Variance(const Container& a) noexcept -> double
  * @param a The container whose population variance is to be calculated.
  * @return The population variance of the elements.
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto VariancePopulation(const Container& a) noexcept -> T
 {
     return static_cast<T>(Variance(a) / std::size(a));
@@ -267,7 +267,7 @@ constexpr auto VariancePopulation(const Container& a) noexcept -> T
  * @param a The container whose sample variance is to be calculated.
  * @return The sample variance of the elements.
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto VarianceSample(const Container& a) noexcept -> T
 {
     return static_cast<T>(Variance(a) / (std::size(a) - 1));
@@ -281,7 +281,7 @@ constexpr auto VarianceSample(const Container& a) noexcept -> T
  * @param a The container whose population standard deviation is to be calculated.
  * @return The population standard deviation of the elements.
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto StandardDeviationPopulation(const Container& a) noexcept -> T
 {
     return static_cast<T>(std::sqrt(VariancePopulation(a)));
@@ -295,7 +295,7 @@ constexpr auto StandardDeviationPopulation(const Container& a) noexcept -> T
  * @param a The container whose sample standard deviation is to be calculated.
  * @return The sample standard deviation of the elements.
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto StandardDeviationSample(const Container& a) noexcept -> T
 {
     return static_cast<T>(std::sqrt(VarianceSample(a)));
@@ -324,7 +324,7 @@ constexpr auto NormalProbabilityDensity(const T& a, const T& m, const T& v, cons
  * @param a The container whose normal probability density is to be calculated.
  * @return A vector of pairs where each pair contains an element and its normal probability density.
  */
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto NormalProbabilityDensity(const Container& a)
 {
     const T m{Mean(a)};
@@ -374,7 +374,7 @@ constexpr auto PoissonDistribution(const T& k, const C& l)
     return std::exp(-l) * std::pow(l, k) / factorial;
 }
 
-export template <typename Container, typename T = typename Container::value_type>
+export template <typename Container, typename T = Container::value_type>
 constexpr auto ChiSquareTest(const Container& O, const Container& E)
 {
     // static_assert( !std::is_empty( O ), "Chi-Square requires both containers to be the same size." );

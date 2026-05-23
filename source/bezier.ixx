@@ -261,7 +261,7 @@ class DynamicQuadraticBezier
         return points.back();
     }
 
-    constexpr auto back() const noexcept -> const Vec<T, N>&
+    [[nodiscard]] constexpr auto back() const noexcept -> const Vec<T, N>&
     {
         return points.back();
     }
