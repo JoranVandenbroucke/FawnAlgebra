@@ -9,7 +9,6 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
-CMakeUserPresets.json
 
 # Prerequisites
 *.d
@@ -461,5 +460,7 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 .idea/
-cmake-build-*/
+
+3rd_party/Vulkan/
+[Bb]uild-*/
 [Bb]uild/

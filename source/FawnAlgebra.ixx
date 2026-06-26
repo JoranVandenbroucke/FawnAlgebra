@@ -11,4 +11,5 @@ export import :Hashing;
 export import :Interpolation;
 export import :Random;
 export import :Statistics;
+export import :SIMD;
 export import :Trigonometric;

@@ -8,7 +8,7 @@ module;
 export module FawnAlgebra:Hashing;
 import std;
 
-namespace FawnAlgebra
+namespace fawn_algebra
 {
 constexpr std::uint64_t PtrAsInt(const void* p) noexcept
 {
@@ -39,7 +39,9 @@ export constexpr std::uint32_t HashDjb2(const char* str) noexcept
     std::uint32_t hash = 5381u;
 
     while (const auto c = static_cast<unsigned char>(*str++))
+    {
         hash = (hash << 5u) + hash + c; // hash * 33 + c
+    }
 
     return hash;
 }
@@ -49,7 +51,9 @@ export constexpr std::uint32_t HashSdbm(const char* str) noexcept
     std::uint32_t hash = 0u;
 
     while (const auto c = static_cast<unsigned char>(*str++))
+    {
         hash = c + (hash << 6u) + (hash << 16u) - hash;
+    }
 
     return hash;
 }
@@ -59,7 +63,9 @@ export constexpr std::uint32_t HashLoseLose(const char* str) noexcept
     std::uint32_t hash = 0u;
 
     while (const auto c = static_cast<unsigned char>(*str++))
+    {
         hash += c;
+    }
 
     return hash;
 }
@@ -827,4 +833,4 @@ export constexpr std::uint32_t HashBig(const void* key, std::size_t length, cons
     Final(a, b, c);
     return c;
 }
-} // namespace FawnAlgebra
+} // namespace fawn_algebra

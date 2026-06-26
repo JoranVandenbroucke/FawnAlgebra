@@ -11,7 +11,7 @@ import FawnAlgebra;
 import std;
 
 using namespace fawn_algebra;
-using namespace DeerGeometry;
+using namespace deer_geometry;
 
 TEST_CASE("bounding_sphere2d grows correctly with points", "[aabb]")
 {
@@ -98,11 +98,11 @@ TEST_CASE("bounding_sphere3d grows correctly with another AABB", "[aabb]")
 {
     bounding_sphere3d<float> sphere1;
     bounding_sphere3d<float> sphere2;
-    sphere1.Grow(float3(1.0f));
-    sphere1.Grow(float3(3.0f));
+    sphere1.Grow(float3(1.0f, 1.0f,1.0f));
+    sphere1.Grow(float3(3.0f, 3.0f,3.0f));
 
-    sphere2.Grow(float3(2.0f));
-    sphere2.Grow(float3(4.0f));
+    sphere2.Grow(float3(2.0f, 2.0f,2.0f));
+    sphere2.Grow(float3(4.0f, 4.0f,4.0f));
 
     sphere1.Grow(sphere2);
     REQUIRE_THAT(sphere1.origine.x, Catch::Matchers::WithinAbs(2.5f, 1e-6f));
@@ -114,7 +114,7 @@ TEST_CASE("bounding_sphere3d grows correctly with another AABB", "[aabb]")
 TEST_CASE("bounding_sphere3d calculates Area correctly", "[aabb]")
 {
     bounding_sphere3d<float> sphere;
-    sphere.Grow(float3(1.0f));
+    sphere.Grow(float3(1.0f, 1.0f, 1.0f));
     sphere.Grow(float3{3.0f, 4.0f, 4.0f});
     REQUIRE_THAT(sphere.Area(), Catch::Matchers::WithinAbs(54.029712677f, 1e-6f));
 }
@@ -123,10 +123,11 @@ TEST_CASE("bounding_sphere3d detects intersections correctly", "[aabb]")
 {
     bounding_sphere3d<float> sphere1;
     bounding_sphere3d<float> sphere2;
-    sphere1.Grow(float3(1.0f));
-    sphere1.Grow(float3(3.0f));
-    sphere2.Grow(float3(2.0f));
-    sphere2.Grow(float3(4.0f));
+    sphere1.Grow(float3(1.0f, 1.0f,1.0f));
+    sphere1.Grow(float3(3.0f, 3.0f,3.0f));
+
+    sphere2.Grow(float3(2.0f, 2.0f,2.0f));
+    sphere2.Grow(float3(4.0f, 4.0f,4.0f));
     REQUIRE(sphere1.Intersect(sphere2));
     REQUIRE(bounding_sphere3d<float>::Intersect(sphere1, sphere2));
 }
@@ -134,8 +135,8 @@ TEST_CASE("bounding_sphere3d detects intersections correctly", "[aabb]")
 TEST_CASE("bounding_sphere3d detects containment correctly", "[aabb]")
 {
     bounding_sphere3d<float> sphere;
-    sphere.Grow(float3(1.0f));
-    sphere.Grow(float3(4.0f));
-    REQUIRE(sphere.Contains(float3(2.0f)));
-    REQUIRE_FALSE(sphere.Contains(float3(5.0f)));
+    sphere.Grow(float3(1.0f, 1.0f,1.0f));
+    sphere.Grow(float3(4.0f, 4.0f,4.0f));
+    REQUIRE(sphere.Contains(float3(2.0f, 2.0f,2.0f)));
+    REQUIRE_FALSE(sphere.Contains(float3(5.0f, 5.0f,5.0f)));
 }

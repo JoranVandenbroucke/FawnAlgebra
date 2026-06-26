@@ -4,7 +4,7 @@ import FawnAlgebra;
 import std;
 using namespace fawn_algebra;
 
-namespace DeerGeometry
+namespace deer_geometry
 {
 template <typename Type, std::uint8_t Dimension>
     requires(std::is_arithmetic_v<Type> && Dimension != 0)
@@ -14,4 +14,4 @@ struct obb
     Vec<Type, Dimension> extend{};
 };
 
-} // namespace DeerGeometry
+} // namespace deer_geometry

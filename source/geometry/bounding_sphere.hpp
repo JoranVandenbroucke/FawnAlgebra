@@ -4,18 +4,34 @@ import FawnAlgebra;
 import std;
 using namespace fawn_algebra;
 
-namespace DeerGeometry
+namespace deer_geometry
 {
+namespace detail
+{
+template <typename Type, std::uint8_t Dimension>
+consteval Vec<Type, Dimension> CreateVector(const Type value)
+{
+    Vec<Type, Dimension> result;
+    for (std::uint8_t i{}; i < Dimension; ++i)
+    {
+        result[i] = value;
+    }
+
+    return result;
+}
+} // namespace detail
 template <std::uint8_t Pow>
 struct pi_pow
 {
     static constexpr double value = std::numbers::pi * pi_pow<Pow - 1>::value;
 };
+
 template <>
 struct pi_pow<1>
 {
     static constexpr double value = std::numbers::pi;
 };
+
 template <>
 struct pi_pow<0>
 {
@@ -27,11 +43,13 @@ struct factorial
 {
     static constexpr uint64_t value = Fac * factorial<Fac - 1>::value;
 };
+
 template <>
 struct factorial<2>
 {
     static constexpr double value = 2;
 };
+
 template <>
 struct factorial<1>
 {
@@ -48,7 +66,7 @@ template <typename Type, std::uint8_t Dimension>
     requires(std::is_arithmetic_v<Type> && Dimension != 0)
 struct bounding_sphere
 {
-    Vec<Type, Dimension> origine = Vec<Type, Dimension>(std::numeric_limits<Type>::max());
+    Vec<Type, Dimension> origine = detail::CreateVector<Type, Dimension>(std::numeric_limits<Type>::max());
     Type radius{std::numeric_limits<Type>::max()};
 
     constexpr void Grow(const Vec<Type, Dimension>& point) noexcept
@@ -222,5 +240,4 @@ using bounding_sphere4d_uint64   = bounding_sphere4d<uint64_t>;
 using bounding_sphere4d_float32  = bounding_sphere4d<float>;
 using bounding_sphere4d_float64  = bounding_sphere4d<double>;
 using bounding_sphere4d_float128 = bounding_sphere4d<long double>;
-
-} // namespace DeerGeometry
+} // namespace deer_geometry

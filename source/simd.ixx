@@ -2,1245 +2,450 @@
 // Copyright (c) 2025.
 // Author: Joran.
 //
+
 module;
 
 export module FawnAlgebra:SIMD;
 import std;
 
-export template <typename, std::size_t>
-class simd;
-
-template <>
-class simd<std::uint8_t, 32>
+namespace fawn_algebra::simd::detail
 {
-  public:
-    using value_type = std::uint8_t;
-    using abi_type   = __m256i;
 
-    simd() noexcept = default;
-    explicit simd(const abi_type& value) noexcept
-        : m_value(value)
+template <typename Scalar, int Lanes>
+struct raw_traits; // intentionally undefined for unsupported combos
+
+#define SIMD_DEFINE_RAW(SCALAR, LANES)                                                                                                                                             \
+    template <>                                                                                                                                                                    \
+    struct raw_traits<SCALAR, LANES>                                                                                                                                               \
+    {                                                                                                                                                                              \
+        static constexpr int alignment = sizeof(SCALAR) * LANES <= 16 ? 16 : sizeof(SCALAR) * LANES <= 32 ? 32 : 64;                                                               \
+        using type                     = SCALAR __attribute__((__vector_size__(sizeof(SCALAR) * LANES), __aligned__(alignment)));                                                  \
+    };
+
+SIMD_DEFINE_RAW(float, 4)
+SIMD_DEFINE_RAW(float, 8)
+SIMD_DEFINE_RAW(float, 16)
+SIMD_DEFINE_RAW(double, 2)
+SIMD_DEFINE_RAW(double, 4)
+SIMD_DEFINE_RAW(double, 8)
+
+SIMD_DEFINE_RAW(std::int8_t, 16)
+SIMD_DEFINE_RAW(std::int8_t, 32)
+SIMD_DEFINE_RAW(std::int16_t, 8)
+SIMD_DEFINE_RAW(std::int16_t, 16)
+SIMD_DEFINE_RAW(std::int32_t, 4)
+SIMD_DEFINE_RAW(std::int32_t, 8)
+SIMD_DEFINE_RAW(std::int32_t, 16)
+SIMD_DEFINE_RAW(std::int64_t, 2)
+SIMD_DEFINE_RAW(std::int64_t, 4)
+
+SIMD_DEFINE_RAW(std::uint8_t, 16)
+SIMD_DEFINE_RAW(std::uint8_t, 32)
+SIMD_DEFINE_RAW(std::uint16_t, 8)
+SIMD_DEFINE_RAW(std::uint16_t, 16)
+SIMD_DEFINE_RAW(std::uint32_t, 4)
+SIMD_DEFINE_RAW(std::uint32_t, 8)
+SIMD_DEFINE_RAW(std::uint64_t, 2)
+SIMD_DEFINE_RAW(std::uint64_t, 4)
+
+#undef SIMD_DEFINE_RAW
+
+export template <typename Scalar, int Lanes>
+using raw = raw_traits<Scalar, Lanes>::type;
+
+} // namespace fawn_algebra::simd::detail
+
+namespace fawn_algebra::simd
+{
+
+// ---- raw vector type aliases -------------------------------------------
+
+export using raw_f32x4 = detail::raw<float, 4>;
+export using raw_f32x8 = detail::raw<float, 8>;
+export using raw_f64x2 = detail::raw<double, 2>;
+export using raw_f64x4 = detail::raw<double, 4>;
+
+export using raw_i32x4 = detail::raw<std::int32_t, 4>;
+export using raw_i32x8 = detail::raw<std::int32_t, 8>;
+export using raw_i64x2 = detail::raw<std::int64_t, 2>;
+export using raw_i64x4 = detail::raw<std::int64_t, 4>;
+export using raw_i16x8 = detail::raw<std::int16_t, 8>;
+export using raw_i8x16 = detail::raw<std::int8_t, 16>;
+
+export using raw_u32x4 = detail::raw<std::uint32_t, 4>;
+export using raw_u32x8 = detail::raw<std::uint32_t, 8>;
+export using raw_u8x16 = detail::raw<std::uint8_t, 16>;
+export using raw_u16x8 = detail::raw<std::uint16_t, 8>;
+
+template <typename T, int N>
+struct vec
+{
+    using scalar_type          = T;
+    using raw_type             = detail::raw<T, N>;
+    static constexpr int lanes = N;
+
+    raw_type r{};
+
+    // -- construction --------------------------------------------------
+
+    constexpr vec()           = default;
+    constexpr vec(const vec&) = default;
+    constexpr vec(raw_type raw)
+        : r(raw)
     {
     }
-    explicit simd(const value_type* data) noexcept
+
+    // broadcast: vec<float,4>::splat(1.0f) -> {1,1,1,1}
+    // NOTE: a loop doing out.r[i] = value is NOT usable in constexpr --
+    // GCC vector_size types don't permit per-lane lvalue mutation in a
+    // constant expression (read-by-index is fine, write-by-index isn't).
+    // Build a fresh raw_type via the index_sequence trick instead, which
+    // is pure construction, no mutation.
+    static constexpr vec splat(T value)
     {
-        load(data);
-    }
-    explicit simd(const value_type (&data)[32]) noexcept
-    {
-        load(data);
-    }
-    explicit simd(const std::array<value_type, 32>& data) noexcept
-    {
-        load(data.data());
-    }
-
-    [[nodiscard]] bool operator==(const simd& other) const noexcept
-    {
-        const abi_type cmp_mask{_mm256_cmpeq_epi8(m_value, other.m_value)};
-        return _mm256_movemask_epi8(cmp_mask) == static_cast<int>(0xFFFFFFFF);
-    }
-
-    [[nodiscard]] bool operator!=(const simd& other) const noexcept
-    {
-        return !(*this == other);
-    }
-
-    [[nodiscard]] auto& Abs() const noexcept
-    {
-        return *this;
-    }
-
-    value_type operator[](const int idx) const noexcept
-    {
-        return static_cast<value_type>(_mm256_extract_epi8(m_value, idx));
-    }
-
-    auto operator~() const noexcept
-    {
-        return simd(_mm256_andnot_si256(m_value, _mm256_set1_epi8(-1)));
-    }
-
-    auto& operator+=(const simd other) noexcept
-    {
-        m_value = _mm256_add_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator-=(const simd other) noexcept
-    {
-        m_value = _mm256_sub_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator*=(const simd other) noexcept
-    {
-        // AVX2 doesn't directly support 8-bit multiplication.
-        // We use unpacking and handle the halves separately.
-        const abi_type lo1{_mm256_unpacklo_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type lo2{_mm256_unpacklo_epi8(other.m_value, _mm256_setzero_si256())};
-        const abi_type hi1{_mm256_unpackhi_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type hi2{_mm256_unpackhi_epi8(other.m_value, _mm256_setzero_si256())};
-
-        const abi_type lo_product{_mm256_mullo_epi16(lo1, lo2)};
-        const abi_type hi_product{_mm256_mullo_epi16(hi1, hi2)};
-
-        m_value = _mm256_packus_epi16(lo_product, hi_product);
-        return *this;
-    }
-
-    auto& operator/=(const simd other) noexcept
-    {
-        // Integer division needs to be implemented manually.
-        alignas(32) std::uint8_t lhs[32], rhs[32];
-        store(lhs);
-        other.store(rhs);
-
-        for (std::size_t i = 0; i < 32; ++i)
-        {
-            lhs[i] /= rhs[i];
-        }
-
-        load(lhs);
-        return *this;
-    }
-
-    auto& operator%=(const simd other) noexcept
-    {
-        alignas(32) value_type lhs[32], rhs[32];
-        store(lhs);
-        other.store(rhs);
-
-        for (std::size_t i{}; i < 32; ++i)
-        {
-            lhs[i] %= rhs[i];
-        }
-
-        load(lhs);
-        return *this;
-    }
-
-    auto& operator<<=(const simd& other)
-    {
-        abi_type lo1{_mm256_unpacklo_epi8(m_value, _mm256_setzero_si256())};
-        abi_type hi1{_mm256_unpackhi_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type lo2{_mm256_unpacklo_epi8(other.m_value, _mm256_setzero_si256())};
-        const abi_type hi2{_mm256_unpackhi_epi8(other.m_value, _mm256_setzero_si256())};
-
-        // Perform per-element shifts using a scalar loop.
-        alignas(32) std::uint16_t data1[16], data2[16];
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1), lo1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1 + 8), hi1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2), lo2);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2 + 8), hi2);
-
-        for (std::size_t i = 0; i < 16; ++i)
-        {
-            data1[i] = static_cast<std::uint16_t>(data1[i] << data2[i]);
-        }
-
-        // Load results back.
-        lo1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1));
-        hi1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1 + 8));
-
-        m_value = _mm256_packus_epi16(lo1, hi1);
-        return *this;
-    }
-
-    auto& operator>>=(const simd& other)
-    {
-        abi_type lo1{_mm256_unpacklo_epi8(m_value, _mm256_setzero_si256())};
-        abi_type hi1{_mm256_unpackhi_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type lo2{_mm256_unpacklo_epi8(other.m_value, _mm256_setzero_si256())};
-        const abi_type hi2{_mm256_unpackhi_epi8(other.m_value, _mm256_setzero_si256())};
-
-        // Perform per-element shifts using a scalar loop.
-        alignas(32) std::uint16_t data1[16], data2[16];
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1), lo1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1 + 8), hi1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2), lo2);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2 + 8), hi2);
-
-        for (std::size_t i = 0; i < 16; ++i)
-        {
-            data1[i] = static_cast<std::uint16_t>(data1[i] >> data2[i]);
-        }
-
-        // Load results back.
-        lo1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1));
-        hi1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1 + 8));
-
-        m_value = _mm256_packus_epi16(lo1, hi1);
-        return *this;
-    }
-
-    auto& operator^=(const simd& other) noexcept
-    {
-        m_value = _mm256_xor_si256(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator|=(const simd& other) noexcept
-    {
-        m_value = _mm256_or_si256(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator&=(const simd& other) noexcept
-    {
-        m_value = _mm256_and_si256(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& SaturateAdd(const simd& other) noexcept
-    {
-        m_value = _mm256_adds_epu8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& SaturateSubtract(const simd& other) noexcept
-    {
-        m_value = _mm256_subs_epu8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& AlignsElements(const simd& other, const int mask) noexcept
-    {
-        m_value = _mm256_alignr_epi8(m_value, other.m_value, mask);
-        return *this;
-    }
-
-    auto& Blend(const simd& other, const simd& mask) noexcept
-    {
-        m_value = _mm256_blendv_epi8(m_value, other.m_value, mask.m_value);
-        return *this;
-    }
-
-    auto& Broadcast(const simd& other) noexcept
-    {
-        m_value = _mm256_broadcastb_epi8(_mm256_castsi256_si128(other.m_value));
-        return *this;
-    }
-
-    auto& Equals(const simd& other) noexcept
-    {
-        m_value = _mm256_cmpeq_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& Greater(const simd& other) noexcept
-    {
-        m_value = _mm256_cmpgt_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& Min(const simd& other) noexcept
-    {
-        m_value = _mm256_min_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& Max(const simd& other) noexcept
-    {
-        m_value = _mm256_max_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    [[nodiscard]] std::int32_t MoveMask() const noexcept
-    {
-        return _mm256_movemask_epi8(m_value);
-    }
-
-    auto& Shuffle(const simd& other) noexcept
-    {
-        m_value = _mm256_shuffle_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& UnpackHigh(const simd& other) noexcept
-    {
-        m_value = _mm256_unpackhi_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& UnpackLow(const simd& other) noexcept
-    {
-        m_value = _mm256_unpacklo_epi8(m_value, other.m_value);
-        return *this;
+        return splat_impl(value, std::make_integer_sequence<int, N>{});
     }
 
   private:
-    abi_type m_value{_mm256_setzero_si256()};
-
-    void load(const value_type* data) noexcept
+    template <int... Is>
+    static constexpr vec splat_impl(T value, std::integer_sequence<int, Is...>)
     {
-        m_value = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data));
+        return vec{raw_type{(static_cast<void>(Is), value)...}};
     }
 
-    void store(value_type* data) const noexcept
-    {
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data), m_value);
-    }
-};
-
-template <>
-class simd<std::int8_t, 32>
-{
   public:
-    using value_type = std::int8_t;
-    using abi_type   = __m256i;
-    simd() noexcept  = default;
-    explicit simd(const abi_type& value) noexcept
-        : m_value(value)
+    // full lane list: vec<float,4>{1,2,3,4}
+    template <typename... Args>
+        requires(sizeof...(Args) == N) && (N > 1) && (std::is_convertible_v<Args, T> && ...)
+    constexpr vec(Args... args)
+        : r{static_cast<T>(args)...}
     {
     }
-    explicit simd(const value_type* data) noexcept
+
+    constexpr operator raw_type() const
     {
-        load(data);
-    }
-    explicit simd(const value_type (&data)[8]) noexcept
-    {
-        load(data);
-    }
-    explicit simd(const std::array<value_type, 8>& data) noexcept
-    {
-        load(data.data());
+        return r;
     }
 
-    [[nodiscard]] bool operator==(const simd& other) const noexcept
+    // -- element access ---------------------------------------------------
+
+    constexpr T operator[](int i) const
     {
-        const abi_type cmp_mask{_mm256_cmpeq_epi8(m_value, other.m_value)};
-        return _mm256_movemask_epi8(cmp_mask) == 0xFFFF;
+        return r[i];
+    }
+    constexpr T& operator[](int i)
+    {
+        return r[i];
     }
 
-    [[nodiscard]] bool operator!=(const simd& other) const noexcept
+    static constexpr vec load(const T* p)
     {
-        return !(*this == other);
+        vec out;
+        for (int i = 0; i < N; ++i)
+            out.r[i] = p[i];
+        return out;
     }
 
-    [[nodiscard]] auto& Abs() noexcept
+    constexpr void store(T* p) const
     {
-        m_value = _mm256_abs_epi8(m_value);
-        return *this;
+        for (int i = 0; i < N; ++i)
+            p[i] = r[i];
     }
 
-    value_type operator[](const int idx) const noexcept
+    // -- arithmetic -------------------------------------------------------
+    // Every operator just forwards to the builtin vector op: the compiler
+    // (not us) is responsible for recognizing add/sub/mul/div and emitting
+    // addps/subps/mulps/divps (or NEON/AVX equivalents) directly.
+    friend constexpr vec operator+(vec a)
     {
-        return static_cast<value_type>(_mm256_extract_epi8(m_value, idx));
+        return a.r;
     }
 
-    auto& operator+=(const simd other) noexcept
+    friend constexpr vec operator-(vec a)
     {
-        m_value = _mm256_add_epi8(m_value, other.m_value);
-        return *this;
+        return vec{raw_type(-a.r)};
     }
 
-    auto& operator-=(const simd other) noexcept
+    friend constexpr vec operator+(vec a, vec b)
     {
-        m_value = _mm256_sub_epi8(m_value, other.m_value);
-        return *this;
+        return vec{raw_type(a.r + b.r)};
+    }
+    friend constexpr vec operator-(vec a, vec b)
+    {
+        return vec{raw_type(a.r - b.r)};
+    }
+    friend constexpr vec operator*(vec a, vec b)
+    {
+        return vec{raw_type(a.r * b.r)};
+    }
+    friend constexpr vec operator/(vec a, vec b)
+    {
+        return vec{raw_type(a.r / b.r)};
     }
 
-    auto& operator*=(const simd other) noexcept
+    friend constexpr vec& operator+=(vec& a, vec b)
     {
-        // AVX2 doesn't directly support 8-bit multiplication.
-        // We use unpacking and handle the halves separately.
-        const abi_type lo1{_mm256_unpacklo_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type lo2{_mm256_unpacklo_epi8(other.m_value, _mm256_setzero_si256())};
-        const abi_type hi1{_mm256_unpackhi_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type hi2{_mm256_unpackhi_epi8(other.m_value, _mm256_setzero_si256())};
-
-        const abi_type lo_product{_mm256_mullo_epi16(lo1, lo2)};
-        const abi_type hi_product{_mm256_mullo_epi16(hi1, hi2)};
-
-        m_value = _mm256_packus_epi16(lo_product, hi_product);
-        return *this;
+        a.r += b.r;
+        return a;
+    }
+    friend constexpr vec& operator-=(vec& a, vec b)
+    {
+        a.r -= b.r;
+        return a;
+    }
+    friend constexpr vec& operator*=(vec& a, vec b)
+    {
+        a.r *= b.r;
+        return a;
+    }
+    friend constexpr vec& operator/=(vec& a, vec b)
+    {
+        a.r /= b.r;
+        return a;
     }
 
-    auto& operator/=(const simd other) noexcept
+    // scalar broadcast forms
+    friend constexpr vec operator*(vec a, T s)
     {
-        // Integer division needs to be implemented manually.
-        alignas(32) value_type lhs[32], rhs[32];
-        store(lhs);
-        other.store(rhs);
-
-        for (std::size_t i = 0; i < 32; ++i)
-        {
-            lhs[i] /= rhs[i];
-        }
-
-        load(lhs);
-        return *this;
+        return a * vec::splat(s);
+    }
+    friend constexpr vec operator*(T s, vec a)
+    {
+        return a * vec::splat(s);
+    }
+    friend constexpr vec operator/(vec a, T s)
+    {
+        return a / vec::splat(s);
+    }
+    friend constexpr vec operator+(vec a, T s)
+    {
+        return a + vec::splat(s);
+    }
+    friend constexpr vec operator-(vec a, T s)
+    {
+        return a - vec::splat(s);
     }
 
-    auto& operator%=(const simd other) noexcept
+    // -- comparisons --------------------------------------------------
+    // GCC/Clang vector compares produce an all-1s/all-0s mask vector,
+    // same lane count, signed-integer-sized-like-T. Exposed as-is for now;
+    // a `mask<N>` wrapper with any()/all()/none() comes later.
+
+    friend constexpr auto operator==(vec a, vec b)
     {
-        alignas(32) value_type lhs[32], rhs[32];
-        store(lhs);
-        other.store(rhs);
-
-        for (std::size_t i = 0; i < 32; ++i)
-        {
-            lhs[i] %= rhs[i];
-        }
-
-        load(lhs);
-        return *this;
+        return a.r == b.r;
     }
-
-    auto& operator<<=(const simd& other)
+    friend constexpr auto operator!=(vec a, vec b)
     {
-        abi_type lo1{_mm256_unpacklo_epi8(m_value, _mm256_setzero_si256())};
-        abi_type hi1{_mm256_unpackhi_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type lo2{_mm256_unpacklo_epi8(other.m_value, _mm256_setzero_si256())};
-        const abi_type hi2{_mm256_unpackhi_epi8(other.m_value, _mm256_setzero_si256())};
-
-        // Perform per-element shifts using a scalar loop.
-        alignas(32) std::int16_t data1[16], data2[16];
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1), lo1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1 + 8), hi1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2), lo2);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2 + 8), hi2);
-
-        for (std::size_t i = 0; i < 16; ++i)
-        {
-            data1[i] = static_cast<std::int16_t>(data1[i] << data2[i]);
-        }
-
-        // Load results back.
-        lo1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1));
-        hi1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1 + 8));
-
-        m_value = _mm256_packus_epi16(lo1, hi1);
-        return *this;
+        return a.r != b.r;
     }
-
-    auto& operator>>=(const simd& other)
+    friend constexpr auto operator<(vec a, vec b)
     {
-        abi_type lo1{_mm256_unpacklo_epi8(m_value, _mm256_setzero_si256())};
-        abi_type hi1{_mm256_unpackhi_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type lo2{_mm256_unpacklo_epi8(other.m_value, _mm256_setzero_si256())};
-        const abi_type hi2{_mm256_unpackhi_epi8(other.m_value, _mm256_setzero_si256())};
-
-        // Perform per-element shifts using a scalar loop.
-        alignas(32) std::int16_t data1[16], data2[16];
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1), lo1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1 + 8), hi1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2), lo2);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2 + 8), hi2);
-
-        for (std::size_t i = 0; i < 16; ++i)
-        {
-            data1[i] = static_cast<std::int16_t>(data1[i] >> data2[i]);
-        }
-
-        // Load results back.
-        lo1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1));
-        hi1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1 + 8));
-
-        m_value = _mm256_packus_epi16(lo1, hi1);
-        return *this;
+        return a.r < b.r;
     }
-
-    auto& operator^=(const simd& other) noexcept
+    friend constexpr auto operator<=(vec a, vec b)
     {
-        m_value = _mm256_xor_si256(m_value, other.m_value);
-        return *this;
+        return a.r <= b.r;
     }
-
-    auto& operator|=(const simd& other) noexcept
+    friend constexpr auto operator>(vec a, vec b)
     {
-        m_value = _mm256_or_si256(m_value, other.m_value);
-        return *this;
+        return a.r > b.r;
     }
-
-    auto& operator&=(const simd& other) noexcept
+    friend constexpr auto operator>=(vec a, vec b)
     {
-        m_value = _mm256_and_si256(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& SaturateAdd(const simd& other) noexcept
-    {
-        m_value = _mm256_adds_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& SaturateSubtract(const simd& other) noexcept
-    {
-        m_value = _mm256_subs_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& AlignsElements(const simd& other, const int mask) noexcept
-    {
-        m_value = _mm256_alignr_epi8(m_value, other.m_value, mask);
-        return *this;
-    }
-
-    auto& Blend(const simd& other, const simd& mask) noexcept
-    {
-        m_value = _mm256_blendv_epi8(m_value, other.m_value, mask.m_value);
-        return *this;
-    }
-
-    auto& Broadcast(const simd& other) noexcept
-    {
-        m_value = _mm256_broadcastb_epi8(_mm256_castsi256_si128(other.m_value));
-        return *this;
-    }
-
-    auto& Equals(const simd& other) noexcept
-    {
-        m_value = _mm256_cmpeq_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& Greater(const simd& other) noexcept
-    {
-        m_value = _mm256_cmpgt_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& Min(const simd& other) noexcept
-    {
-        m_value = _mm256_min_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& Max(const simd& other) noexcept
-    {
-        m_value = _mm256_max_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    [[nodiscard]] std::int32_t MoveMask() const noexcept
-    {
-        return _mm256_movemask_epi8(m_value);
-    }
-
-    auto& Shuffle(const simd& other) noexcept
-    {
-        m_value = _mm256_shuffle_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& UnpackHigh(const simd& other) noexcept
-    {
-        m_value = _mm256_unpackhi_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& UnpackLow(const simd& other) noexcept
-    {
-        m_value = _mm256_unpacklo_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto operator~() const noexcept
-    {
-        return simd(_mm256_andnot_si256(m_value, _mm256_set1_epi8(-1)));
-    }
-
-  private:
-    abi_type m_value{_mm256_setzero_si256()};
-
-    void load(const value_type* data) noexcept
-    {
-        m_value = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data));
-    }
-
-    void store(value_type* data) const noexcept
-    {
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data), m_value);
+        return a.r >= b.r;
     }
 };
 
-template <>
-class simd<std::uint16_t, 16>
+// ---- readable type aliases (struct wrapper, not raw) -------------------
+
+export using f32x4 = vec<float, 4>;
+export using f32x8 = vec<float, 8>;
+export using f64x2 = vec<double, 2>;
+export using f64x4 = vec<double, 4>;
+
+export using i32x4 = vec<std::int32_t, 4>;
+export using i32x8 = vec<std::int32_t, 8>;
+export using u8x16 = vec<std::uint8_t, 16>;
+export using i16x8 = vec<std::int16_t, 8>;
+
+// ---- min / max / clamp --------------------------------------------------
+// a < b ? a : b  compiles to a single minps/vminps -- GCC vector-extension
+// ternary on vector_size types is recognized directly as a vector select.
+
+export template <typename T, int N>
+constexpr vec<T, N> min(vec<T, N> a, vec<T, N> b)
 {
-  public:
-    using value_type = std::uint16_t;
-    using abi_type   = __m256i;
-
-    simd() noexcept = default;
-    explicit simd(const abi_type& value) noexcept
-        : m_value(value)
-    {
-    }
-    explicit simd(const value_type* data) noexcept
-    {
-        load(data);
-    }
-    explicit simd(const value_type (&data)[32]) noexcept
-    {
-        load(data);
-    }
-    explicit simd(const std::array<value_type, 32>& data) noexcept
-    {
-        load(data.data());
-    }
-
-    [[nodiscard]] bool operator==(const simd& other) const noexcept
-    {
-        const abi_type cmp_mask{_mm256_cmpeq_epi16(m_value, other.m_value)};
-        return _mm256_movemask_epi8(cmp_mask) == 0xFFFF;
-    }
-
-    [[nodiscard]] bool operator!=(const simd& other) const noexcept
-    {
-        return !(*this == other);
-    }
-
-    [[nodiscard]] auto& Abs() const noexcept
-    {
-        return *this;
-    }
-
-    value_type operator[](const int idx) const noexcept
-    {
-        return static_cast<value_type>(_mm256_extract_epi16(m_value, idx));
-    }
-
-    auto operator~() const noexcept
-    {
-        return simd(_mm256_andnot_si256(m_value, _mm256_set1_epi16(-1)));
-    }
-
-    auto& operator+=(const simd other) noexcept
-    {
-        m_value = _mm256_add_epi16(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator-=(const simd other) noexcept
-    {
-        m_value = _mm256_sub_epi16(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator*=(const simd other) noexcept
-    {
-        m_value = _mm256_madd_epi16(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator/=(const simd other) noexcept
-    {
-        // Integer division needs to be implemented manually.
-        alignas(32) value_type lhs[16], rhs[16];
-        store(lhs);
-        other.store(rhs);
-
-        for (std::size_t i = 0; i < 32; ++i)
-        {
-            lhs[i] /= rhs[i];
-        }
-
-        load(lhs);
-        return *this;
-    }
-
-    auto& operator%=(const simd other) noexcept
-    {
-        alignas(32) value_type lhs[32], rhs[32];
-        store(lhs);
-        other.store(rhs);
-
-        for (std::size_t i{}; i < 32; ++i)
-        {
-            lhs[i] %= rhs[i];
-        }
-
-        load(lhs);
-        return *this;
-    }
-
-    auto& operator<<=(const simd& other)
-    {
-        abi_type lo1{_mm256_unpacklo_epi8(m_value, _mm256_setzero_si256())};
-        abi_type hi1{_mm256_unpackhi_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type lo2{_mm256_unpacklo_epi8(other.m_value, _mm256_setzero_si256())};
-        const abi_type hi2{_mm256_unpackhi_epi8(other.m_value, _mm256_setzero_si256())};
-
-        // Perform per-element shifts using a scalar loop.
-        alignas(32) std::uint16_t data1[16], data2[16];
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1), lo1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1 + 8), hi1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2), lo2);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2 + 8), hi2);
-
-        for (std::size_t i = 0; i < 16; ++i)
-        {
-            data1[i] = static_cast<std::uint16_t>(data1[i] << data2[i]);
-        }
-
-        // Load results back.
-        lo1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1));
-        hi1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1 + 8));
-
-        m_value = _mm256_packus_epi16(lo1, hi1);
-        return *this;
-    }
-
-    auto& operator>>=(const simd& other)
-    {
-        abi_type lo1{_mm256_unpacklo_epi8(m_value, _mm256_setzero_si256())};
-        abi_type hi1{_mm256_unpackhi_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type lo2{_mm256_unpacklo_epi8(other.m_value, _mm256_setzero_si256())};
-        const abi_type hi2{_mm256_unpackhi_epi8(other.m_value, _mm256_setzero_si256())};
-
-        // Perform per-element shifts using a scalar loop.
-        alignas(32) std::uint16_t data1[16], data2[16];
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1), lo1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1 + 8), hi1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2), lo2);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2 + 8), hi2);
-
-        for (std::size_t i = 0; i < 16; ++i)
-        {
-            data1[i] = static_cast<std::uint16_t>(data1[i] >> data2[i]);
-        }
-
-        // Load results back.
-        lo1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1));
-        hi1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1 + 8));
-
-        m_value = _mm256_packus_epi16(lo1, hi1);
-        return *this;
-    }
-
-    auto& operator^=(const simd& other) noexcept
-    {
-        m_value = _mm256_xor_si256(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator|=(const simd& other) noexcept
-    {
-        m_value = _mm256_or_si256(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator&=(const simd& other) noexcept
-    {
-        m_value = _mm256_and_si256(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& SaturateAdd(const simd& other) noexcept
-    {
-        m_value = _mm256_adds_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& SaturateSubtract(const simd& other) noexcept
-    {
-        m_value = _mm256_subs_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& AlignsElements(const simd& other, const int mask) noexcept
-    {
-        m_value = _mm256_alignr_epi8(m_value, other.m_value, mask);
-        return *this;
-    }
-
-    auto& Blend(const simd& other, const simd& mask) noexcept
-    {
-        m_value = _mm256_blendv_epi8(m_value, other.m_value, mask.m_value);
-        return *this;
-    }
-
-    auto& Broadcast(const simd& other) noexcept
-    {
-        m_value = _mm256_broadcastb_epi8(_mm256_castsi256_si128(other.m_value));
-        return *this;
-    }
-
-    auto& Equals(const simd& other) noexcept
-    {
-        m_value = _mm256_cmpeq_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& Greater(const simd& other) noexcept
-    {
-        m_value = _mm256_cmpgt_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& Min(const simd& other) noexcept
-    {
-        m_value = _mm256_min_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& Max(const simd& other) noexcept
-    {
-        m_value = _mm256_max_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    [[nodiscard]] std::int32_t MoveMask() const noexcept
-    {
-        return _mm256_movemask_epi8(m_value);
-    }
-
-    auto& Shuffle(const simd& other) noexcept
-    {
-        m_value = _mm256_shuffle_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& UnpackHigh(const simd& other) noexcept
-    {
-        m_value = _mm256_unpackhi_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& UnpackLow(const simd& other) noexcept
-    {
-        m_value = _mm256_unpacklo_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-  private:
-    abi_type m_value{_mm256_setzero_si256()};
-
-    void load(const value_type* data) noexcept
-    {
-        m_value = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data));
-    }
-
-    void store(value_type* data) const noexcept
-    {
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data), m_value);
-    }
-};
-
-template <>
-class simd<std::int16_t, 32>
-{
-  public:
-    using value_type = std::int16_t;
-    using abi_type   = __m256i;
-    simd() noexcept  = default;
-    explicit simd(const abi_type& value) noexcept
-        : m_value(value)
-    {
-    }
-    explicit simd(const value_type* data) noexcept
-    {
-        load(data);
-    }
-    explicit simd(const value_type (&data)[8]) noexcept
-    {
-        load(data);
-    }
-    explicit simd(const std::array<value_type, 8>& data) noexcept
-    {
-        load(data.data());
-    }
-
-    [[nodiscard]] bool operator==(const simd& other) const noexcept
-    {
-        const abi_type cmp_mask{_mm256_cmpeq_epi8(m_value, other.m_value)};
-        return _mm256_movemask_epi8(cmp_mask) == 0xFFFF;
-    }
-
-    [[nodiscard]] bool operator!=(const simd& other) const noexcept
-    {
-        return !(*this == other);
-    }
-
-    [[nodiscard]] auto& Abs() noexcept
-    {
-        m_value = _mm256_abs_epi8(m_value);
-        return *this;
-    }
-
-    value_type operator[](const int idx) const noexcept
-    {
-        return static_cast<value_type>(_mm256_extract_epi8(m_value, idx));
-    }
-
-    auto& operator+=(const simd other) noexcept
-    {
-        m_value = _mm256_add_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator-=(const simd other) noexcept
-    {
-        m_value = _mm256_sub_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator*=(const simd other) noexcept
-    {
-        // AVX2 doesn't directly support 8-bit multiplication.
-        // We use unpacking and handle the halves separately.
-        const abi_type lo1{_mm256_unpacklo_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type lo2{_mm256_unpacklo_epi8(other.m_value, _mm256_setzero_si256())};
-        const abi_type hi1{_mm256_unpackhi_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type hi2{_mm256_unpackhi_epi8(other.m_value, _mm256_setzero_si256())};
-
-        const abi_type lo_product{_mm256_mullo_epi16(lo1, lo2)};
-        const abi_type hi_product{_mm256_mullo_epi16(hi1, hi2)};
-
-        m_value = _mm256_packus_epi16(lo_product, hi_product);
-        return *this;
-    }
-
-    auto& operator/=(const simd other) noexcept
-    {
-        // Integer division needs to be implemented manually.
-        alignas(32) value_type lhs[32], rhs[32];
-        store(lhs);
-        other.store(rhs);
-
-        for (std::size_t i = 0; i < 32; ++i)
-        {
-            lhs[i] /= rhs[i];
-        }
-
-        load(lhs);
-        return *this;
-    }
-
-    auto& operator%=(const simd other) noexcept
-    {
-        alignas(32) value_type lhs[32], rhs[32];
-        store(lhs);
-        other.store(rhs);
-
-        for (std::size_t i = 0; i < 32; ++i)
-        {
-            lhs[i] %= rhs[i];
-        }
-
-        load(lhs);
-        return *this;
-    }
-
-    auto& operator<<=(const simd& other)
-    {
-        abi_type lo1{_mm256_unpacklo_epi8(m_value, _mm256_setzero_si256())};
-        abi_type hi1{_mm256_unpackhi_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type lo2{_mm256_unpacklo_epi8(other.m_value, _mm256_setzero_si256())};
-        const abi_type hi2{_mm256_unpackhi_epi8(other.m_value, _mm256_setzero_si256())};
-
-        // Perform per-element shifts using a scalar loop.
-        alignas(32) std::int16_t data1[16], data2[16];
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1), lo1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1 + 8), hi1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2), lo2);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2 + 8), hi2);
-
-        for (std::size_t i = 0; i < 16; ++i)
-        {
-            data1[i] = static_cast<std::int16_t>(data1[i] << data2[i]);
-        }
-
-        // Load results back.
-        lo1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1));
-        hi1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1 + 8));
-
-        m_value = _mm256_packus_epi16(lo1, hi1);
-        return *this;
-    }
-
-    auto& operator>>=(const simd& other)
-    {
-        abi_type lo1{_mm256_unpacklo_epi8(m_value, _mm256_setzero_si256())};
-        abi_type hi1{_mm256_unpackhi_epi8(m_value, _mm256_setzero_si256())};
-        const abi_type lo2{_mm256_unpacklo_epi8(other.m_value, _mm256_setzero_si256())};
-        const abi_type hi2{_mm256_unpackhi_epi8(other.m_value, _mm256_setzero_si256())};
-
-        // Perform per-element shifts using a scalar loop.
-        alignas(32) std::int16_t data1[16], data2[16];
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1), lo1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data1 + 8), hi1);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2), lo2);
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data2 + 8), hi2);
-
-        for (std::size_t i = 0; i < 16; ++i)
-        {
-            data1[i] = static_cast<std::int16_t>(data1[i] >> data2[i]);
-        }
-
-        // Load results back.
-        lo1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1));
-        hi1 = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data1 + 8));
-
-        m_value = _mm256_packus_epi16(lo1, hi1);
-        return *this;
-    }
-
-    auto& operator^=(const simd& other) noexcept
-    {
-        m_value = _mm256_xor_si256(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator|=(const simd& other) noexcept
-    {
-        m_value = _mm256_or_si256(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& operator&=(const simd& other) noexcept
-    {
-        m_value = _mm256_and_si256(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& SaturateAdd(const simd& other) noexcept
-    {
-        m_value = _mm256_adds_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& SaturateSubtract(const simd& other) noexcept
-    {
-        m_value = _mm256_subs_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& AlignsElements(const simd& other, const int mask) noexcept
-    {
-        m_value = _mm256_alignr_epi8(m_value, other.m_value, mask);
-        return *this;
-    }
-
-    auto& Blend(const simd& other, const simd& mask) noexcept
-    {
-        m_value = _mm256_blendv_epi8(m_value, other.m_value, mask.m_value);
-        return *this;
-    }
-
-    auto& Broadcast(const simd& other) noexcept
-    {
-        m_value = _mm256_broadcastb_epi8(_mm256_castsi256_si128(other.m_value));
-        return *this;
-    }
-
-    auto& Equals(const simd& other) noexcept
-    {
-        m_value = _mm256_cmpeq_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& Greater(const simd& other) noexcept
-    {
-        m_value = _mm256_cmpgt_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& Min(const simd& other) noexcept
-    {
-        m_value = _mm256_min_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& Max(const simd& other) noexcept
-    {
-        m_value = _mm256_max_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    [[nodiscard]] std::int32_t MoveMask() const noexcept
-    {
-        return _mm256_movemask_epi8(m_value);
-    }
-
-    auto& Shuffle(const simd& other) noexcept
-    {
-        m_value = _mm256_shuffle_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& UnpackHigh(const simd& other) noexcept
-    {
-        m_value = _mm256_unpackhi_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto& UnpackLow(const simd& other) noexcept
-    {
-        m_value = _mm256_unpacklo_epi8(m_value, other.m_value);
-        return *this;
-    }
-
-    auto operator~() const noexcept
-    {
-        return simd(_mm256_andnot_si256(m_value, _mm256_set1_epi8(-1)));
-    }
-
-  private:
-    abi_type m_value{_mm256_setzero_si256()};
-
-    void load(const value_type* data) noexcept
-    {
-        m_value = _mm256_loadu_si256(reinterpret_cast<const abi_type*>(data));
-    }
-
-    void store(value_type* data) const noexcept
-    {
-        _mm256_storeu_si256(reinterpret_cast<abi_type*>(data), m_value);
-    }
-};
-
-export template <typename T, std::size_t N>
-auto operator+(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
-{
-    lhs += rhs;
-    return lhs;
+    return vec<T, N>{typename vec<T, N>::raw_type(a.r < b.r ? a.r : b.r)};
 }
 
-export template <typename T, std::size_t N>
-auto operator-(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
+export template <typename T, int N>
+constexpr vec<T, N> max(vec<T, N> a, vec<T, N> b)
 {
-    lhs -= rhs;
-    return lhs;
+    return vec<T, N>{typename vec<T, N>::raw_type(a.r > b.r ? a.r : b.r)};
 }
 
-export template <typename T, std::size_t N>
-auto operator*(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
+// Verified: 2 instructions (vmaxps, vminps) -- the minimum possible.
+export template <typename T, int N>
+constexpr vec<T, N> clamp(vec<T, N> x, vec<T, N> lo, vec<T, N> hi)
 {
-    lhs *= rhs;
-    return lhs;
+    return max(lo, min(x, hi));
 }
 
-export template <typename T, std::size_t N>
-auto operator/(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
+// ---- lerp / fma -----------------------------------------------------
+// Verified: GCC auto-fuses a*b+c into a single vfmadd*ps when -mfma is
+// available, at -O2 and above, with no special pragma needed. lerp
+// compiles to vsubps + vfmadd231ps (2 instructions for 3 ops).
+
+export template <typename T, int N>
+constexpr vec<T, N> fma(vec<T, N> a, vec<T, N> b, vec<T, N> c)
 {
-    lhs /= rhs;
-    return lhs;
+    return vec<T, N>{typename vec<T, N>::raw_type(a.r * b.r + c.r)};
 }
 
-export template <typename T, std::size_t N>
-auto operator<<(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
+export template <typename T, int N>
+constexpr vec<T, N> lerp(vec<T, N> a, vec<T, N> b, vec<T, N> t)
 {
-    lhs <<= rhs;
-    return lhs;
+    return a + (b - a) * t;
 }
 
-export template <typename T, std::size_t N>
-auto operator>>(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
+// ---- abs --------------------------------------------------------------
+// Float abs via sign-bit clear. Only valid for float/double; bitcast
+// through the same-width unsigned integer raw type.
+
+export constexpr f32x4 abs(f32x4 a)
 {
-    lhs >>= rhs;
-    return lhs;
+    using u32_raw               = detail::raw<std::uint32_t, 4>;
+    constexpr u32_raw sign_mask = {0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu};
+    return f32x4{f32x4::raw_type(u32_raw(a.r) & sign_mask)};
 }
 
-export template <typename T, std::size_t N>
-auto operator|(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
+export constexpr f32x8 abs(f32x8 a)
 {
-    lhs |= rhs;
-    return lhs;
+    using u32_raw               = detail::raw<std::uint32_t, 8>;
+    constexpr u32_raw sign_mask = {0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu};
+    return f32x8{f32x8::raw_type(u32_raw(a.r) & sign_mask)};
 }
 
-export template <typename T, std::size_t N>
-auto operator^(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
+// ---- sqrt / rsqrt -------------------------------------------------------
+// Dispatch to the best available instruction set at compile time based on
+// macros GCC/Clang define automatically from -march/-msse/-mavx flags.
+// No manual -D flags needed; the compiler sets these itself.
+//
+// If no SIMD target is detected we fall back to a scalar-per-lane loop,
+// which is correct everywhere and still auto-vectorizes to whatever the
+// compiler can figure out on its own -- just without the guarantee of a
+// single vsqrtps instruction.
+//
+// rsqrt() is always an approximation (~12-bit precision). Follow with
+// rsqrt_refine() if you need near-full float precision cheaply.
+
+#if defined(__AVX__)
+export inline f32x4 sqrt(f32x4 a)
 {
-    lhs ^= rhs;
-    return lhs;
+    return f32x4{__builtin_ia32_sqrtps(a.r)};
+}
+export inline f32x4 rsqrt(f32x4 a)
+{
+    return f32x4{__builtin_ia32_rsqrtps(a.r)};
+}
+export inline f32x8 sqrt(f32x8 a)
+{
+    return f32x8{__builtin_ia32_sqrtps256(a.r)};
+}
+export inline f32x8 rsqrt(f32x8 a)
+{
+    return f32x8{__builtin_ia32_rsqrtps256(a.r)};
 }
 
-export template <typename T, std::size_t N>
-auto operator&(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
+#elif defined(__SSE__)
+export inline f32x4 sqrt(f32x4 a)
 {
-    lhs &= rhs;
-    return lhs;
+    return f32x4{__builtin_ia32_sqrtps(a.r)};
+}
+export inline f32x4 rsqrt(f32x4 a)
+{
+    return f32x4{__builtin_ia32_rsqrtps(a.r)};
+}
+// f32x8 has no SSE equivalent -- scalar fallback, still correct
+export inline f32x8 sqrt(f32x8 a)
+{
+    return f32x8{std::sqrt(a[0]), std::sqrt(a[1]), std::sqrt(a[2]), std::sqrt(a[3]), std::sqrt(a[4]), std::sqrt(a[5]), std::sqrt(a[6]), std::sqrt(a[7])};
+}
+export inline f32x8 rsqrt(f32x8 a)
+{
+    return f32x8{1.f / std::sqrt(a[0]), 1.f / std::sqrt(a[1]), 1.f / std::sqrt(a[2]), 1.f / std::sqrt(a[3]),
+                 1.f / std::sqrt(a[4]), 1.f / std::sqrt(a[5]), 1.f / std::sqrt(a[6]), 1.f / std::sqrt(a[7])};
 }
 
-export template <typename T, std::size_t N>
-auto SaturateAdd(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
+#else
+export inline f32x4 sqrt(f32x4 a)
 {
-    lhs.SaturateAdd(rhs);
-    return lhs;
+    return f32x4{std::sqrt(a[0]), std::sqrt(a[1]), std::sqrt(a[2]), std::sqrt(a[3])};
+}
+export inline f32x4 rsqrt(f32x4 a)
+{
+    return f32x4{1.f / std::sqrt(a[0]), 1.f / std::sqrt(a[1]), 1.f / std::sqrt(a[2]), 1.f / std::sqrt(a[3])};
+}
+export inline f32x8 sqrt(f32x8 a)
+{
+    return f32x8{std::sqrt(a[0]), std::sqrt(a[1]), std::sqrt(a[2]), std::sqrt(a[3]), std::sqrt(a[4]), std::sqrt(a[5]), std::sqrt(a[6]), std::sqrt(a[7])};
+}
+export inline f32x8 rsqrt(f32x8 a)
+{
+    return f32x8{1.f / std::sqrt(a[0]), 1.f / std::sqrt(a[1]), 1.f / std::sqrt(a[2]), 1.f / std::sqrt(a[3]),
+                 1.f / std::sqrt(a[4]), 1.f / std::sqrt(a[5]), 1.f / std::sqrt(a[6]), 1.f / std::sqrt(a[7])};
+}
+#endif
+
+// One Newton-Raphson refinement step for rsqrt: turns the ~12-bit
+// approximation into ~23-bit (near full float precision), still far
+// cheaper than a real divide + sqrt. y_{n+1} = y_n * (1.5 - 0.5*x*y_n^2)
+export template <typename V>
+constexpr V rsqrt_refine(V x, V y)
+{
+    const auto half         = V::splat(typename V::scalar_type(0.5));
+    const auto three_halves = V::splat(typename V::scalar_type(1.5));
+    return y * (three_halves - (x * half) * (y * y));
 }
 
-export template <typename T, std::size_t N>
-auto SaturateSubtract(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
+// ---- horizontal reductions: dot / length ---------------------------
+// No single-instruction horizontal sum exists on SSE/AVX2 for >2 lanes;
+// this compiles to a vmulps + a shuffle/add reduction tree (verified:
+// ~7 instructions for f32x4, which is at or near optimal for this ISA --
+// NOT a sign something is wrong, just the real cost of a horizontal op).
+
+export constexpr float dot(const f32x4 a, const f32x4 b)
 {
-    lhs.SaturateSubtract(rhs);
-    return lhs;
+    f32x4 p = a * b;
+    return p[0] + p[1] + p[2] + p[3];
 }
 
-export template <typename T, std::size_t N>
-auto AlignsElements(simd<T, N> lhs, const simd<T, N>& rhs, const int mask) noexcept
+// NOTE: deliberately uses sqrt() (the raw vsqrtps-backed intrinsic) rather
+// than __builtin_sqrtf/std::sqrt -- the latter goes through libm semantics
+// (errno, domain checks) and was verified to emit a branch (vucomiss+ja)
+// before the actual vsqrtss. Going through sqrt() keeps this branchless.
+export inline float length(const f32x4 a)
 {
-    lhs.AlignsElements(rhs, mask);
-    return lhs;
+    return sqrt(f32x4::splat(dot(a, a)))[0];
+}
+export constexpr float length_squared(const f32x4 a)
+{
+    return dot(a, a);
 }
 
-export template <typename T, std::size_t N>
-auto Blend(simd<T, N> lhs, const simd<T, N>& rhs, const simd<T, N>& mask) noexcept
+export inline f32x4 normalize(const f32x4 a)
 {
-    lhs.Blend(rhs, mask);
-    return lhs;
+    return a * f32x4::splat(1.0f / length(a));
 }
 
-export template <typename T, std::size_t N>
-auto Broadcast(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
-{
-    lhs.Broadcast(rhs);
-    return lhs;
-}
+// ---- select (branchless choose by mask) --------------------------------
+// where(mask, a, b): per-lane choose. mask is the raw compare-result type
+// (all-1s/all-0s per lane), as produced by vec's operator==/</> etc.
 
-export template <typename T, std::size_t N>
-auto Equals(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
+export template <typename T, int N>
+constexpr vec<T, N> select(decltype(std::declval<vec<T, N>>().r < std::declval<vec<T, N>>().r) mask, vec<T, N> a, vec<T, N> b)
 {
-    lhs.Equals(rhs);
-    return lhs;
+    return vec<T, N>{typename vec<T, N>::raw_type(mask ? a.r : b.r)};
 }
-
-export template <typename T, std::size_t N>
-auto Greater(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
-{
-    lhs.Greater(rhs);
-    return lhs;
-}
-
-export template <typename T, std::size_t N>
-auto Min(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
-{
-    lhs.Min(rhs);
-    return lhs;
-}
-
-export template <typename T, std::size_t N>
-auto Max(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
-{
-    lhs.Max(rhs);
-    return lhs;
-}
-
-export template <typename T, std::size_t N>
-auto MoveMask(const simd<T, N>& other) noexcept
-{
-    return other.MoveMask();
-}
-
-export template <typename T, std::size_t N>
-auto Shuffle(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
-{
-    lhs.Shuffle(rhs);
-    return lhs;
-}
-
-export template <typename T, std::size_t N>
-auto UnpackHigh(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
-{
-    lhs.UnpackHigh(rhs);
-    return lhs;
-}
-
-export template <typename T, std::size_t N>
-auto UnpackLow(simd<T, N> lhs, const simd<T, N>& rhs) noexcept
-{
-    lhs.UnpackLow(rhs);
-    return lhs;
-}
+} // namespace fawn_algebra::simd

@@ -53,7 +53,7 @@ target_sources(${PROJECT_NAME}
         source/FawnAlgebra.ixx
         source/random.ixx
         source/statistics.ixx
-#        source/simd.ixx
+        source/simd.ixx
         source/trigonometric.ixx
 )
 

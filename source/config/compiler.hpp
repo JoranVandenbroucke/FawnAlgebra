@@ -5,219 +5,416 @@
 
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+#include <source_location>
+#include <version>
+
+namespace Balbino
+{
+
+// =============================================================================
+// Compiler Detection
+// =============================================================================
+
+enum class compiler : std::uint8_t
+{
+    msvc,
+    clang,
+    gcc,
+    unknown
+};
+
+consteval compiler DetectCompiler() noexcept
+{
+#if defined(__clang__)
+    return compiler::clang;
+#elif defined(__GNUC__) || defined(__MINGW32__) || defined(__MINGW64__)
+    return compiler::gcc;
+#elif defined(_MSC_VER)
+    return compiler::msvc;
+#else
+    return compiler::unknown;
+#endif
+}
+
+inline constexpr compiler g_activeCompiler = DetectCompiler();
+
+consteval bool IsClang() noexcept
+{
+    return g_activeCompiler == compiler::clang;
+}
+consteval bool IsGCC() noexcept
+{
+    return g_activeCompiler == compiler::gcc;
+}
+consteval bool IsMSVC() noexcept
+{
+    return g_activeCompiler == compiler::msvc;
+}
+
+// =============================================================================
+// C++ Standard Version Detection
+// =============================================================================
+
+consteval int GetCppVersion() noexcept
+{
+#if defined(_MSVC_LANG)
+    if constexpr (_MSVC_LANG > __cplusplus)
+    {
+        return _MSVC_LANG;
+    }
+    else
+    {
+        return __cplusplus;
+    }
+#else
+    return __cplusplus;
+#endif
+}
+
+inline constexpr int g_cppVersion = GetCppVersion();
+inline constexpr int g_cpp20      = 202002L;
+inline constexpr int g_cpp23      = 202302L;
+inline constexpr int g_cpp26      = 202600L;
+
+// Require C++20 minimum for modern codebases
+static_assert(g_cppVersion >= g_cpp20, "C++20 or later is required");
+
+consteval bool IsCpp20() noexcept
+{
+    return g_cppVersion >= g_cpp20;
+}
+consteval bool IsCpp23() noexcept
+{
+    return g_cppVersion >= g_cpp23;
+}
+consteval bool IsCpp26() noexcept
+{
+    return g_cppVersion >= g_cpp26;
+}
+
+// =============================================================================
+// Feature Test Macros (C++20 and beyond)
+// =============================================================================
+
+// Core language features
+#ifdef __cpp_concepts
+inline constexpr bool g_hasConcepts = __cpp_concepts >= 201907L;
+#else
+inline constexpr bool g_hasConcepts = false;
+#endif
+
+#ifdef __cpp_modules
+inline constexpr bool g_hasModules = __cpp_modules >= 201907L;
+#else
+inline constexpr bool g_hasModules = false;
+#endif
+
+#ifdef __cpp_coroutines
+inline constexpr bool g_hasCoroutines = __cpp_coroutines >= 201902L;
+#else
+inline constexpr bool g_hasCoroutines = false;
+#endif
+
+#ifdef __cpp_constexpr
+inline constexpr bool g_hasConstexpr20 = __cpp_constexpr >= 201907L;
+#else
+inline constexpr bool g_hasConstexpr20 = false;
+#endif
+
+#ifdef __cpp_consteval
+inline constexpr bool g_hasConsteval = __cpp_consteval >= 201811L;
+#else
+inline constexpr bool g_hasConsteval = false;
+#endif
+
+#ifdef __cpp_constinit
+inline constexpr bool g_hasConstinit = __cpp_constinit >= 201907L;
+#else
+inline constexpr bool g_hasConstinit = false;
+#endif
+
+#ifdef __cpp_designated_initializers
+inline constexpr bool g_hasDesignatedInitializers = __cpp_designated_initializers >= 201707L;
+#else
+inline constexpr bool g_hasDesignatedInitializers = false;
+#endif
+
+// Library features
+#ifdef __cpp_lib_concepts
+inline constexpr bool g_hasLibConcepts = true;
+#else
+inline constexpr bool g_hasLibConcepts = false;
+#endif
+
+#ifdef __cpp_lib_ranges
+inline constexpr bool g_hasRanges = true;
+#else
+inline constexpr bool g_hasRanges = false;
+#endif
+
+#ifdef __cpp_lib_coroutine
+inline constexpr bool g_hasLibCoroutine = true;
+#else
+inline constexpr bool g_hasLibCoroutine = false;
+#endif
+
+#ifdef __cpp_lib_format
+inline constexpr bool g_hasFormat = true;
+#else
+inline constexpr bool g_hasFormat = false;
+#endif
+
+#ifdef __cpp_lib_source_location
+inline constexpr bool g_hasSourceLocation = true;
+#else
+inline constexpr bool g_hasSourceLocation = false;
+#endif
+
+#ifdef __cpp_lib_span
+inline constexpr bool g_hasSpan = true;
+#else
+inline constexpr bool g_hasSpan = false;
+#endif
+
+#ifdef __cpp_lib_bit_cast
+inline constexpr bool g_hasBitCast = true;
+#else
+inline constexpr bool g_hasBitCast = false;
+#endif
+
+#ifdef __cpp_lib_constexpr_string
+inline constexpr bool g_hasConstexprString = true;
+#else
+inline constexpr bool g_hasConstexprString = false;
+#endif
+
+#ifdef __cpp_lib_constexpr_vector
+inline constexpr bool g_hasConstexprVector = true;
+#else
+inline constexpr bool g_hasConstexprVector = false;
+#endif
+
+#ifdef __cpp_lib_constexpr_algorithms
+inline constexpr bool g_hasConstexprAlgorithms = true;
+#else
+inline constexpr bool g_hasConstexprAlgorithms = false;
+#endif
+
+// =============================================================================
+// Compiler Attributes (type-safe wrappers)
+// =============================================================================
+
+// Force inline
+#if defined(_MSC_VER)
+#    define BALBINO_FORCE_INLINE __forceinline
+#    define BALBINO_NO_INLINE __declspec(noinline)
+#elif defined(__clang__)
+#    define BALBINO_FORCE_INLINE [[clang::always_inline]] inline
+#    define BALBINO_NO_INLINE __attribute__((noinline))
+#elif defined(__GNUC__)
+#    define BALBINO_FORCE_INLINE [[gnu::always_inline]] inline
+#    define BALBINO_NO_INLINE __attribute__((noinline))
+#else
+#    define BALBINO_FORCE_INLINE inline
+#    define BALBINO_NO_INLINE
+#endif
+
+// No unique address (MSVC still needs special handling)
+#if defined(_MSC_VER)
+#    define BALBINO_NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+#else
+#    define BALBINO_NO_UNIQUE_ADDRESS [[no_unique_address]]
+#endif
+
+// Modern C++20 attributes
+#define BALBINO_NODISCARD [[nodiscard]]
+#define BALBINO_MAYBE_UNUSED [[maybe_unused]]
+#define BALBINO_LIKELY [[likely]]
+#define BALBINO_UNLIKELY [[unlikely]]
+#define BALBINO_NO_RETURN [[noreturn]]
+
+// =============================================================================
+// Debug Mode Detection
+// =============================================================================
+
+consteval bool IsDebugBuild() noexcept
+{
+#if !defined(NDEBUG) || defined(_DEBUG)
+    return true;
+#else
+    return false;
+#endif
+}
+
+inline constexpr bool g_isDebug   = IsDebugBuild();
+inline constexpr bool g_isRelease = !g_isDebug;
+
+// =============================================================================
+// Source Location (C++20 replacement for __FILE__ and __LINE__)
+// =============================================================================
+
+struct SourceInfo
+{
+    const char* file;
+    const char* function;
+    unsigned line;
+    unsigned column;
+
+    consteval explicit SourceInfo(const std::source_location& loc = std::source_location::current()) noexcept
+        : file(loc.file_name())
+        , function(loc.function_name())
+        , line(loc.line())
+        , column(loc.column())
+    {
+    }
+};
+
+// Use like: MyLog(GetSourceInfo());
+[[nodiscard]] consteval SourceInfo GetSourceInfo(const std::source_location& loc = std::source_location::current()) noexcept
+{
+    return SourceInfo{loc};
+}
+
+// =============================================================================
+// Alignment Helpers
+// =============================================================================
+
+template <std::size_t Alignment>
+concept ValidAlignment = (Alignment > 0) && ((Alignment & (Alignment - 1)) == 0);
+
+template <std::size_t Alignment>
+    requires ValidAlignment<Alignment>
+struct alignas(Alignment) Aligned
+{
+};
+
+// Usage: struct alignas(Aligned<64>::value) CacheLine { ... };
+template <std::size_t Alignment>
+    requires ValidAlignment<Alignment>
+inline constexpr std::size_t g_alignedSize = alignof(Aligned<Alignment>);
+
+// =============================================================================
+// Compiler Version Info
+// =============================================================================
+
+struct CompilerVersion
+{
+    int major{};
+    int minor{};
+    int patch{};
+
+    consteval CompilerVersion() noexcept
+#if defined(__clang__)
+        : major(__clang_major__)
+        , minor(__clang_minor__)
+        , patch(__clang_patchlevel__)
+#elif defined(__GNUC__)
+        : major(__GNUC__)
+        , minor(__GNUC_MINOR__)
+        , patch(__GNUC_PATCHLEVEL__)
+#elif defined(_MSC_VER)
+        : major(_MSC_VER / 100)
+        , minor(_MSC_VER % 100)
+        , patch(_MSC_FULL_VER % 100000)
+#else
+        : major(0)
+        , minor(0)
+        , patch(0)
+#endif
+    {
+    }
+
+    [[nodiscard]] consteval bool operator>=(const CompilerVersion& other) const noexcept
+    {
+        if (major != other.major)
+        {
+            return major >= other.major;
+        }
+        if (minor != other.minor)
+        {
+            return minor >= other.minor;
+        }
+        return patch >= other.patch;
+    }
+};
+
+inline constexpr CompilerVersion g_currentCompilerVersion{};
+
+// =============================================================================
+// Platform-Specific Vector Extensions
+// =============================================================================
+
+#if defined(__clang__) || defined(__GNUC__)
+template <typename T, size_t N>
+using vector_type [[gnu::vector_size(sizeof(T) * N)]] = T;
+
+inline constexpr bool g_hasVectorExtensions = true;
+#else
+inline constexpr bool g_hasVectorExtensions = false;
+#endif
+
+// =============================================================================
+// Utility: Compile-time string for feature reporting
+// =============================================================================
+
+consteval const char* GetCompilerName() noexcept
+{
+    if constexpr (IsClang())
+    {
+        return "Clang";
+    }
+    else if constexpr (IsGCC())
+    {
+        return "GCC";
+    }
+    else if constexpr (IsMSVC())
+    {
+        return "MSVC";
+    }
+    else
+    {
+        return "Unknown";
+    }
+}
+
+consteval const char* GetCppVersionString() noexcept
+{
+    if constexpr (IsCpp26())
+    {
+        return "C++26";
+    }
+    else if constexpr (IsCpp23())
+    {
+        return "C++23";
+    }
+    else if constexpr (IsCpp20())
+    {
+        return "C++20";
+    }
+    else
+    {
+        return "C++17 or older";
+    }
+}
+
+} // namespace Balbino
+
+// =============================================================================
+// Legacy Macro Compatibility (minimize these in modern code)
+// =============================================================================
+
 #define BALBINO_COMPILER_MSVC 1
 #define BALBINO_COMPILER_CLANG 2
 #define BALBINO_COMPILER_GNU 3
 
-#if __GNUG__
-#    define BALBINO_COMPILER_ACTIVE BALBINO_COMPILER_GNU
-#elif __clang__
+#if defined(__clang__)
 #    define BALBINO_COMPILER_ACTIVE BALBINO_COMPILER_CLANG
-#elif __EMSCRIPTEN__ || __MINGW32__ || __MINGW64__ || _MSC_VER
+#elif defined(__GNUC__)
+#    define BALBINO_COMPILER_ACTIVE BALBINO_COMPILER_GNU
+#elif defined(_MSC_VER)
 #    define BALBINO_COMPILER_ACTIVE BALBINO_COMPILER_MSVC
 #else
 #    define BALBINO_COMPILER_ACTIVE 0
 #endif
-
-#ifdef __cplusplus
-#    if defined(_MSVC_LANG) && _MSVC_LANG > __cplusplus
-#        define BALBINO_STL_LANG _MSVC_LANG
-#    else // language mode is _MSVC_LANG / language mode is __cplusplus
-#        define BALBINO_STL_LANG __cplusplus
-#    endif // language mode is larger of _MSVC_LANG and __cplusplus
-#else      // determine compiler's C++ mode / no C++ support vvv
-#    error "C++ is not supported"
-#endif
-
-#if BALBINO_STL_LANG < 201100
-#    error "C++11 or better is required"
-#endif
-
-#ifdef __has_include
-#    if __has_include(<version>)
-#        include <version>
-#    endif
-#endif
-
-#ifdef __cpp_constexpr
-#    define BALBINO_CONSTEXPR constexpr
-#    ifdef __cpp_if_constexpr
-#        define BALBINO_CONSTEXPR_IF constexpr
-#    endif
-#    ifdef __cpp_constexpr_in_decltype
-#        define BALBINO_CONSTEXPR_DECLTYPE constexpr
-#    endif
-#    ifdef __cpp_constexpr_dynamic_alloc
-#        define BALBINO_CONSTEXPR_DYNAMIC_ALLOC constexpr
-#    endif
-#    ifdef __cpp_constexpr_exceptions
-#        define BALBINO_CONSTEXPR_EXCEPTIONS constexpr
-#    endif
-#    ifdef __cpp_lib_addressof_constexpr
-#        define BALBINO_CONSTEXPR_ADDRESSOF constexpr
-#    endif
-#    ifdef __cpp_lib_array_constexpr
-#        define BALBINO_CONSTEXPR_ARRAY constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_string
-#        define BALBINO_CONSTEXPR_STRING constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_complex
-#        define BALBINO_CONSTEXPR_COMPLEX constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_algorithms
-#        define BALBINO_CONSTEXPR_ALGORITHMS constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_algorithms
-#        define BALBINO_CONSTEXPR_ALGORITHMS constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_iterator
-#        define BALBINO_CONSTEXPR_ITERATOR constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_memory
-#        define BALBINO_CONSTEXPR_MEMORY constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_string_view
-#        define BALBINO_CONSTEXPR_STRING_VIEW constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_tuple
-#        define BALBINO_CONSTEXPR_TUPLE constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_utility
-#        define BALBINO_CONSTEXPR_UTILITY constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_functional
-#        define BALBINO_CONSTEXPR_FUNCTIONAL constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_vector
-#        define BALBINO_CONSTEXPR_VECTOR constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_numeric
-#        define BALBINO_CONSTEXPR_NUMERIC constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_typeinfo
-#        define BALBINO_CONSTEXPR_TYPEINFO constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_cmath
-#        define BALBINO_CONSTEXPR_CMATH constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_bitset
-#        define BALBINO_CONSTEXPR_BITSET constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_charconv
-#        define BALBINO_CONSTEXPR_CHARCONV constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_new
-#        define BALBINO_CONSTEXPR_NEW constexpr
-#    endif
-#    ifdef __cpp_lib_constexpr_atomic
-#        define BALBINO_CONSTEXPR_ATOMIC constexpr
-#    endif
-#else
-#    define BALBINO_CONSTEXPR
-#    define BALBINO_CONSTEXPR_IF
-#    define BALBINO_CONSTEXPR_DECLTYPE
-#    define BALBINO_CONSTEXPR_DYNAMIC_ALLOC
-#    define BALBINO_CONSTEXPR_EXCEPTIONS
-#    define BALBINO_CONSTEXPR_ADDRESSOF
-#    define BALBINO_CONSTEXPR_ARRAY
-#    define BALBINO_CONSTEXPR_STRING
-#    define BALBINO_CONSTEXPR_COMPLEX
-#    define BALBINO_CONSTEXPR_ALGORITHMS
-#    define BALBINO_CONSTEXPR_ALGORITHMS
-#    define BALBINO_CONSTEXPR_ITERATOR
-#    define BALBINO_CONSTEXPR_MEMORY
-#    define BALBINO_CONSTEXPR_STRING_VIEW
-#    define BALBINO_CONSTEXPR_TUPLE
-#    define BALBINO_CONSTEXPR_UTILITY
-#    define BALBINO_CONSTEXPR_FUNCTIONAL
-#    define BALBINO_CONSTEXPR_VECTOR
-#    define BALBINO_CONSTEXPR_NUMERIC
-#    define BALBINO_CONSTEXPR_TYPEINFO
-#    define BALBINO_CONSTEXPR_CMATH
-#    define BALBINO_CONSTEXPR_BITSET
-#    define BALBINO_CONSTEXPR_CHARCONV
-#    define BALBINO_CONSTEXPR_NEW
-#    define BALBINO_CONSTEXPR_ATOMIC
-#endif
-
-#if !defined(BALBINO_ATTRIBUTE)
-#    if BALBINO_COMPILER_ACTIVE == BALBINO_COMPILER_MSVC
-#        define BALBINO_ATTRIBUTE(x) __declspec(x)
-#        define BALBINO_ALIGN(x) align(x)
-#        define BALBINO_VECTOR_SIZE(x)
-#    elif BALBINO_COMPILER_ACTIVE == BALBINO_COMPILER_CLANG
-#        define BALBINO_ATTRIBUTE(x) __attribute__(x)
-#        define BALBINO_ALIGN(x) alignd(x)
-#        define BALBINO_VECTOR_SIZE(x) __vector_size__(x)
-#    elif BALBINO_COMPILER_ACTIVE == BALBINO_COMPILER_GNU
-#        define BALBINO_ATTRIBUTE(x) __attribute__(x)
-#        define BALBINO_ALIGN(x) alignd(x)
-#        define BALBINO_VECTOR_SIZE(x) __vector_size__(x)
-#    else
-#        error "compiler attribute not supported"
-#    endif
-#endif
-
-#if !defined(BALBINO_INLINE)
-#    if BALBINO_COMPILER_ACTIVE == BALBINO_COMPILER_MSVC
-#        define BALBINO_INLINE __forceinline
-#    elif BALBINO_COMPILER_ACTIVE == BALBINO_COMPILER_CLANG
-#        define BALBINO_INLINE inline
-// #define BALBINO_INLINE [[clang::always_inline]]
-#    elif BALBINO_COMPILER_ACTIVE == BALBINO_COMPILER_GNU
-#        define BALBINO_INLINE [[gnu::always_inline]]
-#    else
-#        define BALBINO_INLINE inline
-#    endif
-#endif
-
-#if !defined(BALBINO_LIKELY)
-#    if BALBINO_COMPILER_ACTIVE == BALBINO_COMPILER_GNU
-#        define BALBINO_LIKELY(x) __builtin_expect(!!(x), 1)
-#    else
-#        define BALBINO_LIKELY(x) [[likely]]
-#    endif
-#endif
-
-#if !defined(BALBINO_UNLIKELY)
-#    if BALBINO_COMPILER_ACTIVE == BALBINO_COMPILER_GNU
-#        define BALBINO_UNLIKELY(x) __builtin_expect(!!(x), 0)
-#    else
-#        define BALBINO_UNLIKELY(x) [[unlikely]]
-#    endif
-#endif
-
-#if !defined(BALBINO_NODISCARD)
-#    if defined(__has_cpp_attribute) && __has_cpp_attribute(nodiscard)
-#        define BALBINO_NODISCARD [[nodiscard]]
-#    else
-#        define BALBINO_NODISCARD
-#    endif
-#endif
-
-#define BALBINO_IS_DEFINED(x) (defined(x) && (x)[0] != '\0')
-
-#define BALBINO_IF_1(x) x
-
-#define BALBINO_IF_0(x)
-
-#define BALBINO_EXPAND(x) x
-
-#define BALBINO_IF_IMPL(cond) BALBINO_IF_##cond
-
-#define BALBINO_IF(cond) BALBINO_IF_IMPL(cond)
-
-#define BALBINO_INTERNAL_CONSTEXPR_IF_ALL_IMPL(x, ...) BALBINO_IF(BALBINO_IS_DEFINED(x))(constexpr BALBINO_INTERNAL_CONSTEXPR_IF_ALL_IMPL(__VA_ARGS__))
-
-#define BALBINO_INTERNAL_CONSTEXPR_IF_ALL(...) BALBINO_INTERNAL_CONSTEXPR_IF_ALL_IMPL(__VA_ARGS__)
-
-#define BALBINO_CONSTEXPR_IF_ALL(...) BALBINO_EXPAND(BALBINO_INTERNAL_CONSTEXPR_IF_ALL(__VA_ARGS__, ))
-
-#if !defined(NDEBUG) || defined(_DEBUG)
-#    define BALBINO_DEBUG 1
-#else
-#    define BALBINO_DEBUG 0
-#endif
-
-#define BALBINO_FILE __FILE__

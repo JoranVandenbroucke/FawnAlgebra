@@ -21,7 +21,7 @@ TEST_CASE("statistics")
         REQUIRE(fawn_algebra::FrequencyTable(sorted)
                 == std::vector<std::pair<int, std::size_t>>{{-70, 1}, {0, 1}, {10, 2}, {20, 2}, {30, 1}, {40, 1}, {50, 1}, {60, 1}, {80, 1}, {90, 1}, {100, 1}});
         REQUIRE(fawn_algebra::QuartilesQ1(sorted) == 20);
-        REQUIRE(fawn_algebra::quartilesQ2(sorted) == 40);
+        REQUIRE(fawn_algebra::QuartilesQ2(sorted) == 40);
         REQUIRE(fawn_algebra::QuartilesQ3(sorted) == 80);
     }
     SECTION("central tendency")
@@ -31,7 +31,7 @@ TEST_CASE("statistics")
         REQUIRE(fawn_algebra::Mean(sorted) == 33);
         REQUIRE(fawn_algebra::Median(sorted) == 30);
         REQUIRE(fawn_algebra::Mode(sorted) == 10);
-        REQUIRE(fawn_algebra::GemetricMedian(sorted) == 0);
+        REQUIRE(fawn_algebra::GeometricMean(sorted) == 0);
     }
 
     SECTION("measures of variability")
@@ -40,10 +40,10 @@ TEST_CASE("statistics")
         std::ranges::sort(sorted);
         REQUIRE(fawn_algebra::Range(sorted) == 170);
         REQUIRE(fawn_algebra::InterquartileRange(sorted) == 60);
-        REQUIRE(fawn_algebra::VariancePopulation(sorted) == 11);
-        REQUIRE(fawn_algebra::VarianceSample(sorted) == 12);
-        REQUIRE(fawn_algebra::StandardDeviationPopulation(sorted) == 3);
-        REQUIRE(fawn_algebra::StandardDeviationSample(sorted) == 3);
+        REQUIRE(fawn_algebra::VariancePopulation(sorted) == 43);
+        REQUIRE(fawn_algebra::VarianceSample(sorted) == 44);
+        REQUIRE(fawn_algebra::StandardDeviationPopulation(sorted) == 6);
+        REQUIRE(fawn_algebra::StandardDeviationSample(sorted) == 6);
     }
 
     SECTION("normal distribution")

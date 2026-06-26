@@ -22,7 +22,7 @@ namespace fawn_algebra
 template <typename Container, typename T = Container::value_type>
 constexpr auto Sum(const Container& a) -> T
 {
-    return static_cast<T>(std::accumulate(std::cbegin(a), std::cend(a), 0));
+    return static_cast<T>(std::accumulate(std::cbegin(a), std::cend(a), T{}));
 }
 
 /**
@@ -36,16 +36,18 @@ constexpr auto Sum(const Container& a) -> T
 export template <typename Container, typename T = Container::value_type>
 constexpr auto FrequencyTable(Container a) noexcept
 {
-    static_assert(!std::empty(a), "An empty array doesn't have a frequency table.");
+    // static_assert(!std::empty(a), "An empty array doesn't have a frequency table.");
 
-    std::vector<std::pair<T, std::size_t>> table;
-    for (std::size_t i = 0; i < std::size(a); i++)
+    std::vector<std::pair<T, std::size_t>> table{};
+    table.reserve(std::size(a));
+    for (std::size_t i{}; i < std::size(a); ++i)
     {
         const std::size_t firstIndex = std::ranges::lower_bound(a, a[i]) - std::cbegin(a);
         const std::size_t lastIndex  = std::ranges::upper_bound(a, a[i]) - std::cbegin(a) - 1;
         i                            = lastIndex;
         table.emplace_back(std::make_pair(a[firstIndex], lastIndex - firstIndex + 1));
     }
+
     return table;
 }
 
@@ -61,7 +63,7 @@ export template <typename Container, typename T = Container::value_type>
 constexpr auto QuartilesQ1(const Container& a) noexcept
 {
     const double idx{std::size(a) / 4.0};
-    return static_cast<T>(std::size(a) & 3) != 0 ? a[static_cast<std::size_t>(std::ceil(idx))] : (a[static_cast<std::size_t>(idx)] + a[static_cast<std::size_t>(idx + 1)]) / 2;
+    return static_cast<T>(((std::size(a) & 3) != 0) ? a[static_cast<std::size_t>(std::ceil(idx))] : (a[static_cast<std::size_t>(idx)] + a[static_cast<std::size_t>(idx + 1)]) / 2);
 }
 
 /**
@@ -73,10 +75,10 @@ constexpr auto QuartilesQ1(const Container& a) noexcept
  * @return The second quartile (Q2) or median.
  */
 export template <typename Container, typename T = Container::value_type>
-constexpr auto quartilesQ2(const Container& a) noexcept
+constexpr auto QuartilesQ2(const Container& a) noexcept
 {
     const double idx{std::size(a) / 2.0};
-    return static_cast<T>(std::size(a) & 1) != 0 ? a[static_cast<std::size_t>(std::ceil(idx))] : (a[static_cast<std::size_t>(idx)] + a[static_cast<std::size_t>(idx + 1)]) / 2;
+    return static_cast<T>(((std::size(a) & 1) != 0) ? a[static_cast<std::size_t>(std::ceil(idx))] : (a[static_cast<std::size_t>(idx)] + a[static_cast<std::size_t>(idx + 1)]) / 2);
 }
 
 /**
@@ -91,7 +93,7 @@ export template <typename Container, typename T = Container::value_type>
 constexpr auto QuartilesQ3(const Container& a) noexcept
 {
     const double idx{3 * std::size(a) / 4.0};
-    return static_cast<T>(std::size(a) & 3) != 0 ? a[static_cast<std::size_t>(std::ceil(idx))] : (a[static_cast<std::size_t>(idx)] + a[static_cast<std::size_t>(idx + 1)]) / 2;
+    return static_cast<T>(((std::size(a) & 3) != 0) ? a[static_cast<std::size_t>(std::ceil(idx))] : (a[static_cast<std::size_t>(idx)] + a[static_cast<std::size_t>(idx + 1)]) / 2);
 }
 /**
  * @brief Calculates the mean of the elements in a container.
@@ -118,10 +120,10 @@ constexpr auto Mean(const Container& a) noexcept -> T
 export template <typename Container, typename T = Container::value_type>
 constexpr auto Median(Container a) noexcept -> T
 {
-    static_assert(!std::empty(a), "Can not calculate median from empty array");
+    // static_assert(!std::empty(a), "Can not calculate median from empty array");
 
-    constexpr std::size_t size{std::size(a)};
-    return static_cast<T>((size & 2) != 0 ? a[size / 2] : (a[(size - 1) / 2] + a[size / 2]) / 2);
+    const std::size_t idx{(std::size(a) + 1) / 2};
+    return a[idx - 1];
 }
 
 /**
@@ -135,9 +137,9 @@ constexpr auto Median(Container a) noexcept -> T
 export template <typename Container, typename T = Container::value_type>
 constexpr auto Mode(Container a) noexcept -> T
 {
-    static_assert(!std::empty(a), "Can not calculate mod from empty array");
+    // static_assert(!std::empty(a), "Can not calculate mod from empty array");
 
-    constexpr std::size_t size{std::size(a)};
+    const std::size_t size{std::size(a)};
     T value{a[0]};
     T mode{value};
     std::uint32_t count{1u};
@@ -172,15 +174,15 @@ constexpr auto Mode(Container a) noexcept -> T
  * @return The geometric median of the elements.
  */
 export template <typename Container, typename T = Container::value_type>
-constexpr auto GemetricMedian(Container a) noexcept -> T
+constexpr auto GeometricMean(Container a) noexcept -> T
 {
-    static_assert(!std::empty(a), "Can not calculate median from empty array");
+    // static_assert(!std::empty(a), "Can not calculate median from empty array");
 
-    return static_cast<T>(std::pow(std::accumulate(std::cbegin(a), std::cend(a), 0,
-                                                   [](const T& accumulation, const T& value)
-                                                   {
-                                                       return accumulation * value;
-                                                   }),
+    return static_cast<T>(std::pow(static_cast<double>(std::accumulate(std::cbegin(a), std::cend(a), T{1},
+                                                                       [](const T& accumulation, const T& value)
+                                                                       {
+                                                                           return accumulation * value;
+                                                                       })),
                                    1.0 / std::size(a)));
 }
 
@@ -195,7 +197,7 @@ constexpr auto GemetricMedian(Container a) noexcept -> T
 export template <typename Container, typename T = Container::value_type>
 constexpr auto Range(const Container& a) noexcept
 {
-    T max{std::numeric_limits<T>::min()};
+    T max{std::numeric_limits<T>::lowest()};
     T min{std::numeric_limits<T>::max()};
     std::ranges::for_each(a,
                           [&min, &max](const T& v)
@@ -214,8 +216,8 @@ constexpr auto Range(const Container& a) noexcept
  * @param a The container whose interquartile range is to be calculated.
  * @return The interquartile range (IQR).
  */
-export template <typename Container, typename = Container::value_type>
-constexpr auto InterquartileRange(Container a) noexcept -> Container::value_type
+export template <typename Container, typename T = Container::value_type>
+constexpr auto InterquartileRange(Container a) noexcept -> T
 {
     return QuartilesQ3(a) - QuartilesQ1(a);
 }
@@ -229,7 +231,7 @@ constexpr auto InterquartileRange(Container a) noexcept -> Container::value_type
  * @return The variance of the elements.
  */
 template <typename Container, typename T = Container::value_type>
-constexpr auto Variance(const Container& a) noexcept -> double
+constexpr auto Variance(const Container& a) noexcept -> T
 {
     if (std::size(a) <= 1)
     {
@@ -242,7 +244,7 @@ constexpr auto Variance(const Container& a) noexcept -> double
                         return accumulator + (val - m) * (val - m);
                     }};
 
-    return std::sqrt(std::accumulate(std::cbegin(a), std::cend(a), T(0), func));
+    return std::accumulate(std::cbegin(a), std::cend(a), T(0), func);
 }
 
 /**
@@ -256,7 +258,7 @@ constexpr auto Variance(const Container& a) noexcept -> double
 export template <typename Container, typename T = Container::value_type>
 constexpr auto VariancePopulation(const Container& a) noexcept -> T
 {
-    return static_cast<T>(Variance(a) / std::size(a));
+    return std::sqrt(static_cast<T>(Variance(a) / std::size(a)));
 }
 
 /**
@@ -270,7 +272,7 @@ constexpr auto VariancePopulation(const Container& a) noexcept -> T
 export template <typename Container, typename T = Container::value_type>
 constexpr auto VarianceSample(const Container& a) noexcept -> T
 {
-    return static_cast<T>(Variance(a) / (std::size(a) - 1));
+    return std::sqrt(static_cast<T>(Variance(a) / (std::size(a) - 1)));
 }
 
 /**
@@ -331,12 +333,13 @@ constexpr auto NormalProbabilityDensity(const Container& a)
     const T v{VariancePopulation(a)};
     const T s{StandardDeviationPopulation(a)};
 
-    std::vector<std::pair<T, double>> p(std::size(a)); // an std::vector because size is not always know on compile time.
+    std::vector<std::pair<T, double>> probabilities(std::size(a)); // an std::vector because size is not always know on compile time.
     for (std::size_t i{}; i < std::size(a); ++i)
     {
-        p[i] = std::make_pair(a[i], NormalProbabilityDensity(a[i], m, v, s));
+        probabilities[i] = std::make_pair(a[i], NormalProbabilityDensity(a[i], m, v, s));
     }
-    return p;
+
+    return probabilities;
 }
 
 /**
@@ -366,12 +369,7 @@ constexpr auto ZScore(const T& a, const T& m, const T& s)
 export template <typename T = int, typename C = int>
 constexpr auto PoissonDistribution(const T& k, const C& l)
 {
-    std::uint32_t factorial{1};
-    for (T i{2}; i <= k; ++i)
-    {
-        factorial *= i;
-    }
-    return std::exp(-l) * std::pow(l, k) / factorial;
+    return std::exp(-l) * std::pow(l, k) / std::tgamma(k + 1);
 }
 
 export template <typename Container, typename T = Container::value_type>
@@ -390,6 +388,7 @@ constexpr auto ChiSquareTest(const Container& O, const Container& E)
             sum += static_cast<double>(oe * oe) / static_cast<double>(E[i]);
         }
     }
+
     return static_cast<T>(sum);
 }
 

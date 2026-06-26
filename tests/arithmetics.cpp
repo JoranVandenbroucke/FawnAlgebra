@@ -54,14 +54,14 @@ TEST_CASE("int2: Vector arithmetic operations", "[Vector]")
     SECTION("Project")
     {
         constexpr int2 result{b & a};
-        REQUIRE(result[0] == 11);
-        REQUIRE(result[1] == 22);
+        REQUIRE(result[0] == 2);
+        REQUIRE(result[1] == 4);
     }
     SECTION("Reject")
     {
         constexpr int2 result{b % a};
-        REQUIRE(result[0] == 1);
-        REQUIRE(result[1] == 0);
+        REQUIRE(result[0] == 2);
+        REQUIRE(result[1] == 4);
     }
 }
 
@@ -71,19 +71,19 @@ TEST_CASE("Vec: Vector math operations", "[Vector]")
 
     SECTION("ceil")
     {
-        const float2 squareRoot{ceil(a)};
+        const float2 squareRoot{float2::Ceil(a)};
         REQUIRE_THAT(squareRoot[0], Catch::Matchers::WithinAbs(2.f, 1e5f));
         REQUIRE_THAT(squareRoot[1], Catch::Matchers::WithinAbs(5.f, 1e5f));
     }
     SECTION("floor")
     {
-        const float2 squareRoot{floor(a)};
+        const float2 squareRoot{float2::Floor(a)};
         REQUIRE_THAT(squareRoot[0], Catch::Matchers::WithinAbs(1.f, 1e5f));
         REQUIRE_THAT(squareRoot[1], Catch::Matchers::WithinAbs(4.f, 1e5f));
     }
     SECTION("round")
     {
-        const float2 squareRoot{round(a)};
+        const float2 squareRoot{float2::Round(a)};
         REQUIRE_THAT(squareRoot[0], Catch::Matchers::WithinAbs(1.f, 1e5f));
         REQUIRE_THAT(squareRoot[1], Catch::Matchers::WithinAbs(5.f, 1e5f));
     }

@@ -6,6 +6,7 @@ add_executable(${PROJECT_NAME}_test
         hashing.cpp
         interpolation.cpp
         random.cpp
+        simd.cpp
         statistics.cpp
 )
 
