@@ -4060,7 +4060,7 @@ struct alignas(16) QuatSimd
 export using quadf_simd = QuatSimd<float>;
 } // namespace fawn_algebra
 
-export template <typename T, std::uint8_t N>
+template <typename T, std::uint8_t N>
 struct std::hash<fawn_algebra::Vec<T, N>>
 {
     constexpr std::size_t operator()(const fawn_algebra::Vec<T, N>& vec) const noexcept
@@ -4075,7 +4075,7 @@ struct std::hash<fawn_algebra::Vec<T, N>>
     }
 };
 
-export template <typename T, std::uint8_t N>
+template <typename T, std::uint8_t N>
 struct std::hash<fawn_algebra::VecSimd<T, N>>
 {
     constexpr std::size_t operator()(const fawn_algebra::VecSimd<T, N>& vec) const noexcept
@@ -4090,7 +4090,7 @@ struct std::hash<fawn_algebra::VecSimd<T, N>>
     }
 };
 
-export template <typename T, std::uint8_t N>
+template <typename T, std::uint8_t N>
 struct std::hash<fawn_algebra::Mat<T, N>>
 {
     constexpr std::size_t operator()(const fawn_algebra::Mat<T, N>& mat) const noexcept
@@ -4105,7 +4105,7 @@ struct std::hash<fawn_algebra::Mat<T, N>>
     }
 };
 
-export template <typename T>
+template <typename T>
 struct std::hash<fawn_algebra::Quat<T>>
 {
     constexpr std::size_t operator()(const fawn_algebra::Quat<T>& quat) const noexcept

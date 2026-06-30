@@ -13,14 +13,199 @@ namespace fawn_algebra::simd::detail
 
 template <typename Scalar, int Lanes>
 struct raw_traits; // intentionally undefined for unsupported combos
-
-#define SIMD_DEFINE_RAW(SCALAR, LANES)                                                                                                                                             \
-    template <>                                                                                                                                                                    \
-    struct raw_traits<SCALAR, LANES>                                                                                                                                               \
-    {                                                                                                                                                                              \
-        static constexpr int alignment = sizeof(SCALAR) * LANES <= 16 ? 16 : sizeof(SCALAR) * LANES <= 32 ? 32 : 64;                                                               \
-        using type                     = SCALAR __attribute__((__vector_size__(sizeof(SCALAR) * LANES), __aligned__(alignment)));                                                  \
-    };
+#if defined(_MSC_VER) && !defined(__clang__)
+#    define SIMD_DEFINE_RAW(SCALAR, LANES)                                                                                                                                         \
+        template <>                                                                                                                                                                \
+        struct raw_traits<SCALAR, LANES>                                                                                                                                           \
+        {                                                                                                                                                                          \
+            static constexpr int alignment = sizeof(SCALAR) * LANES <= 16 ? 16 : sizeof(SCALAR) * LANES <= 32 ? 32 : 64;                                                           \
+                                                                                                                                                                                   \
+            union __declspec(intrin_type) __declspec(align(16)) type                                                                                                               \
+            {                                                                                                                                                                      \
+                SCALAR data[LANES];                                                                                                                                                \
+                std::uint8_t u8[sizeof(SCALAR) * LANES];                                                                                                                           \
+                std::uint16_t u16[sizeof(SCALAR) * LANES / 2];                                                                                                                     \
+                std::uint32_t u32[sizeof(SCALAR) * LANES / 4];                                                                                                                     \
+                std::uint64_t u64[sizeof(SCALAR) * LANES / 8];                                                                                                                     \
+                std::int8_t i8[sizeof(SCALAR) * LANES];                                                                                                                            \
+                std::int16_t i16[sizeof(SCALAR) * LANES / 2];                                                                                                                      \
+                std::int32_t i32[sizeof(SCALAR) * LANES / 4];                                                                                                                      \
+                std::int64_t i64[sizeof(SCALAR) * LANES / 8];                                                                                                                      \
+                float f32[sizeof(SCALAR) * LANES / 4];                                                                                                                             \
+                double f64[sizeof(SCALAR) * LANES / 8];                                                                                                                            \
+                                                                                                                                                                                   \
+                constexpr type()                       = default;                                                                                                                  \
+                constexpr type(const type&)            = default;                                                                                                                  \
+                constexpr type& operator=(const type&) = default;                                                                                                                  \
+                                                                                                                                                                                   \
+                /* reinterpret-cast construction from any compatible raw type */                                                                                                   \
+                template <typename Other>                                                                                                                                          \
+                constexpr explicit type(const Other& o) noexcept                                                                                                                   \
+                {                                                                                                                                                                  \
+                    static_assert(sizeof(Other) == sizeof(type), "size mismatch");                                                                                                 \
+                    std::memcpy(this, &o, sizeof(type));                                                                                                                           \
+                }                                                                                                                                                                  \
+                                                                                                                                                                                   \
+                /* lane-list init: type{a,b,c,d} */                                                                                                                                \
+                constexpr explicit type(std::initializer_list<SCALAR> il) noexcept                                                                                                 \
+                {                                                                                                                                                                  \
+                    std::ranges::copy(il, data);                                                                                                                                   \
+                }                                                                                                                                                                  \
+                                                                                                                                                                                   \
+                /* scalar broadcast */                                                                                                                                             \
+                constexpr explicit type(SCALAR s) noexcept                                                                                                                         \
+                {                                                                                                                                                                  \
+                    std::ranges::fill(data, s);                                                                                                                                    \
+                }                                                                                                                                                                  \
+                                                                                                                                                                                   \
+                constexpr SCALAR operator[](int i) const noexcept                                                                                                                  \
+                {                                                                                                                                                                  \
+                    return data[i];                                                                                                                                                \
+                }                                                                                                                                                                  \
+                constexpr SCALAR& operator[](int i) noexcept                                                                                                                       \
+                {                                                                                                                                                                  \
+                    return data[i];                                                                                                                                                \
+                }                                                                                                                                                                  \
+                                                                                                                                                                                   \
+                /* bitwise ops on the raw byte store */                                                                                                                            \
+                constexpr type operator&(const type& rhs) const noexcept                                                                                                           \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < (int)sizeof(type); ++_i)                                                                                                                 \
+                        r.u8[_i] = u8[_i] & rhs.u8[_i];                                                                                                                            \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                constexpr type operator|(const type& rhs) const noexcept                                                                                                           \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < (int)sizeof(type); ++_i)                                                                                                                 \
+                        r.u8[_i] = u8[_i] | rhs.u8[_i];                                                                                                                            \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                constexpr type operator^(const type& rhs) const noexcept                                                                                                           \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < (int)sizeof(type); ++_i)                                                                                                                 \
+                        r.u8[_i] = u8[_i] ^ rhs.u8[_i];                                                                                                                            \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                constexpr type operator~() const noexcept                                                                                                                          \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < (int)sizeof(type); ++_i)                                                                                                                 \
+                        r.u8[_i] = ~u8[_i];                                                                                                                                        \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                                                                                                                                                                                   \
+                /* arithmetic (scalar loop; MSVC auto-vectorizes at /O2) */                                                                                                        \
+                constexpr type operator+(const type& rhs) const noexcept                                                                                                           \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < LANES; ++_i)                                                                                                                             \
+                        r.data[_i] = data[_i] + rhs.data[_i];                                                                                                                      \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                constexpr type operator-(const type& rhs) const noexcept                                                                                                           \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < LANES; ++_i)                                                                                                                             \
+                        r.data[_i] = data[_i] - rhs.data[_i];                                                                                                                      \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                constexpr type operator*(const type& rhs) const noexcept                                                                                                           \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < LANES; ++_i)                                                                                                                             \
+                        r.data[_i] = data[_i] * rhs.data[_i];                                                                                                                      \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                constexpr type operator/(const type& rhs) const noexcept                                                                                                           \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < LANES; ++_i)                                                                                                                             \
+                        r.data[_i] = data[_i] / rhs.data[_i];                                                                                                                      \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                constexpr type& operator+=(const type& rhs) noexcept                                                                                                               \
+                {                                                                                                                                                                  \
+                    return *this = *this + rhs;                                                                                                                                    \
+                }                                                                                                                                                                  \
+                constexpr type& operator-=(const type& rhs) noexcept                                                                                                               \
+                {                                                                                                                                                                  \
+                    return *this = *this - rhs;                                                                                                                                    \
+                }                                                                                                                                                                  \
+                constexpr type& operator*=(const type& rhs) noexcept                                                                                                               \
+                {                                                                                                                                                                  \
+                    return *this = *this * rhs;                                                                                                                                    \
+                }                                                                                                                                                                  \
+                constexpr type& operator/=(const type& rhs) noexcept                                                                                                               \
+                {                                                                                                                                                                  \
+                    return *this = *this / rhs;                                                                                                                                    \
+                }                                                                                                                                                                  \
+                                                                                                                                                                                   \
+                /* comparisons — return a same-sized type with all-1s/all-0s lanes */                                                                                              \
+                /* mirroring GCC vector_size compare semantics */                                                                                                                  \
+                constexpr type operator==(const type& rhs) const noexcept                                                                                                          \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < LANES; ++_i)                                                                                                                             \
+                        r.data[_i] = data[_i] == rhs.data[_i] ? SCALAR(~0) : SCALAR(0);                                                                                            \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                constexpr type operator!=(const type& rhs) const noexcept                                                                                                          \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < LANES; ++_i)                                                                                                                             \
+                        r.data[_i] = data[_i] != rhs.data[_i] ? SCALAR(~0) : SCALAR(0);                                                                                            \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                constexpr type operator<(const type& rhs) const noexcept                                                                                                           \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < LANES; ++_i)                                                                                                                             \
+                        r.data[_i] = data[_i] < rhs.data[_i] ? SCALAR(~0) : SCALAR(0);                                                                                             \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                constexpr type operator<=(const type& rhs) const noexcept                                                                                                          \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < LANES; ++_i)                                                                                                                             \
+                        r.data[_i] = data[_i] <= rhs.data[_i] ? SCALAR(~0) : SCALAR(0);                                                                                            \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                constexpr type operator>(const type& rhs) const noexcept                                                                                                           \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < LANES; ++_i)                                                                                                                             \
+                        r.data[_i] = data[_i] > rhs.data[_i] ? SCALAR(~0) : SCALAR(0);                                                                                             \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                constexpr type operator>=(const type& rhs) const noexcept                                                                                                          \
+                {                                                                                                                                                                  \
+                    type r;                                                                                                                                                        \
+                    for (int _i = 0; _i < LANES; ++_i)                                                                                                                             \
+                        r.data[_i] = data[_i] >= rhs.data[_i] ? SCALAR(~0) : SCALAR(0);                                                                                            \
+                    return r;                                                                                                                                                      \
+                }                                                                                                                                                                  \
+                                                                                                                                                                                   \
+                constexpr explicit operator bool() const noexcept                                                                                                                  \
+                {                                                                                                                                                                  \
+                    for (int _i = 0; _i < LANES; ++_i)                                                                                                                             \
+                        if (data[_i] != SCALAR(0))                                                                                                                                 \
+                            return true;                                                                                                                                           \
+                    return false;                                                                                                                                                  \
+                }                                                                                                                                                                  \
+            };                                                                                                                                                                     \
+        };
+#else
+#    define SIMD_DEFINE_RAW(SCALAR, LANES)                                                                                                                                         \
+        template <>                                                                                                                                                                \
+        struct raw_traits<SCALAR, LANES>                                                                                                                                           \
+        {                                                                                                                                                                          \
+            static constexpr int alignment = sizeof(SCALAR) * LANES <= 16 ? 16 : sizeof(SCALAR) * LANES <= 32 ? 32 : 64;                                                           \
+            using type                     = SCALAR __attribute__((__vector_size__(sizeof(SCALAR) * LANES), __aligned__(alignment)));                                              \
+        };
+#endif
 
 SIMD_DEFINE_RAW(float, 4)
 SIMD_DEFINE_RAW(float, 8)
@@ -315,15 +500,15 @@ constexpr vec<T, N> lerp(vec<T, N> a, vec<T, N> b, vec<T, N> t)
 
 export constexpr f32x4 abs(f32x4 a)
 {
-    using u32_raw               = detail::raw<std::uint32_t, 4>;
-    constexpr u32_raw sign_mask = {0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu};
+    using u32_raw = detail::raw<std::uint32_t, 4>;
+    constexpr u32_raw sign_mask{0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu};
     return f32x4{f32x4::raw_type(u32_raw(a.r) & sign_mask)};
 }
 
 export constexpr f32x8 abs(f32x8 a)
 {
-    using u32_raw               = detail::raw<std::uint32_t, 8>;
-    constexpr u32_raw sign_mask = {0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu};
+    using u32_raw = detail::raw<std::uint32_t, 8>;
+    constexpr u32_raw sign_mask{0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu, 0x7fffffffu};
     return f32x8{f32x8::raw_type(u32_raw(a.r) & sign_mask)};
 }
 
