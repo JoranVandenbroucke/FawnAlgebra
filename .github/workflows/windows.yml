@@ -17,20 +17,26 @@ jobs:
       matrix:
         build_type: [ Debug, Release ]
         std: [ 23 ]
-        cc: [ cl ]
-        cxx: [ cl ]
-
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup MSVC dev environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install recent CMake + Ninja
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "4.3.0"
+
       - name: Configure CMake
         run: >
           cmake -B ${{runner.workspace}}\Build
-          -DCMAKE_C_COMPILER=${{ matrix.cc}}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cxx}}
+          -G Ninja
+          -DCMAKE_CXX_COMPILER=cl
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DCMAKE_CXX_STANDARD=${{matrix.std}}
+          -DCMAKE_CXX_STANDARD=${{ matrix.std }}
+          -DCMAKE_CXX_STANDARD_REQUIRED=ON
           -S ${{ github.workspace }}
 
       - name: Build
@@ -41,4 +47,4 @@ jobs:
         run: ctest --output-on-failure
 
       - name: Test2
-        run: ${{runner.workspace}}/Build/tests/${{ matrix.build_type }}/FawnAlgebra_test
+        run: ${{runner.workspace}}/Build/tests/FawnAlgebra_test

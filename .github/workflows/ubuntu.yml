@@ -1,4 +1,4 @@
-name: Linux - Build & Test
+name: Windows - Build & Test
 
 on:
   push:
@@ -8,8 +8,8 @@ on:
 
 jobs:
   build:
-    name: Linux - Build & Test
-    runs-on: ubuntu-latest
+    name: Windows - Build & Test
+    runs-on: windows-latest
 
     strategy:
       fail-fast: false
@@ -17,43 +17,34 @@ jobs:
       matrix:
         build_type: [ Debug, Release ]
         std: [ 23 ]
-        cc: [ clang-18 ]
-        cxx: [ clang++-18 ]
+
     steps:
       - uses: actions/checkout@v4
-      - name: Prepare environment
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y unzip wget
-          sudo wget https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-linux.zip
-          sudo unzip ninja-linux.zip
-          sudo mv ninja /usr/local/bin/ninja
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 18 all
-          sudo apt-get install -y clang-tools-18  # Ensure clang-scan-deps is installed
+
+      - name: Setup MSVC dev environment
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install recent CMake + Ninja
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "~3.30.0"
 
       - name: Configure CMake
-        env:
-          CC: ${{matrix.cc}}
-          CXX: ${{matrix.cxx}}
         run: >
-          cmake -B ${{runner.workspace}}/Build
+          cmake -B ${{runner.workspace}}\Build
           -G Ninja
+          -DCMAKE_CXX_COMPILER=cl
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DCMAKE_C_COMPILER=${{ matrix.cc}}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cxx}}
-          -DCMAKE_CXX_STANDARD=${{matrix.std}}
-          -DCMAKE_CXX_COMPILER_SCAN_DEPS="/usr/lib/llvm-18/bin/clang-scan-deps"
+          -DCMAKE_CXX_STANDARD=${{ matrix.std }}
+          -DCMAKE_CXX_STANDARD_REQUIRED=ON
           -S ${{ github.workspace }}
 
       - name: Build
-        run: cmake --build ${{runner.workspace}}/Build --config ${{ matrix.build_type }}
+        run: cmake --build ${{runner.workspace}}\Build --config ${{ matrix.build_type }}
 
       - name: Test
-        working-directory: ${{runner.workspace}}/Build/tests
+        working-directory: ${{runner.workspace}}\Build\tests
         run: ctest --output-on-failure
 
       - name: Test2
         run: ${{runner.workspace}}/Build/tests/FawnAlgebra_test
-
