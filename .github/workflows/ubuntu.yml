@@ -1,4 +1,4 @@
-name: Windows - Build & Test
+name: Linux - Build & Test
 
 on:
   push:
@@ -8,8 +8,8 @@ on:
 
 jobs:
   build:
-    name: Windows - Build & Test
-    runs-on: windows-latest
+    name: Linux - Build & Test (${{ matrix.cxx }}, ${{ matrix.build_type }})
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
@@ -17,33 +17,76 @@ jobs:
       matrix:
         build_type: [ Debug, Release ]
         std: [ 23 ]
+        include:
+          - cxx: clang++-22
+            toolchain: clang
+          - cxx: g++-16
+            toolchain: gcc
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup MSVC dev environment
-        uses: ilammy/msvc-dev-cmd@v1
+      - name: Install Ninja
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip wget
+          wget https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-linux.zip
+          unzip ninja-linux.zip
+          sudo mv ninja /usr/local/bin/ninja
 
-      - name: Install recent CMake + Ninja
+      - name: Install Clang 22
+        if: matrix.toolchain == 'clang'
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 22 all
+          sudo apt-get install -y clang-tools-22  # provides clang-scan-deps
+
+      - name: Install GCC 16
+        if: matrix.toolchain == 'gcc'
+        run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+          sudo apt-get update
+          sudo apt-get install -y gcc-16 g++-16
+
+      - name: Install recent CMake
         uses: lukka/get-cmake@latest
         with:
           cmakeVersion: "~3.30.0"
 
-      - name: Configure CMake
+      - name: Configure CMake (Clang)
+        if: matrix.toolchain == 'clang'
+        env:
+          CXX: ${{ matrix.cxx }}
         run: >
-          cmake -B ${{runner.workspace}}\Build
+          cmake -B ${{runner.workspace}}/Build
           -G Ninja
-          -DCMAKE_CXX_COMPILER=cl
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
           -DCMAKE_CXX_STANDARD=${{ matrix.std }}
           -DCMAKE_CXX_STANDARD_REQUIRED=ON
+          -DCMAKE_CXX_COMPILER_CLANG_SCAN_DEPS=/usr/lib/llvm-22/bin/clang-scan-deps
+          -S ${{ github.workspace }}
+
+      - name: Configure CMake (GCC)
+        if: matrix.toolchain == 'gcc'
+        env:
+          CXX: ${{ matrix.cxx }}
+        run: >
+          cmake -B ${{runner.workspace}}/Build
+          -G Ninja
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+          -DCMAKE_CXX_STANDARD=${{ matrix.std }}
+          -DCMAKE_CXX_STANDARD_REQUIRED=ON
+          -DCMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API=2182bf5c-ef0d-489a-91da-49dbc3090d2a
           -S ${{ github.workspace }}
 
       - name: Build
-        run: cmake --build ${{runner.workspace}}\Build --config ${{ matrix.build_type }}
+        run: cmake --build ${{runner.workspace}}/Build --config ${{ matrix.build_type }}
 
       - name: Test
-        working-directory: ${{runner.workspace}}\Build\tests
+        working-directory: ${{runner.workspace}}/Build/tests
         run: ctest --output-on-failure
 
       - name: Test2
